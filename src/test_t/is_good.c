@@ -39,16 +39,27 @@ TEST(size_permutation2)
   else  print_KO_with_msg_endl("NOT GOOD test size not passed ");
 */
 }
-TEST(size_permutation2){
+TEST(float_equal){
   printf("another size_permutation2 float\n");
   ASSERT_TRUE(true);
-  float a = 1.1;
-  float b = 1.1;
+  float a = 1.00001f;
+  float b = 1.00001f;
   ASSERT_EQ_TYPE_FLOAT(a,b);
-  b=1.10001;
+  b=1.0000101f;
   ASSERT_EQ_TYPE_FLOAT(a,b);
-  ASSERT_EQ_TYPE_FLOAT(1.2,b);
+  ASSERT_EQ_TYPE_FLOAT(1.0000102f,b);
 }
+TEST(double_equal){
+  printf("another size_permutation2 double\n");
+  ASSERT_TRUE(true);
+  double a = 1.00000001;
+  double b = 1.00000001;
+  ASSERT_EQ_TYPE_DOUBLE(a,b);
+  b=1.0000000101;
+  ASSERT_EQ_TYPE_DOUBLE(a,b);
+  ASSERT_EQ_TYPE_DOUBLE(1.0000000102,b);
+}
+
 TEST(){
   unsigned char c = 'a';
 
@@ -56,6 +67,15 @@ TEST(){
   ASSERT_FALSE(true);
   ASSERT_TRUE(true);
   ASSERT_TRUE(true);
+}
+
+TEST(){
+  int a = 5;
+  long b = 5;
+  ASSERT_EQ(a,b);
+  a=4;
+  ASSERT_EQ(a,b);
+
 }
 
 //END_TEST(size_permutation)

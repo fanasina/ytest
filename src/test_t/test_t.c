@@ -89,20 +89,20 @@ ASSERT_EXPECT_FROM(true,false)
 ASSERT_EXPECT_FROM(false,true)
 
 #define ASSERT_EQ_TYPE(type)\
-bool assert_eq_##type(type var1, type var2,                                                   \
-    const char *var1_name, const char *var2_name, const char *func_name){                     \
-  if(COMPARE_N_##type(&var1, &var2) == 0){                                                    \
-    INCR_PASS_CNT;                                                                            \
-    printHK_color(GREEN_K,HK_TR," 1 test passed from %s \n\n",func_name);                     \
-    return true;                                                                              \
-  }else {                                                                                     \
-    INCR_FAIL_CNT;                                                                            \
-    printHK_color(RED_K,HK_TR," 1 test failed from %s \n",func_name);                         \
-    append_failed_list(func_name);                                                            \
-    printf("Expected equality of these values:\n  %s\n\tWhich is: %s\n %s\n\tWhich is: %s\n\n"\
-        ,var1_name, type##_TO_STR(var1),  var2_name, type##_TO_STR(var1));                    \
-    return false;                                                                             \
-  }                                                                                           \
+bool assert_eq_##type(type var1, type var2,                                                       \
+    const char *var1_name, const char *var2_name, const char *func_name){                         \
+  if(COMPARE_N_##type(&var1, &var2) == 0){                                                        \
+    INCR_PASS_CNT;                                                                                \
+    printHK_color(GREEN_K,HK_TR," 1 test passed from %s \n\n",func_name);                         \
+    return true;                                                                                  \
+  }else {                                                                                         \
+    INCR_FAIL_CNT;                                                                                \
+    printHK_color(RED_K,HK_TR," 1 test failed from %s \n",func_name);                             \
+    append_failed_list(func_name);                                                                \
+    printf("Expected equality of these values:\n   %s\n\tWhich is:  %s\n %s\n\tWhich is: %s\n\n"  \
+        ,var1_name, type##_TO_STR(var1),  var2_name, type##_TO_STR(var2));                        \
+    return false;                                                                                 \
+  }                                                                                               \
 }
 
 ASSERT_EQ_TYPE(TYPE_CHAR)
@@ -116,6 +116,7 @@ ASSERT_EQ_TYPE(TYPE_FLOAT)
 ASSERT_EQ_TYPE(TYPE_DOUBLE)
 ASSERT_EQ_TYPE(TYPE_L_DOUBLE)
 ASSERT_EQ_TYPE(TYPE_STRING)
+
 
 
 void 

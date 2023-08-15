@@ -6,6 +6,18 @@
 #include <string.h>
 #include <stdbool.h>
 
+
+// to define DEBUG in gcc cli do: gcc -D DEBUG=1 or 0 if need!
+#ifndef DEBUG
+  #define DEBUG 0
+#endif
+
+#define debug_print(fmt, ...) \
+  do { if (DEBUG) fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__, \
+      __LINE__, __func__, __VA_ARGS__); } while (0)
+
+
+
 #define TYPE_CHAR char
 #define TYPE_U_CHAR unsigned char
 #define TYPE_INT int

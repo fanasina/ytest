@@ -15,25 +15,44 @@ GEN_TO_STR_N(TYPE_U_INT,22,"%u")
 GEN_TO_STR_N(TYPE_L_INT,22,"%ld")
 GEN_TO_STR_N(TYPE_U_L_INT,22,"%lu")
 GEN_TO_STR_N(TYPE_SIZE_T,22,"%lu")
-GEN_TO_STR_N(TYPE_FLOAT,128,"%f")
-GEN_TO_STR_N(TYPE_DOUBLE,256,"%lf")
-GEN_TO_STR_N(TYPE_L_DOUBLE,256,"%Lf")
+GEN_TO_STR_N(TYPE_FLOAT,128,"%.10f")
+GEN_TO_STR_N(TYPE_DOUBLE,256,"%.30lf")
+GEN_TO_STR_N(TYPE_L_DOUBLE,256,"%.30Lf")
 
 TYPE_STRING TYPE_STRING_TO_STR(TYPE_STRING var){
   return var;
 }
 
-#define MIN_ABS_FLOAT 1
-#define MULT_FLOAT_ERR 100000
+#define PRECISION_TYPE_CHAR 1
+#define PRECISION_TYPE_U_CHAR 1
+#define PRECISION_TYPE_INT 1
+#define PRECISION_TYPE_U_INT 1
+#define PRECISION_TYPE_L_INT 1
+#define PRECISION_TYPE_U_L_INT 1
+#define PRECISION_TYPE_SIZE_T 1
+
+// with gcc we can change value of theses  PRECISION_TYPES below with: gcc -D PRECISION_TYPE_FLOAT=100000 for instance!
+#ifndef PRECISION_TYPE_FLOAT 
+  #define PRECISION_TYPE_FLOAT 100000000
+#endif
+#ifndef PRECISION_TYPE_DOUBLE
+  #define PRECISION_TYPE_DOUBLE 100000000000
+#endif
+#ifndef PRECISION_TYPE_L_DOUBLE
+  #define PRECISION_TYPE_L_DOUBLE 100000000000000
+#endif
 
 #define GENERATE_FUNCTION_NUMERIC(type)\
-  int COMPARE_N_##type(const void *a, const  void *b){ \
-    if (abs((*(type*)a - *(type*)b) * MULT_FLOAT_ERR) < MIN_ABS_FLOAT ) return 0; \
-    if (*(type*)a > *(type*)b) return 1; \
-    return -1; }\
-    \
-  void COPY_ARRAY_##type(type *dst, const type *src, size_t size){\
-    for(size_t i = 0; i < size; ++i) dst[i]=src[i]; }\
+  int COMPARE_N_##type(const void *a, const  void *b){              \
+    type diff = (*(type*)a - *(type*)b)*PRECISION_##type;           \
+    debug_print(" diff = %s a=%s b=%s\n",type##_TO_STR(diff),type##_TO_STR(*(type*)a), type##_TO_STR(*(type*)b));\
+    if ((diff < 1) && (diff > -1) ) return 0;                       \
+    return diff;                                                    \
+  }                                                                 \
+                                                                    \
+  void COPY_ARRAY_##type(type *dst, const type *src, size_t size){  \
+    for(size_t i = 0; i < size; ++i) dst[i]=src[i];                 \
+  }                                                                 \
 \
 
 int 
@@ -104,29 +123,4 @@ GENERATE_FUNCTION_ALL(TYPE_STRING)
 
 
 
-
-/*
-int main()
-{
-  unsigned int ui1 = 2545466;
-  unsigned int ui2 = 2544566;
-  printf(" %u >? %u = %d \n",ui1,ui2,COMPARE_N_TYPE_U_INT(&ui1,&ui2));
-  printf(" %u >? %u = %d \n",ui1,ui1,COMPARE_N_TYPE_U_INT(&ui1,&ui1));
-  printf(" %u >? %u = %d \n",ui2,ui1,COMPARE_N_TYPE_U_INT(&ui2,&ui1));
-  int i1 = 2545466;
-  int i2 = 2544566;
-  printf(" %d >? %d = %d \n",i1,i2,COMPARE_N_TYPE_U_INT(&i1,&i2));
-  printf(" %d >? %d = %d \n",i1,i1,COMPARE_N_TYPE_U_INT(&i1,&i1));
-  printf(" %d >? %d = %d \n",i2,i1,COMPARE_N_TYPE_U_INT(&i2,&i1));
-  
-  int tabi[]={5,2,6,4,3,1};
-  int tabr[6]={0};
-  COPY_ARRAY_TYPE_INT(tabr,tabi,6);
-
-  for(size_t i=0; i<6; ++i) printf(" %d \n", tabr[i]);
-
-  printf("MIN = %d \n",MIN_ARRAY_TYPE_INT(tabr,6));
-
-  return 0;
-}*/
 

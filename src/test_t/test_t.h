@@ -9,7 +9,6 @@
 #include "src/tools_t/tools_t.h"
 
 
-
 struct func {
   char *name;
   void (*run)(void);
@@ -64,6 +63,7 @@ GEN_ASSERT_EQ_TYPE_FUNC(TYPE_STRING)
 #define ASSERT_EQ_TYPE_L_DOUBLE(var1, var2) if(assert_eq_TYPE_L_DOUBLE(var1, var2, #var1, #var2, __func__) == false) return ;
 #define ASSERT_EQ_TYPE_STRING(var1, var2) if(assert_eq_TYPE_STRING(var1, var2, #var1, #var2, __func__) == false) return ;
 
+#define ASSERT_EQ(var1, var2) if(assert_eq_TYPE_L_INT(var1, var2, #var1, #var2, __func__) == false) return ;
 
 
 #define CONCAT(x,y) x ## y
