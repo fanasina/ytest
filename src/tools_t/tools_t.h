@@ -5,12 +5,25 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-
+#include <time.h>
 
 // to define DEBUG in gcc cli do: gcc -D DEBUG=1 or 0 if need!
 #ifndef DEBUG
   #define DEBUG 0
 #endif
+
+/*
+#ifndef SECOND
+  #define SECOND 0
+#endif
+#ifndef NANOSECOND
+  #define NANOSECOND 0
+#endif
+
+double diff_timespec_seconds(struct timespec time_stop, struct timespec time_start);
+double diff_timespec_milliseconds(struct timespec time_stop, struct timespec time_start);
+long diff_timespec_nanoseconds(struct timespec time_stop, struct timespec time_start);
+*/
 
 #define debug_print(fmt, ...) \
   do { if (DEBUG) fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__, \

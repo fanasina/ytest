@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+//#include <time.h>
 
 #include "src/tools_t/tools_t.h"
 
@@ -31,39 +32,55 @@ void run_some_tests_ordered(size_t cnt, ... );
 
 
 
-bool assert_true_from(bool val, const char* var_name, const char * func_name);
-bool assert_false_from(bool val, const char* var_name, const char * func_name);
+bool expected_true_f(bool val, const char* var_name, const char * func_name);
+bool expected_false_f(bool val, const char* var_name, const char * func_name);
 
 
-#define GEN_ASSERT_EQ_TYPE_FUNC(type)\
-  bool assert_eq_##type(type var1, type var2,                                                   \
+#define GEN_EXPECTED_EQ_TYPE_FUNC(type)\
+  bool expected_eq_##type(type var1, type var2,                                                   \
     const char *var1_name, const char *var2_name, const char *func_name);                       \
 
-GEN_ASSERT_EQ_TYPE_FUNC(TYPE_CHAR)
-GEN_ASSERT_EQ_TYPE_FUNC(TYPE_U_CHAR)
-GEN_ASSERT_EQ_TYPE_FUNC(TYPE_INT)
-GEN_ASSERT_EQ_TYPE_FUNC(TYPE_U_INT)
-GEN_ASSERT_EQ_TYPE_FUNC(TYPE_L_INT)
-GEN_ASSERT_EQ_TYPE_FUNC(TYPE_U_L_INT)
-GEN_ASSERT_EQ_TYPE_FUNC(TYPE_SIZE_T)
-GEN_ASSERT_EQ_TYPE_FUNC(TYPE_FLOAT)
-GEN_ASSERT_EQ_TYPE_FUNC(TYPE_DOUBLE)
-GEN_ASSERT_EQ_TYPE_FUNC(TYPE_L_DOUBLE)
-GEN_ASSERT_EQ_TYPE_FUNC(TYPE_STRING)
+GEN_EXPECTED_EQ_TYPE_FUNC(TYPE_CHAR)
+GEN_EXPECTED_EQ_TYPE_FUNC(TYPE_U_CHAR)
+GEN_EXPECTED_EQ_TYPE_FUNC(TYPE_INT)
+GEN_EXPECTED_EQ_TYPE_FUNC(TYPE_U_INT)
+GEN_EXPECTED_EQ_TYPE_FUNC(TYPE_L_INT)
+GEN_EXPECTED_EQ_TYPE_FUNC(TYPE_U_L_INT)
+GEN_EXPECTED_EQ_TYPE_FUNC(TYPE_SIZE_T)
+GEN_EXPECTED_EQ_TYPE_FUNC(TYPE_FLOAT)
+GEN_EXPECTED_EQ_TYPE_FUNC(TYPE_DOUBLE)
+GEN_EXPECTED_EQ_TYPE_FUNC(TYPE_L_DOUBLE)
+GEN_EXPECTED_EQ_TYPE_FUNC(TYPE_STRING)
 
-#define ASSERT_EQ_TYPE_CHAR(var1, var2) if(assert_eq_TYPE_CHAR(var1, var2, #var1, #var2, __func__) == false) return ;
-#define ASSERT_EQ_TYPE_U_CHAR(var1, var2) if(assert_eq_TYPE_U_CHAR(var1, var2, #var1, #var2, __func__) == false) return ;
-#define ASSERT_EQ_TYPE_INT(var1, var2) if(assert_eq_TYPE_INT(var1, var2, #var1, #var2, __func__) == false) return ;
-#define ASSERT_EQ_TYPE_U_INT(var1, var2) if(assert_eq_TYPE_U_INT(var1, var2, #var1, #var2, __func__) == false) return ;
-#define ASSERT_EQ_TYPE_L_INT(var1, var2) if(assert_eq_TYPE_L_INT(var1, var2, #var1, #var2, __func__) == false) return ;
-#define ASSERT_EQ_TYPE_U_L_INT(var1, var2) if(assert_eq_TYPE_U_L_INT(var1, var2, #var1, #var2, __func__) == false) return ;
-#define ASSERT_EQ_TYPE_SIZE_T(var1, var2) if(assert_eq_TYPE_SIZE_T(var1, var2, #var1, #var2, __func__) == false) return ;
-#define ASSERT_EQ_TYPE_FLOAT(var1, var2) if(assert_eq_TYPE_FLOAT(var1, var2, #var1, #var2, __func__) == false) return ;
-#define ASSERT_EQ_TYPE_DOUBLE(var1, var2) if(assert_eq_TYPE_DOUBLE(var1, var2, #var1, #var2, __func__) == false) return ;
-#define ASSERT_EQ_TYPE_L_DOUBLE(var1, var2) if(assert_eq_TYPE_L_DOUBLE(var1, var2, #var1, #var2, __func__) == false) return ;
-#define ASSERT_EQ_TYPE_STRING(var1, var2) if(assert_eq_TYPE_STRING(var1, var2, #var1, #var2, __func__) == false) return ;
+#define EXPECT_EQ_TYPE_CHAR(var1, var2) expected_eq_TYPE_CHAR(var1, var2, #var1, #var2, __func__) ;
+#define EXPECT_EQ_TYPE_U_CHAR(var1, var2) expected_eq_TYPE_U_CHAR(var1, var2, #var1, #var2, __func__) ;
+#define EXPECT_EQ_TYPE_INT(var1, var2) expected_eq_TYPE_INT(var1, var2, #var1, #var2, __func__) ;
+#define EXPECT_EQ_TYPE_U_INT(var1, var2) expected_eq_TYPE_U_INT(var1, var2, #var1, #var2, __func__) ;
+#define EXPECT_EQ_TYPE_L_INT(var1, var2) expected_eq_TYPE_L_INT(var1, var2, #var1, #var2, __func__) ;
+#define EXPECT_EQ_TYPE_U_L_INT(var1, var2) expected_eq_TYPE_U_L_INT(var1, var2, #var1, #var2, __func__) ;
+#define EXPECT_EQ_TYPE_SIZE_T(var1, var2) expected_eq_TYPE_SIZE_T(var1, var2, #var1, #var2, __func__) ;
+#define EXPECT_EQ_TYPE_FLOAT(var1, var2) expected_eq_TYPE_FLOAT(var1, var2, #var1, #var2, __func__) ;
+#define EXPECT_EQ_TYPE_DOUBLE(var1, var2) expected_eq_TYPE_DOUBLE(var1, var2, #var1, #var2, __func__) ;
+#define EXPECT_EQ_TYPE_L_DOUBLE(var1, var2) expected_eq_TYPE_L_DOUBLE(var1, var2, #var1, #var2, __func__) ;
+#define EXPECT_EQ_TYPE_STRING(var1, var2) expected_eq_TYPE_STRING(var1, var2, #var1, #var2, __func__) ;
 
-#define ASSERT_EQ(var1, var2) if(assert_eq_TYPE_L_INT(var1, var2, #var1, #var2, __func__) == false) return ;
+#define EXPECT_EQ(var1, var2) expected_eq_TYPE_L_INT(var1, var2, #var1, #var2, __func__) ;
+
+
+
+#define ASSERT_EQ_TYPE_CHAR(var1, var2) do{ if(expected_eq_TYPE_CHAR(var1, var2, #var1, #var2, __func__) == false) return ;} while(0)
+#define ASSERT_EQ_TYPE_U_CHAR(var1, var2) do{ if(expected_eq_TYPE_U_CHAR(var1, var2, #var1, #var2, __func__) == false) return ;} while(0)
+#define ASSERT_EQ_TYPE_INT(var1, var2) do{ if(expected_eq_TYPE_INT(var1, var2, #var1, #var2, __func__) == false) return ;} while(0)
+#define ASSERT_EQ_TYPE_U_INT(var1, var2) do{ if(expected_eq_TYPE_U_INT(var1, var2, #var1, #var2, __func__) == false) return ;} while(0)
+#define ASSERT_EQ_TYPE_L_INT(var1, var2) do{ if(expected_eq_TYPE_L_INT(var1, var2, #var1, #var2, __func__) == false) return ;} while(0)
+#define ASSERT_EQ_TYPE_U_L_INT(var1, var2) do{ if(expected_eq_TYPE_U_L_INT(var1, var2, #var1, #var2, __func__) == false) return ;} while(0)
+#define ASSERT_EQ_TYPE_SIZE_T(var1, var2) do{ if(expected_eq_TYPE_SIZE_T(var1, var2, #var1, #var2, __func__) == false) return ;} while(0)
+#define ASSERT_EQ_TYPE_FLOAT(var1, var2) do{ if(expected_eq_TYPE_FLOAT(var1, var2, #var1, #var2, __func__) == false) return ;} while(0)
+#define ASSERT_EQ_TYPE_DOUBLE(var1, var2) do{ if(expected_eq_TYPE_DOUBLE(var1, var2, #var1, #var2, __func__) == false) return ;} while(0)
+#define ASSERT_EQ_TYPE_L_DOUBLE(var1, var2) do{ if(expected_eq_TYPE_L_DOUBLE(var1, var2, #var1, #var2, __func__) == false) return ;} while(0)
+#define ASSERT_EQ_TYPE_STRING(var1, var2) do{ if(expected_eq_TYPE_STRING(var1, var2, #var1, #var2, __func__) == false) return ;} while(0)
+
+#define ASSERT_EQ(var1, var2) do{ if(expected_eq_TYPE_L_INT(var1, var2, #var1, #var2, __func__) == false) return ;} while(0)
 
 
 #define CONCAT(x,y) x ## y
@@ -95,10 +112,10 @@ GEN_ASSERT_EQ_TYPE_FUNC(TYPE_STRING)
   FTEST__(__COUNTER__,name_f)
 
 #define ASSERT_TRUE(val)\
-  if(assert_true_from(val,#val,__func__) == false) return;
+  if(expected_true_f(val,#val,__func__) == false) return;
   
 #define ASSERT_FALSE(val)\
-  if(assert_false_from(val,#val,__func__) == false) return;
+  if(expected_false_f(val,#val,__func__) == false) return;
 
 
 

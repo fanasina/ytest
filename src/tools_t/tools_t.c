@@ -1,5 +1,18 @@
 #include "src/tools_t/tools_t.h"
 
+/*
+double diff_timespec_seconds(struct timespec time_stop, struct timespec time_start){
+  return (time_stop.tv_sec - time_start.tv_sec) + 1.0e-9 * (time_stop.tv_nsec - time_start.tv_nsec);
+}
+
+double diff_timespec_milliseconds(struct timespec time_stop, struct timespec time_start){
+  return 1.0e3 * (time_stop.tv_sec - time_start.tv_sec) + 1.0e-3 * (time_stop.tv_nsec - time_start.tv_nsec);
+}
+long diff_timespec_nanoseconds(struct timespec time_stop, struct timespec time_start){
+  return 1.0e9 * (time_stop.tv_sec - time_start.tv_sec) + (time_stop.tv_nsec - time_start.tv_nsec);
+}
+*/
+
 
 #define GEN_TO_STR_N(type,size,format)  \
   TYPE_STRING type##_TO_STR(type var){  \

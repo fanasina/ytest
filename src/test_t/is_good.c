@@ -1,6 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#ifdef __linux__ 
+  #include <unistd.h>
+#elif _WIN32 
+  #include <windows.h>
+#endif
 
 #include "src/test_t/test_t.h"
 
@@ -55,27 +60,40 @@ TEST(double_equal){
   double a = 1.00000001;
   double b = 1.00000001;
   ASSERT_EQ_TYPE_DOUBLE(a,b);
-  b=1.0000000101;
+  b=1.00000001000000001;
   ASSERT_EQ_TYPE_DOUBLE(a,b);
-  ASSERT_EQ_TYPE_DOUBLE(1.0000000102,b);
+  ASSERT_EQ_TYPE_DOUBLE(1.0000000100000002,b);
 }
 
 TEST(){
   unsigned char c = 'a';
 
-  printf("another size_permutation2, a = %c\n",c);
+  debug_print("another size_permutation2, a = %c\n",c);
   ASSERT_FALSE(true);
   ASSERT_TRUE(true);
   ASSERT_TRUE(true);
 }
 
 TEST(){
+  sleep(3);
   int a = 5;
   long b = 5;
   ASSERT_EQ(a,b);
   a=4;
   ASSERT_EQ(a,b);
 
+}
+
+TEST(expect){
+  sleep(2);
+  int a = 5;
+  int b = 6;
+  EXPECT_EQ(a,b);
+  EXPECT_EQ_TYPE_STRING("hello","hello");
+  float f1 = 1.00019999, f2=1.00019999;
+  EXPECT_EQ_TYPE_FLOAT(f1,f2);
+
+  //EXPECT_EQ_TYPE_FLOAT(f1, 1.0001);
 }
 
 //END_TEST(size_permutation)
