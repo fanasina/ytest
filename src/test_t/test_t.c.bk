@@ -1,0 +1,129 @@
+#include "src/test_t/test_t.h"
+
+#define CHANGE_TO_DEFAULT_COLOR_IN_TERMINAL printf("\033[0m"); //Resets the text to default color
+#define CHANGE_COLOR_TO_GREEN_IN_TERMINAL  printf("\033[0;32m"); // Green
+#define CHANGE_COLOR_TO_RED_IN_TERMINAL  printf("\033[0;31m"); // Red
+
+#define PRINT_HOOK_WITH_EQ_SYMBOLE \
+  printf("[");  for(size_t i = 0; i< SIZE_OK; ++i) printf("="); printf("]");
+
+//static function_list *p_f_l;
+function_list *p_f_l;
+
+void 
+print_OK()
+{
+  CHANGE_COLOR_TO_GREEN_IN_TERMINAL
+  PRINT_HOOK_WITH_EQ_SYMBOLE
+  CHANGE_TO_DEFAULT_COLOR_IN_TERMINAL
+  printf("OK ");
+}
+
+void
+print_KO()
+{
+  CHANGE_COLOR_TO_GREEN_IN_TERMINAL
+  PRINT_HOOK_WITH_EQ_SYMBOLE
+  CHANGE_TO_DEFAULT_COLOR_IN_TERMINAL
+  printf("KO ");
+}
+
+void 
+print_OK_with_msg(char *msg)
+{
+  print_OK();
+  printf(" %s ",msg);
+}
+void
+print_KO_with_msg(char *msg)
+{
+  print_KO();
+  printf(" %s ",msg);
+}
+void
+print_OK_with_msg_endl(char *msg)
+{
+  print_OK();
+  printf(" %s\n",msg);
+}
+void
+print_KO_with_msg_endl(char *msg)
+{
+  print_KO();
+  printf(" %s\n", msg);
+}
+
+void
+run_all_tests()
+{
+  initiation_test();
+  execute_all_function_list();
+  clear_fonction_list(&p_f_l);
+}
+
+
+void
+append_function_list(void (*f)(void), char *name_function)
+{
+  printf("append %s test\n",name_function);
+  static size_t counter=0;
+  function_list * f_l=malloc(sizeof(function_list));
+  if(f_l)
+    {
+      if(f_l->name_function) free(f_l->name_function);
+      f_l->name_function = malloc(sizeof(char)*strlen(name_function) + 1);
+      strcpy(f_l->name_function, name_function);
+      f_l->function_top = f;
+      f_l->next = NULL;
+    }
+  else 
+    {
+      printf("error allocation f_l\n");
+      return;
+    }
+
+  if(p_f_l != NULL) 
+    {
+      function_list *tmp_f_l = p_f_l;
+      while(tmp_f_l->next)
+        tmp_f_l = tmp_f_l->next;
+
+      tmp_f_l->next = f_l;
+    }
+  else p_f_l = f_l;
+}
+
+void 
+execute_all_function_list()
+{
+  printf("run functions tests\n");
+  function_list * tmp_f_l = p_f_l;
+  while(tmp_f_l)
+    {
+      printf("RUN %s \n",tmp_f_l->name_function);
+      tmp_f_l->function_top();
+      tmp_f_l = tmp_f_l->next;
+    }
+}
+
+void 
+clear_fonction_list(function_list **f_l)
+{
+  if(*f_l != NULL)
+    {
+      clear_fonction_list(&((*f_l)->next));
+      free(*f_l);
+      *f_l = NULL;
+    }
+}
+
+
+void
+initiation_test()
+{
+  if(p_f_l != NULL)
+    {
+      free(p_f_l);
+      p_f_l=NULL;
+    }
+}

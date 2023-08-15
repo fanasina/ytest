@@ -31,6 +31,7 @@
   size_t ARG_MAX_ARRAY_##type(const type *array, size_t size);\
   type MIN_ARRAY_##type(const  type *array, size_t size);\
   size_t ARG_MIN_ARRAY_##type(const  type *array, size_t size);\
+  TYPE_STRING type##_TO_STR(type var);\
   
 
 GENERATE_ALL(TYPE_CHAR)

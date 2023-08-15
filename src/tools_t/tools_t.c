@@ -1,9 +1,34 @@
 #include "src/tools_t/tools_t.h"
 
 
+#define GEN_TO_STR_N(type,size,format)  \
+  TYPE_STRING type##_TO_STR(type var){  \
+    char *ret = malloc(size);                     \
+    sprintf(ret,format,var);            \
+    ret[strlen(ret)]='\0';              \
+    return ret; }
+
+GEN_TO_STR_N(TYPE_CHAR,2,"%c")
+GEN_TO_STR_N(TYPE_U_CHAR,2,"%c")
+GEN_TO_STR_N(TYPE_INT,22,"%d")
+GEN_TO_STR_N(TYPE_U_INT,22,"%u")
+GEN_TO_STR_N(TYPE_L_INT,22,"%ld")
+GEN_TO_STR_N(TYPE_U_L_INT,22,"%lu")
+GEN_TO_STR_N(TYPE_SIZE_T,22,"%lu")
+GEN_TO_STR_N(TYPE_FLOAT,128,"%f")
+GEN_TO_STR_N(TYPE_DOUBLE,256,"%lf")
+GEN_TO_STR_N(TYPE_L_DOUBLE,256,"%Lf")
+
+TYPE_STRING TYPE_STRING_TO_STR(TYPE_STRING var){
+  return var;
+}
+
+#define MIN_ABS_FLOAT 1
+#define MULT_FLOAT_ERR 100000
+
 #define GENERATE_FUNCTION_NUMERIC(type)\
   int COMPARE_N_##type(const void *a, const  void *b){ \
-    if (*(type*)a == *(type*)b) return 0; \
+    if (abs((*(type*)a - *(type*)b) * MULT_FLOAT_ERR) < MIN_ABS_FLOAT ) return 0; \
     if (*(type*)a > *(type*)b) return 1; \
     return -1; }\
     \

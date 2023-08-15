@@ -1,0 +1,211 @@
+In file included from ./src/permutation_t/permutation_t.h:5,
+                 from src/permutation_t/permutation_t.c:1:
+./src/set_theoric_t/set_theoric_t.h:13:18: warning: parameter names (without types) in function declaration
+   13 |   typedef struct SET_THEORIC_##type SET_THEORIC_##type;           \
+      |                  ^~~~~~~~~~~~
+./src/set_theoric_t/set_theoric_t.h:17:1: note: in expansion of macro ‘GENERATE_UNSIGNED_SET_THEORIC’
+   17 | GENERATE_UNSIGNED_SET_THEORIC(TYPE_U_CHAR)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+./src/set_theoric_t/set_theoric_t.h:13:18: warning: parameter names (without types) in function declaration
+   13 |   typedef struct SET_THEORIC_##type SET_THEORIC_##type;           \
+      |                  ^~~~~~~~~~~~
+./src/set_theoric_t/set_theoric_t.h:18:1: note: in expansion of macro ‘GENERATE_UNSIGNED_SET_THEORIC’
+   18 | GENERATE_UNSIGNED_SET_THEORIC(TYPE_U_INT)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+./src/set_theoric_t/set_theoric_t.h:13:18: warning: parameter names (without types) in function declaration
+   13 |   typedef struct SET_THEORIC_##type SET_THEORIC_##type;           \
+      |                  ^~~~~~~~~~~~
+./src/set_theoric_t/set_theoric_t.h:19:1: note: in expansion of macro ‘GENERATE_UNSIGNED_SET_THEORIC’
+   19 | GENERATE_UNSIGNED_SET_THEORIC(TYPE_U_L_INT)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+./src/set_theoric_t/set_theoric_t.h:13:18: warning: parameter names (without types) in function declaration
+   13 |   typedef struct SET_THEORIC_##type SET_THEORIC_##type;           \
+      |                  ^~~~~~~~~~~~
+./src/set_theoric_t/set_theoric_t.h:20:1: note: in expansion of macro ‘GENERATE_UNSIGNED_SET_THEORIC’
+   20 | GENERATE_UNSIGNED_SET_THEORIC(TYPE_SIZE_T)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/permutation_t/permutation_t.c: In function ‘IS_PERMUTATION_TYPE_CHAR’:
+src/permutation_t/permutation_t.c:60:75: warning: passing argument 1 of ‘TRANSLATE_TO_SET_THEORIC_SIZE_T_TYPE_CHAR’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   60 |     PERMUTATION_TYPE_SIZE_T *t_p = TRANSLATE_TO_SET_THEORIC_SIZE_T_##type(p);\
+      |                                                                           ^
+src/permutation_t/permutation_t.c:67:1: note: in expansion of macro ‘GENERATE_PERMUTATION_FUNCTIONS’
+   67 | GENERATE_PERMUTATION_FUNCTIONS(TYPE_CHAR)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/permutation_t/permutation_t.c:33:88: note: expected ‘PERMUTATION_TYPE_CHAR *’ but argument is of type ‘const PERMUTATION_TYPE_CHAR *’
+   33 |   PERMUTATION_TYPE_SIZE_T * TRANSLATE_TO_SET_THEORIC_SIZE_T_##type(PERMUTATION_##type *p ){\
+      |                                                                    ~~~~~~~~~~~~~~~~~~~~^
+src/permutation_t/permutation_t.c:67:1: note: in expansion of macro ‘GENERATE_PERMUTATION_FUNCTIONS’
+   67 | GENERATE_PERMUTATION_FUNCTIONS(TYPE_CHAR)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/permutation_t/permutation_t.c: In function ‘IS_PERMUTATION_TYPE_U_CHAR’:
+src/permutation_t/permutation_t.c:60:75: warning: passing argument 1 of ‘TRANSLATE_TO_SET_THEORIC_SIZE_T_TYPE_U_CHAR’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   60 |     PERMUTATION_TYPE_SIZE_T *t_p = TRANSLATE_TO_SET_THEORIC_SIZE_T_##type(p);\
+      |                                                                           ^
+src/permutation_t/permutation_t.c:68:1: note: in expansion of macro ‘GENERATE_PERMUTATION_FUNCTIONS’
+   68 | GENERATE_PERMUTATION_FUNCTIONS(TYPE_U_CHAR)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/permutation_t/permutation_t.c:33:88: note: expected ‘PERMUTATION_TYPE_U_CHAR *’ but argument is of type ‘const PERMUTATION_TYPE_U_CHAR *’
+   33 |   PERMUTATION_TYPE_SIZE_T * TRANSLATE_TO_SET_THEORIC_SIZE_T_##type(PERMUTATION_##type *p ){\
+      |                                                                    ~~~~~~~~~~~~~~~~~~~~^
+src/permutation_t/permutation_t.c:68:1: note: in expansion of macro ‘GENERATE_PERMUTATION_FUNCTIONS’
+   68 | GENERATE_PERMUTATION_FUNCTIONS(TYPE_U_CHAR)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/permutation_t/permutation_t.c: In function ‘IS_PERMUTATION_TYPE_INT’:
+src/permutation_t/permutation_t.c:60:75: warning: passing argument 1 of ‘TRANSLATE_TO_SET_THEORIC_SIZE_T_TYPE_INT’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   60 |     PERMUTATION_TYPE_SIZE_T *t_p = TRANSLATE_TO_SET_THEORIC_SIZE_T_##type(p);\
+      |                                                                           ^
+src/permutation_t/permutation_t.c:69:1: note: in expansion of macro ‘GENERATE_PERMUTATION_FUNCTIONS’
+   69 | GENERATE_PERMUTATION_FUNCTIONS(TYPE_INT)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/permutation_t/permutation_t.c:33:88: note: expected ‘PERMUTATION_TYPE_INT *’ but argument is of type ‘const PERMUTATION_TYPE_INT *’
+   33 |   PERMUTATION_TYPE_SIZE_T * TRANSLATE_TO_SET_THEORIC_SIZE_T_##type(PERMUTATION_##type *p ){\
+      |                                                                    ~~~~~~~~~~~~~~~~~~~~^
+src/permutation_t/permutation_t.c:69:1: note: in expansion of macro ‘GENERATE_PERMUTATION_FUNCTIONS’
+   69 | GENERATE_PERMUTATION_FUNCTIONS(TYPE_INT)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/permutation_t/permutation_t.c: In function ‘IS_PERMUTATION_TYPE_U_INT’:
+src/permutation_t/permutation_t.c:60:75: warning: passing argument 1 of ‘TRANSLATE_TO_SET_THEORIC_SIZE_T_TYPE_U_INT’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   60 |     PERMUTATION_TYPE_SIZE_T *t_p = TRANSLATE_TO_SET_THEORIC_SIZE_T_##type(p);\
+      |                                                                           ^
+src/permutation_t/permutation_t.c:70:1: note: in expansion of macro ‘GENERATE_PERMUTATION_FUNCTIONS’
+   70 | GENERATE_PERMUTATION_FUNCTIONS(TYPE_U_INT)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/permutation_t/permutation_t.c:33:88: note: expected ‘PERMUTATION_TYPE_U_INT *’ but argument is of type ‘const PERMUTATION_TYPE_U_INT *’
+   33 |   PERMUTATION_TYPE_SIZE_T * TRANSLATE_TO_SET_THEORIC_SIZE_T_##type(PERMUTATION_##type *p ){\
+      |                                                                    ~~~~~~~~~~~~~~~~~~~~^
+src/permutation_t/permutation_t.c:70:1: note: in expansion of macro ‘GENERATE_PERMUTATION_FUNCTIONS’
+   70 | GENERATE_PERMUTATION_FUNCTIONS(TYPE_U_INT)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/permutation_t/permutation_t.c: In function ‘IS_PERMUTATION_TYPE_L_INT’:
+src/permutation_t/permutation_t.c:60:75: warning: passing argument 1 of ‘TRANSLATE_TO_SET_THEORIC_SIZE_T_TYPE_L_INT’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   60 |     PERMUTATION_TYPE_SIZE_T *t_p = TRANSLATE_TO_SET_THEORIC_SIZE_T_##type(p);\
+      |                                                                           ^
+src/permutation_t/permutation_t.c:71:1: note: in expansion of macro ‘GENERATE_PERMUTATION_FUNCTIONS’
+   71 | GENERATE_PERMUTATION_FUNCTIONS(TYPE_L_INT)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/permutation_t/permutation_t.c:33:88: note: expected ‘PERMUTATION_TYPE_L_INT *’ but argument is of type ‘const PERMUTATION_TYPE_L_INT *’
+   33 |   PERMUTATION_TYPE_SIZE_T * TRANSLATE_TO_SET_THEORIC_SIZE_T_##type(PERMUTATION_##type *p ){\
+      |                                                                    ~~~~~~~~~~~~~~~~~~~~^
+src/permutation_t/permutation_t.c:71:1: note: in expansion of macro ‘GENERATE_PERMUTATION_FUNCTIONS’
+   71 | GENERATE_PERMUTATION_FUNCTIONS(TYPE_L_INT)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/permutation_t/permutation_t.c: In function ‘IS_PERMUTATION_TYPE_U_L_INT’:
+src/permutation_t/permutation_t.c:60:75: warning: passing argument 1 of ‘TRANSLATE_TO_SET_THEORIC_SIZE_T_TYPE_U_L_INT’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   60 |     PERMUTATION_TYPE_SIZE_T *t_p = TRANSLATE_TO_SET_THEORIC_SIZE_T_##type(p);\
+      |                                                                           ^
+src/permutation_t/permutation_t.c:72:1: note: in expansion of macro ‘GENERATE_PERMUTATION_FUNCTIONS’
+   72 | GENERATE_PERMUTATION_FUNCTIONS(TYPE_U_L_INT)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/permutation_t/permutation_t.c:33:88: note: expected ‘PERMUTATION_TYPE_U_L_INT *’ but argument is of type ‘const PERMUTATION_TYPE_U_L_INT *’
+   33 |   PERMUTATION_TYPE_SIZE_T * TRANSLATE_TO_SET_THEORIC_SIZE_T_##type(PERMUTATION_##type *p ){\
+      |                                                                    ~~~~~~~~~~~~~~~~~~~~^
+src/permutation_t/permutation_t.c:72:1: note: in expansion of macro ‘GENERATE_PERMUTATION_FUNCTIONS’
+   72 | GENERATE_PERMUTATION_FUNCTIONS(TYPE_U_L_INT)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/permutation_t/permutation_t.c: In function ‘IS_PERMUTATION_TYPE_SIZE_T’:
+src/permutation_t/permutation_t.c:60:75: warning: passing argument 1 of ‘TRANSLATE_TO_SET_THEORIC_SIZE_T_TYPE_SIZE_T’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   60 |     PERMUTATION_TYPE_SIZE_T *t_p = TRANSLATE_TO_SET_THEORIC_SIZE_T_##type(p);\
+      |                                                                           ^
+src/permutation_t/permutation_t.c:73:1: note: in expansion of macro ‘GENERATE_PERMUTATION_FUNCTIONS’
+   73 | GENERATE_PERMUTATION_FUNCTIONS(TYPE_SIZE_T)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/permutation_t/permutation_t.c:33:88: note: expected ‘PERMUTATION_TYPE_SIZE_T *’ but argument is of type ‘const PERMUTATION_TYPE_SIZE_T *’
+   33 |   PERMUTATION_TYPE_SIZE_T * TRANSLATE_TO_SET_THEORIC_SIZE_T_##type(PERMUTATION_##type *p ){\
+      |                                                                    ~~~~~~~~~~~~~~~~~~~~^
+src/permutation_t/permutation_t.c:73:1: note: in expansion of macro ‘GENERATE_PERMUTATION_FUNCTIONS’
+   73 | GENERATE_PERMUTATION_FUNCTIONS(TYPE_SIZE_T)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/permutation_t/permutation_t.c: In function ‘IS_PERMUTATION_TYPE_FLOAT’:
+src/permutation_t/permutation_t.c:60:75: warning: passing argument 1 of ‘TRANSLATE_TO_SET_THEORIC_SIZE_T_TYPE_FLOAT’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   60 |     PERMUTATION_TYPE_SIZE_T *t_p = TRANSLATE_TO_SET_THEORIC_SIZE_T_##type(p);\
+      |                                                                           ^
+src/permutation_t/permutation_t.c:74:1: note: in expansion of macro ‘GENERATE_PERMUTATION_FUNCTIONS’
+   74 | GENERATE_PERMUTATION_FUNCTIONS(TYPE_FLOAT)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/permutation_t/permutation_t.c:33:88: note: expected ‘PERMUTATION_TYPE_FLOAT *’ but argument is of type ‘const PERMUTATION_TYPE_FLOAT *’
+   33 |   PERMUTATION_TYPE_SIZE_T * TRANSLATE_TO_SET_THEORIC_SIZE_T_##type(PERMUTATION_##type *p ){\
+      |                                                                    ~~~~~~~~~~~~~~~~~~~~^
+src/permutation_t/permutation_t.c:74:1: note: in expansion of macro ‘GENERATE_PERMUTATION_FUNCTIONS’
+   74 | GENERATE_PERMUTATION_FUNCTIONS(TYPE_FLOAT)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/permutation_t/permutation_t.c: In function ‘IS_PERMUTATION_TYPE_DOUBLE’:
+src/permutation_t/permutation_t.c:60:75: warning: passing argument 1 of ‘TRANSLATE_TO_SET_THEORIC_SIZE_T_TYPE_DOUBLE’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   60 |     PERMUTATION_TYPE_SIZE_T *t_p = TRANSLATE_TO_SET_THEORIC_SIZE_T_##type(p);\
+      |                                                                           ^
+src/permutation_t/permutation_t.c:75:1: note: in expansion of macro ‘GENERATE_PERMUTATION_FUNCTIONS’
+   75 | GENERATE_PERMUTATION_FUNCTIONS(TYPE_DOUBLE)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/permutation_t/permutation_t.c:33:88: note: expected ‘PERMUTATION_TYPE_DOUBLE *’ but argument is of type ‘const PERMUTATION_TYPE_DOUBLE *’
+   33 |   PERMUTATION_TYPE_SIZE_T * TRANSLATE_TO_SET_THEORIC_SIZE_T_##type(PERMUTATION_##type *p ){\
+      |                                                                    ~~~~~~~~~~~~~~~~~~~~^
+src/permutation_t/permutation_t.c:75:1: note: in expansion of macro ‘GENERATE_PERMUTATION_FUNCTIONS’
+   75 | GENERATE_PERMUTATION_FUNCTIONS(TYPE_DOUBLE)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/permutation_t/permutation_t.c: In function ‘IS_PERMUTATION_TYPE_L_DOUBLE’:
+src/permutation_t/permutation_t.c:60:75: warning: passing argument 1 of ‘TRANSLATE_TO_SET_THEORIC_SIZE_T_TYPE_L_DOUBLE’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   60 |     PERMUTATION_TYPE_SIZE_T *t_p = TRANSLATE_TO_SET_THEORIC_SIZE_T_##type(p);\
+      |                                                                           ^
+src/permutation_t/permutation_t.c:76:1: note: in expansion of macro ‘GENERATE_PERMUTATION_FUNCTIONS’
+   76 | GENERATE_PERMUTATION_FUNCTIONS(TYPE_L_DOUBLE)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/permutation_t/permutation_t.c:33:88: note: expected ‘PERMUTATION_TYPE_L_DOUBLE *’ but argument is of type ‘const PERMUTATION_TYPE_L_DOUBLE *’
+   33 |   PERMUTATION_TYPE_SIZE_T * TRANSLATE_TO_SET_THEORIC_SIZE_T_##type(PERMUTATION_##type *p ){\
+      |                                                                    ~~~~~~~~~~~~~~~~~~~~^
+src/permutation_t/permutation_t.c:76:1: note: in expansion of macro ‘GENERATE_PERMUTATION_FUNCTIONS’
+   76 | GENERATE_PERMUTATION_FUNCTIONS(TYPE_L_DOUBLE)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/permutation_t/permutation_t.c: In function ‘TRANSLATE_TO_SET_THEORIC_SIZE_T_TYPE_STRING’:
+src/permutation_t/permutation_t.c:39:37: warning: passing argument 2 of ‘COPY_ARRAY_TYPE_STRING’ from incompatible pointer type [-Wincompatible-pointer-types]
+   39 |     COPY_ARRAY_##type(sorted_perm, p->perm, size);\
+      |                                    ~^~~~~~
+      |                                     |
+      |                                     char **
+src/permutation_t/permutation_t.c:77:1: note: in expansion of macro ‘GENERATE_PERMUTATION_FUNCTIONS’
+   77 | GENERATE_PERMUTATION_FUNCTIONS(TYPE_STRING)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from ./src/permutation_t/permutation_t.h:4,
+                 from src/permutation_t/permutation_t.c:1:
+./src/tools_t/tools_t.h:29:49: note: expected ‘const char **’ but argument is of type ‘char **’
+   29 |   void COPY_ARRAY_##type(type* dst, const type* src, size_t size);\
+      |                                     ~~~~~~~~~~~~^~~
+./src/tools_t/tools_t.h:46:1: note: in expansion of macro ‘GENERATE_ALL’
+   46 | GENERATE_ALL(TYPE_STRING)
+      | ^~~~~~~~~~~~
+src/permutation_t/permutation_t.c: In function ‘IS_PERMUTATION_TYPE_STRING’:
+src/permutation_t/permutation_t.c:60:75: warning: passing argument 1 of ‘TRANSLATE_TO_SET_THEORIC_SIZE_T_TYPE_STRING’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   60 |     PERMUTATION_TYPE_SIZE_T *t_p = TRANSLATE_TO_SET_THEORIC_SIZE_T_##type(p);\
+      |                                                                           ^
+src/permutation_t/permutation_t.c:77:1: note: in expansion of macro ‘GENERATE_PERMUTATION_FUNCTIONS’
+   77 | GENERATE_PERMUTATION_FUNCTIONS(TYPE_STRING)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/permutation_t/permutation_t.c:33:88: note: expected ‘PERMUTATION_TYPE_STRING *’ but argument is of type ‘const PERMUTATION_TYPE_STRING *’
+   33 |   PERMUTATION_TYPE_SIZE_T * TRANSLATE_TO_SET_THEORIC_SIZE_T_##type(PERMUTATION_##type *p ){\
+      |                                                                    ~~~~~~~~~~~~~~~~~~~~^
+src/permutation_t/permutation_t.c:77:1: note: in expansion of macro ‘GENERATE_PERMUTATION_FUNCTIONS’
+   77 | GENERATE_PERMUTATION_FUNCTIONS(TYPE_STRING)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from src/set_theoric_t/set_theoric_t.c:2:
+./src/set_theoric_t/set_theoric_t.h:13:18: warning: parameter names (without types) in function declaration
+   13 |   typedef struct SET_THEORIC_##type SET_THEORIC_##type;           \
+      |                  ^~~~~~~~~~~~
+./src/set_theoric_t/set_theoric_t.h:17:1: note: in expansion of macro ‘GENERATE_UNSIGNED_SET_THEORIC’
+   17 | GENERATE_UNSIGNED_SET_THEORIC(TYPE_U_CHAR)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+./src/set_theoric_t/set_theoric_t.h:13:18: warning: parameter names (without types) in function declaration
+   13 |   typedef struct SET_THEORIC_##type SET_THEORIC_##type;           \
+      |                  ^~~~~~~~~~~~
+./src/set_theoric_t/set_theoric_t.h:18:1: note: in expansion of macro ‘GENERATE_UNSIGNED_SET_THEORIC’
+   18 | GENERATE_UNSIGNED_SET_THEORIC(TYPE_U_INT)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+./src/set_theoric_t/set_theoric_t.h:13:18: warning: parameter names (without types) in function declaration
+   13 |   typedef struct SET_THEORIC_##type SET_THEORIC_##type;           \
+      |                  ^~~~~~~~~~~~
+./src/set_theoric_t/set_theoric_t.h:19:1: note: in expansion of macro ‘GENERATE_UNSIGNED_SET_THEORIC’
+   19 | GENERATE_UNSIGNED_SET_THEORIC(TYPE_U_L_INT)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+./src/set_theoric_t/set_theoric_t.h:13:18: warning: parameter names (without types) in function declaration
+   13 |   typedef struct SET_THEORIC_##type SET_THEORIC_##type;           \
+      |                  ^~~~~~~~~~~~
+./src/set_theoric_t/set_theoric_t.h:20:1: note: in expansion of macro ‘GENERATE_UNSIGNED_SET_THEORIC’
+   20 | GENERATE_UNSIGNED_SET_THEORIC(TYPE_SIZE_T)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
