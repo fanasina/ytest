@@ -12,6 +12,15 @@
   #define DEBUG 0
 #endif
 
+// F_OUT file (stream) to log
+#ifndef F_OUT
+  #define F_OUT stdout
+#endif
+// F_ERR file (stream) to log
+#ifndef F_ERR
+  #define F_ERR stderr
+#endif
+
 /*
 #ifndef SECOND
   #define SECOND 0
@@ -28,6 +37,23 @@ long diff_timespec_nanoseconds(struct timespec time_stop, struct timespec time_s
 #define debug_print(fmt, ...) \
   do { if (DEBUG) fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__, \
       __LINE__, __func__, __VA_ARGS__); } while (0)
+
+#define PRINT_DEBUG(fmt, ...) \
+  do { if (DEBUG) fprintf(F_ERR, "%s:%d:%s(): " fmt, __FILE__, \
+      __LINE__, __func__, __VA_ARGS__); } while (0)
+
+
+#define error_print(fmt, ...) \
+   fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__, \
+      __LINE__, __func__, __VA_ARGS__); 
+
+#define PRINT_ERROR(fmt, ...) \
+   fprintf(F_ERR, "%s:%d:%s(): " fmt, __FILE__, \
+      __LINE__, __func__, __VA_ARGS__); 
+
+#define PRINT_LOC(fmt, ...) \
+   fprintf(F_OUT, "%s:%d:%s(): " fmt, __FILE__, \
+      __LINE__, __func__, __VA_ARGS__); 
 
 
 
@@ -70,6 +96,17 @@ GENERATE_ALL(TYPE_FLOAT)
 GENERATE_ALL(TYPE_DOUBLE)
 GENERATE_ALL(TYPE_L_DOUBLE)
 GENERATE_ALL(TYPE_STRING)
+
+
+/*
+ * time calucl
+ */
+double diff_timespec_seconds(struct timespec time_stop, struct timespec time_start);
+
+double diff_timespec_milliseconds(struct timespec time_stop, struct timespec time_start);
+
+long diff_timespec_nanoseconds(struct timespec time_stop, struct timespec time_start);
+
 
 #endif /*__TOOLS_T_C_H__*/
 

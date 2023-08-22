@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+
+// for sleep !
 #ifdef __linux__ 
   #include <unistd.h>
 #elif _WIN32 
@@ -89,24 +91,37 @@ TEST(expect){
   int a = 5;
   int b = 6;
   EXPECT_EQ(a,b);
+  //SKIP();
+  SKIP("on skip eq string\n");
   EXPECT_EQ_TYPE_STRING("hello","hello");
   float f1 = 1.00019999, f2=1.00019999;
   EXPECT_EQ_TYPE_FLOAT(f1,f2);
 
-  //EXPECT_EQ_TYPE_FLOAT(f1, 1.0001);
 }
 
-//END_TEST(size_permutation)
+TEST(){
+  printf("no test, only print\n");
+}
 
-//INIT()
+TEST(){
+  printf("no test, only print\n");
+}
 
+TEST(){
+  printf("no test, only print\n");
+}
+
+
+TEST(){
+  printf("no test, only print\n");
+}
 
 int main(){
-  //p_fonction_l=malloc(sizeof(p_fonction_l));
-  //init_test();
   
-  run_all_tests();
+  //run_all_tests();
+  run_all_tests_parallel(5);
 
+  //purge_tests();
   //run_some_tests(8, 1, 2, 2, 3, 3, 0, 4, 1);
   //run_some_tests(8, 5, 7, 1, 1, 1, 1, 1, 1);
   //run_some_tests_one_by_one(3, 1, 2, 2);
