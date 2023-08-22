@@ -116,10 +116,17 @@ TEST(){
   printf("no test, only print\n");
 }
 
+TEST(lessThan){
+  long int a=1,b=2;
+  EXPECT_LT(a,b);
+  EXPECT_LT(b,a);
+
+}
+
 int main(){
   
   //run_all_tests();
-  run_all_tests_parallel(5);
+  run_all_tests_parallel(4);
 
   //purge_tests();
   //run_some_tests(8, 1, 2, 2, 3, 3, 0, 4, 1);

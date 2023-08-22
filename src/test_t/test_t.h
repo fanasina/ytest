@@ -37,6 +37,23 @@
 #endif
 
 /*
+ * compare symbol
+ */
+#define EQ ==
+#define LT <
+#define GT >
+#define LE <=
+#define GE >=
+#define NE !=
+
+#define DESCRIPTION_EQ "equality"
+#define DESCRIPTION_LT "less than"
+#define DESCRIPTION_GT "greate than"
+#define DESCRIPTION_LE "less than or equality"
+#define DESCRIPTION_GE "greate than or equality"
+#define DESCRIPTION_NE "inequality"
+
+/*
 // F_OUT file (stream) to log
 #ifndef F_OUT
   #define F_OUT stdout
@@ -59,8 +76,6 @@
 #endif
 #endif
 
-#define LOCK(mutex_var)  pthread_mutex_lock(&mutex_var);
-#define UNLOCK(mutex_var) pthread_mutex_unlock(&mutex_var);
 
 
 /*
@@ -103,84 +118,383 @@ bool expected_false_f(bool val);
 bool expected_true_f_name(bool val, const char *name);
 bool expected_false_f_name(bool val, const char *name);
 
-#define GEN_EXPECTED_EQ_TYPE_FUNC(type)\
-  bool expected_eq_##type(type var1, type var2);\
-  bool expected_eq_name_##type(type var1, type var2, const char *name); 
+#define GEN_EXPECTED_OP_TYPE_FUNC(OP,type)\
+  bool expected_##OP##_##type(type var1, type var2);\
+  bool expected_##OP##_name_##type(type var1, type var2, const char *name); 
 
-GEN_EXPECTED_EQ_TYPE_FUNC(TYPE_CHAR)
-GEN_EXPECTED_EQ_TYPE_FUNC(TYPE_U_CHAR)
-GEN_EXPECTED_EQ_TYPE_FUNC(TYPE_INT)
-GEN_EXPECTED_EQ_TYPE_FUNC(TYPE_U_INT)
-GEN_EXPECTED_EQ_TYPE_FUNC(TYPE_L_INT)
-GEN_EXPECTED_EQ_TYPE_FUNC(TYPE_U_L_INT)
-GEN_EXPECTED_EQ_TYPE_FUNC(TYPE_SIZE_T)
-GEN_EXPECTED_EQ_TYPE_FUNC(TYPE_FLOAT)
-GEN_EXPECTED_EQ_TYPE_FUNC(TYPE_DOUBLE)
-GEN_EXPECTED_EQ_TYPE_FUNC(TYPE_L_DOUBLE)
-GEN_EXPECTED_EQ_TYPE_FUNC(TYPE_STRING)
+
+/*
+ * ***** generate signature of expected functions EQ ***********
+ */ 
+GEN_EXPECTED_OP_TYPE_FUNC(EQ, TYPE_CHAR)
+GEN_EXPECTED_OP_TYPE_FUNC(EQ, TYPE_U_CHAR)
+GEN_EXPECTED_OP_TYPE_FUNC(EQ, TYPE_INT)
+GEN_EXPECTED_OP_TYPE_FUNC(EQ, TYPE_U_INT)
+GEN_EXPECTED_OP_TYPE_FUNC(EQ, TYPE_L_INT)
+GEN_EXPECTED_OP_TYPE_FUNC(EQ, TYPE_U_L_INT)
+GEN_EXPECTED_OP_TYPE_FUNC(EQ, TYPE_SIZE_T)
+GEN_EXPECTED_OP_TYPE_FUNC(EQ, TYPE_FLOAT)
+GEN_EXPECTED_OP_TYPE_FUNC(EQ, TYPE_DOUBLE)
+GEN_EXPECTED_OP_TYPE_FUNC(EQ, TYPE_L_DOUBLE)
+GEN_EXPECTED_OP_TYPE_FUNC(EQ, TYPE_STRING)
+/* 
+ * ********************  end EQ generation ************************
+ */ 
+
+
+/*
+ * ***** generate signature of expected functions LT ***********
+ */ 
+GEN_EXPECTED_OP_TYPE_FUNC(LT, TYPE_CHAR)
+GEN_EXPECTED_OP_TYPE_FUNC(LT, TYPE_U_CHAR)
+GEN_EXPECTED_OP_TYPE_FUNC(LT, TYPE_INT)
+GEN_EXPECTED_OP_TYPE_FUNC(LT, TYPE_U_INT)
+GEN_EXPECTED_OP_TYPE_FUNC(LT, TYPE_L_INT)
+GEN_EXPECTED_OP_TYPE_FUNC(LT, TYPE_U_L_INT)
+GEN_EXPECTED_OP_TYPE_FUNC(LT, TYPE_SIZE_T)
+GEN_EXPECTED_OP_TYPE_FUNC(LT, TYPE_FLOAT)
+GEN_EXPECTED_OP_TYPE_FUNC(LT, TYPE_DOUBLE)
+GEN_EXPECTED_OP_TYPE_FUNC(LT, TYPE_L_DOUBLE)
+GEN_EXPECTED_OP_TYPE_FUNC(LT, TYPE_STRING)
+/* 
+ * ********************  end LT generation ************************
+ */ 
+
+
+/*
+ * ***** generate signature of expected functions GT ***********
+ */ 
+GEN_EXPECTED_OP_TYPE_FUNC(GT, TYPE_CHAR)
+GEN_EXPECTED_OP_TYPE_FUNC(GT, TYPE_U_CHAR)
+GEN_EXPECTED_OP_TYPE_FUNC(GT, TYPE_INT)
+GEN_EXPECTED_OP_TYPE_FUNC(GT, TYPE_U_INT)
+GEN_EXPECTED_OP_TYPE_FUNC(GT, TYPE_L_INT)
+GEN_EXPECTED_OP_TYPE_FUNC(GT, TYPE_U_L_INT)
+GEN_EXPECTED_OP_TYPE_FUNC(GT, TYPE_SIZE_T)
+GEN_EXPECTED_OP_TYPE_FUNC(GT, TYPE_FLOAT)
+GEN_EXPECTED_OP_TYPE_FUNC(GT, TYPE_DOUBLE)
+GEN_EXPECTED_OP_TYPE_FUNC(GT, TYPE_L_DOUBLE)
+GEN_EXPECTED_OP_TYPE_FUNC(GT, TYPE_STRING)
+/* 
+ * ********************  end GT generation ************************
+ */ 
+
+
+/*
+ * ***** generate signature of expected functions LE ***********
+ */ 
+GEN_EXPECTED_OP_TYPE_FUNC(LE, TYPE_CHAR)
+GEN_EXPECTED_OP_TYPE_FUNC(LE, TYPE_U_CHAR)
+GEN_EXPECTED_OP_TYPE_FUNC(LE, TYPE_INT)
+GEN_EXPECTED_OP_TYPE_FUNC(LE, TYPE_U_INT)
+GEN_EXPECTED_OP_TYPE_FUNC(LE, TYPE_L_INT)
+GEN_EXPECTED_OP_TYPE_FUNC(LE, TYPE_U_L_INT)
+GEN_EXPECTED_OP_TYPE_FUNC(LE, TYPE_SIZE_T)
+GEN_EXPECTED_OP_TYPE_FUNC(LE, TYPE_FLOAT)
+GEN_EXPECTED_OP_TYPE_FUNC(LE, TYPE_DOUBLE)
+GEN_EXPECTED_OP_TYPE_FUNC(LE, TYPE_L_DOUBLE)
+GEN_EXPECTED_OP_TYPE_FUNC(LE, TYPE_STRING)
+/* 
+ * ********************  end LE generation ************************
+ */ 
+
+
+/*
+ * ***** generate signature of expected functions GE ***********
+ */ 
+GEN_EXPECTED_OP_TYPE_FUNC(GE, TYPE_CHAR)
+GEN_EXPECTED_OP_TYPE_FUNC(GE, TYPE_U_CHAR)
+GEN_EXPECTED_OP_TYPE_FUNC(GE, TYPE_INT)
+GEN_EXPECTED_OP_TYPE_FUNC(GE, TYPE_U_INT)
+GEN_EXPECTED_OP_TYPE_FUNC(GE, TYPE_L_INT)
+GEN_EXPECTED_OP_TYPE_FUNC(GE, TYPE_U_L_INT)
+GEN_EXPECTED_OP_TYPE_FUNC(GE, TYPE_SIZE_T)
+GEN_EXPECTED_OP_TYPE_FUNC(GE, TYPE_FLOAT)
+GEN_EXPECTED_OP_TYPE_FUNC(GE, TYPE_DOUBLE)
+GEN_EXPECTED_OP_TYPE_FUNC(GE, TYPE_L_DOUBLE)
+GEN_EXPECTED_OP_TYPE_FUNC(GE, TYPE_STRING)
+/* 
+ * ********************  end GE generation ************************
+ */ 
+
+
+/*
+ * ***** generate signature of expected functions NE ***********
+ */ 
+GEN_EXPECTED_OP_TYPE_FUNC(NE, TYPE_CHAR)
+GEN_EXPECTED_OP_TYPE_FUNC(NE, TYPE_U_CHAR)
+GEN_EXPECTED_OP_TYPE_FUNC(NE, TYPE_INT)
+GEN_EXPECTED_OP_TYPE_FUNC(NE, TYPE_U_INT)
+GEN_EXPECTED_OP_TYPE_FUNC(NE, TYPE_L_INT)
+GEN_EXPECTED_OP_TYPE_FUNC(NE, TYPE_U_L_INT)
+GEN_EXPECTED_OP_TYPE_FUNC(NE, TYPE_SIZE_T)
+GEN_EXPECTED_OP_TYPE_FUNC(NE, TYPE_FLOAT)
+GEN_EXPECTED_OP_TYPE_FUNC(NE, TYPE_DOUBLE)
+GEN_EXPECTED_OP_TYPE_FUNC(NE, TYPE_L_DOUBLE)
+GEN_EXPECTED_OP_TYPE_FUNC(NE, TYPE_STRING)
+/* 
+ * ********************  end NE generation ************************
+ */ 
+
 
   /**
    * is_assert : 0 for EXPECT and 1 for ASSERT 
    */
-#define HANDLE_EXPECT_ASSERT(type,var1,var2,is_assert)                                                          \
+#define HANDLE_OP_EXPECT_ASSERT(OP,type,var1,var2,is_assert)                                                          \
 do{      \
-   if(is_parallel==0){\
-      if(expected_eq_##type(var1, var2)){                                                                       \
+   if(is_parallel == 0){\
+      if(expected_##OP##_##type(var1, var2)){                                                                       \
         PRINT_HK_C(GREEN_K,HK_TR," 1 test passed from %s \n\n",__func__);                                       \
       }                                                                                                         \
       else{                                                                                                     \
-        PRINT_LOC("Failure\nExpected equality of these values:\n   %s\n\tWhich is:  %s\n %s\n\tWhich is: %s\n\n"\
-          ,#var1, type##_TO_STR(var1),  #var2, type##_TO_STR(var2));                                            \
+        /*PRINT_LOC("Failure\nExpected %s of these values:\n   %s\n\tWhich is:  %s\n %s\n\tWhich is: %s\n\n"\
+          ,DESCRIPTION_##OP,#var1, type##_TO_STR(var1),  #var2, type##_TO_STR(var2));  */                                          \
+        PRINT_LOC("Failure\nExpected: (%s) %s (%s) :\n Value of %s: %s \n Value of %s: %s\n\n"\
+          ,#var1,STRFY(OP),#var2,#var1, type##_TO_STR(var1),  #var2, type##_TO_STR(var2));                                            \
         PRINT_HK_C(RED_K,HK_TR," 1 test failed from %s \n",__func__);                                           \
         if(is_assert) return;                                                                                   \
       }                                                                                                         \
    }else {                                                                                                         \
-      if(expected_eq_name_##type(var1, var2, __func__)){                                                                       \
+      if(expected_##OP##_name_##type(var1, var2, __func__)){                                                                       \
         PRINT_HK_C(GREEN_K,HK_TR," 1 test passed from %s \n\n",__func__);                                       \
       }                                                                                                         \
       else{                                                                                                     \
-        PRINT_LOC("Failure\nExpected equality of these values:\n   %s\n\tWhich is:  %s\n %s\n\tWhich is: %s\n\n"\
-          ,#var1, type##_TO_STR(var1),  #var2, type##_TO_STR(var2));                                            \
+        /*PRINT_LOC("Failure\nExpected %s of these values:\n   %s\n\tWhich is:  %s\n %s\n\tWhich is: %s\n\n"\
+         ,DESCRIPTION_##OP ,#var1, type##_TO_STR(var1),  #var2, type##_TO_STR(var2));*/                                            \
+        PRINT_LOC("Failure\nExpected: (%s) %s (%s) :\n Value of %s: %s \n Value of %s: %s\n\n"\
+          ,#var1,STRFY(OP),#var2,#var1, type##_TO_STR(var1),  #var2, type##_TO_STR(var2));                                            \
         PRINT_HK_C(RED_K,HK_TR," 1 test failed from %s \n",__func__);                                           \
         if(is_assert) return;                                                                                   \
       }                                                                                                         \
     }\
 }while(0);
 
+// *********************** begin EQ  ************************ 
+// ============== EXPECT ==============================
 
-// ============== EXPECT ===================
+#define EXPECT_EQ_TYPE_CHAR(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(EQ, TYPE_CHAR,var1, var2, 0)
+#define EXPECT_EQ_TYPE_U_CHAR(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(EQ, TYPE_U_CHAR,var1, var2, 0)
+#define EXPECT_EQ_TYPE_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(EQ, TYPE_INT,var1, var2, 0)
+#define EXPECT_EQ_TYPE_U_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(EQ, TYPE_U_INT,var1, var2, 0)
+#define EXPECT_EQ_TYPE_L_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(EQ, TYPE_L_INT,var1, var2, 0)
+#define EXPECT_EQ_TYPE_U_L_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(EQ, TYPE_U_L_INT,var1, var2, 0)
+#define EXPECT_EQ_TYPE_SIZE_T(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(EQ, TYPE_SIZE_T,var1, var2, 0)
+#define EXPECT_EQ_TYPE_FLOAT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(EQ, TYPE_FLOAT,var1, var2, 0)
+#define EXPECT_EQ_TYPE_DOUBLE(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(EQ, TYPE_DOUBLE,var1, var2, 0)
+#define EXPECT_EQ_TYPE_L_DOUBLE(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(EQ, TYPE_L_DOUBLE,var1, var2, 0)
+#define EXPECT_EQ_TYPE_STRING(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(EQ, TYPE_STRING,var1, var2, 0)
 
-#define EXPECT_EQ_TYPE_CHAR(var1, var2) 	HANDLE_EXPECT_ASSERT(TYPE_CHAR,var1, var2, 0)
-#define EXPECT_EQ_TYPE_U_CHAR(var1, var2) 	HANDLE_EXPECT_ASSERT(TYPE_U_CHAR,var1, var2, 0)
-#define EXPECT_EQ_TYPE_INT(var1, var2) 	HANDLE_EXPECT_ASSERT(TYPE_INT,var1, var2, 0)
-#define EXPECT_EQ_TYPE_U_INT(var1, var2) 	HANDLE_EXPECT_ASSERT(TYPE_U_INT,var1, var2, 0)
-#define EXPECT_EQ_TYPE_L_INT(var1, var2) 	HANDLE_EXPECT_ASSERT(TYPE_L_INT,var1, var2, 0)
-#define EXPECT_EQ_TYPE_U_L_INT(var1, var2) 	HANDLE_EXPECT_ASSERT(TYPE_U_L_INT,var1, var2, 0)
-#define EXPECT_EQ_TYPE_SIZE_T(var1, var2) 	HANDLE_EXPECT_ASSERT(TYPE_SIZE_T,var1, var2, 0)
-#define EXPECT_EQ_TYPE_FLOAT(var1, var2) 	HANDLE_EXPECT_ASSERT(TYPE_FLOAT,var1, var2, 0)
-#define EXPECT_EQ_TYPE_DOUBLE(var1, var2) 	HANDLE_EXPECT_ASSERT(TYPE_DOUBLE,var1, var2, 0)
-#define EXPECT_EQ_TYPE_L_DOUBLE(var1, var2) 	HANDLE_EXPECT_ASSERT(TYPE_L_DOUBLE,var1, var2, 0)
-#define EXPECT_EQ_TYPE_STRING(var1, var2) 	HANDLE_EXPECT_ASSERT(TYPE_STRING,var1, var2, 0)
-
-#define EXPECT_EQ(var1, var2) HANDLE_EXPECT_ASSERT(TYPE_L_INT,var1, var2, 0)
+#define EXPECT_EQ(var1, var2) HANDLE_OP_EXPECT_ASSERT(EQ, TYPE_L_INT,var1, var2, 0)
 
 
 
 // ============== ASERT =====================
 
-#define ASSERT_EQ_TYPE_CHAR(var1, var2) 	HANDLE_EXPECT_ASSERT(TYPE_CHAR,var1, var2, 1)
-#define ASSERT_EQ_TYPE_U_CHAR(var1, var2) 	HANDLE_EXPECT_ASSERT(TYPE_U_CHAR,var1, var2, 1)
-#define ASSERT_EQ_TYPE_INT(var1, var2) 	HANDLE_EXPECT_ASSERT(TYPE_INT,var1, var2, 1)
-#define ASSERT_EQ_TYPE_U_INT(var1, var2) 	HANDLE_EXPECT_ASSERT(TYPE_U_INT,var1, var2, 1)
-#define ASSERT_EQ_TYPE_L_INT(var1, var2) 	HANDLE_EXPECT_ASSERT(TYPE_L_INT,var1, var2, 1)
-#define ASSERT_EQ_TYPE_U_L_INT(var1, var2) 	HANDLE_EXPECT_ASSERT(TYPE_U_L_INT,var1, var2, 1)
-#define ASSERT_EQ_TYPE_SIZE_T(var1, var2) 	HANDLE_EXPECT_ASSERT(TYPE_SIZE_T,var1, var2, 1)
-#define ASSERT_EQ_TYPE_FLOAT(var1, var2) 	HANDLE_EXPECT_ASSERT(TYPE_FLOAT,var1, var2, 1)
-#define ASSERT_EQ_TYPE_DOUBLE(var1, var2) 	HANDLE_EXPECT_ASSERT(TYPE_DOUBLE,var1, var2, 1)
-#define ASSERT_EQ_TYPE_L_DOUBLE(var1, var2) 	HANDLE_EXPECT_ASSERT(TYPE_L_DOUBLE,var1, var2, 1)
-#define ASSERT_EQ_TYPE_STRING(var1, var2) 	HANDLE_EXPECT_ASSERT(TYPE_STRING,var1, var2, 1)
+#define ASSERT_EQ_TYPE_CHAR(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(EQ, TYPE_CHAR,var1, var2, 1)
+#define ASSERT_EQ_TYPE_U_CHAR(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(EQ, TYPE_U_CHAR,var1, var2, 1)
+#define ASSERT_EQ_TYPE_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(EQ, TYPE_INT,var1, var2, 1)
+#define ASSERT_EQ_TYPE_U_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(EQ, TYPE_U_INT,var1, var2, 1)
+#define ASSERT_EQ_TYPE_L_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(EQ, TYPE_L_INT,var1, var2, 1)
+#define ASSERT_EQ_TYPE_U_L_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(EQ, TYPE_U_L_INT,var1, var2, 1)
+#define ASSERT_EQ_TYPE_SIZE_T(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(EQ, TYPE_SIZE_T,var1, var2, 1)
+#define ASSERT_EQ_TYPE_FLOAT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(EQ, TYPE_FLOAT,var1, var2, 1)
+#define ASSERT_EQ_TYPE_DOUBLE(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(EQ, TYPE_DOUBLE,var1, var2, 1)
+#define ASSERT_EQ_TYPE_L_DOUBLE(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(EQ, TYPE_L_DOUBLE,var1, var2, 1)
+#define ASSERT_EQ_TYPE_STRING(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(EQ, TYPE_STRING,var1, var2, 1)
 
-#define ASSERT_EQ(var1, var2)  HANDLE_EXPECT_ASSERT(TYPE_L_INT,var1, var2, 1)
+#define ASSERT_EQ(var1, var2)  HANDLE_OP_EXPECT_ASSERT(EQ, TYPE_L_INT,var1, var2, 1)
+
+// ************************ end EQ  **********************
+
+
+// *********************** begin LT  ************************ 
+// ============== EXPECT ==============================
+
+#define EXPECT_LT_TYPE_CHAR(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LT, TYPE_CHAR,var1, var2, 0)
+#define EXPECT_LT_TYPE_U_CHAR(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LT, TYPE_U_CHAR,var1, var2, 0)
+#define EXPECT_LT_TYPE_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LT, TYPE_INT,var1, var2, 0)
+#define EXPECT_LT_TYPE_U_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LT, TYPE_U_INT,var1, var2, 0)
+#define EXPECT_LT_TYPE_L_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LT, TYPE_L_INT,var1, var2, 0)
+#define EXPECT_LT_TYPE_U_L_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LT, TYPE_U_L_INT,var1, var2, 0)
+#define EXPECT_LT_TYPE_SIZE_T(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LT, TYPE_SIZE_T,var1, var2, 0)
+#define EXPECT_LT_TYPE_FLOAT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LT, TYPE_FLOAT,var1, var2, 0)
+#define EXPECT_LT_TYPE_DOUBLE(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LT, TYPE_DOUBLE,var1, var2, 0)
+#define EXPECT_LT_TYPE_L_DOUBLE(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LT, TYPE_L_DOUBLE,var1, var2, 0)
+#define EXPECT_LT_TYPE_STRING(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LT, TYPE_STRING,var1, var2, 0)
+
+#define EXPECT_LT(var1, var2) HANDLE_OP_EXPECT_ASSERT(LT, TYPE_L_INT,var1, var2, 0)
+
+
+
+// ============== ASERT =====================
+
+#define ASSERT_LT_TYPE_CHAR(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LT, TYPE_CHAR,var1, var2, 1)
+#define ASSERT_LT_TYPE_U_CHAR(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LT, TYPE_U_CHAR,var1, var2, 1)
+#define ASSERT_LT_TYPE_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LT, TYPE_INT,var1, var2, 1)
+#define ASSERT_LT_TYPE_U_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LT, TYPE_U_INT,var1, var2, 1)
+#define ASSERT_LT_TYPE_L_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LT, TYPE_L_INT,var1, var2, 1)
+#define ASSERT_LT_TYPE_U_L_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LT, TYPE_U_L_INT,var1, var2, 1)
+#define ASSERT_LT_TYPE_SIZE_T(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LT, TYPE_SIZE_T,var1, var2, 1)
+#define ASSERT_LT_TYPE_FLOAT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LT, TYPE_FLOAT,var1, var2, 1)
+#define ASSERT_LT_TYPE_DOUBLE(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LT, TYPE_DOUBLE,var1, var2, 1)
+#define ASSERT_LT_TYPE_L_DOUBLE(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LT, TYPE_L_DOUBLE,var1, var2, 1)
+#define ASSERT_LT_TYPE_STRING(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LT, TYPE_STRING,var1, var2, 1)
+
+#define ASSERT_LT(var1, var2)  HANDLE_OP_EXPECT_ASSERT(LT, TYPE_L_INT,var1, var2, 1)
+
+// ************************ end LT  **********************
+
+
+// *********************** begin GT  ************************ 
+// ============== EXPECT ==============================
+
+#define EXPECT_GT_TYPE_CHAR(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GT, TYPE_CHAR,var1, var2, 0)
+#define EXPECT_GT_TYPE_U_CHAR(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GT, TYPE_U_CHAR,var1, var2, 0)
+#define EXPECT_GT_TYPE_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GT, TYPE_INT,var1, var2, 0)
+#define EXPECT_GT_TYPE_U_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GT, TYPE_U_INT,var1, var2, 0)
+#define EXPECT_GT_TYPE_L_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GT, TYPE_L_INT,var1, var2, 0)
+#define EXPECT_GT_TYPE_U_L_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GT, TYPE_U_L_INT,var1, var2, 0)
+#define EXPECT_GT_TYPE_SIZE_T(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GT, TYPE_SIZE_T,var1, var2, 0)
+#define EXPECT_GT_TYPE_FLOAT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GT, TYPE_FLOAT,var1, var2, 0)
+#define EXPECT_GT_TYPE_DOUBLE(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GT, TYPE_DOUBLE,var1, var2, 0)
+#define EXPECT_GT_TYPE_L_DOUBLE(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GT, TYPE_L_DOUBLE,var1, var2, 0)
+#define EXPECT_GT_TYPE_STRING(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GT, TYPE_STRING,var1, var2, 0)
+
+#define EXPECT_GT(var1, var2) HANDLE_OP_EXPECT_ASSERT(GT, TYPE_L_INT,var1, var2, 0)
+
+
+
+// ============== ASERT =====================
+
+#define ASSERT_GT_TYPE_CHAR(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GT, TYPE_CHAR,var1, var2, 1)
+#define ASSERT_GT_TYPE_U_CHAR(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GT, TYPE_U_CHAR,var1, var2, 1)
+#define ASSERT_GT_TYPE_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GT, TYPE_INT,var1, var2, 1)
+#define ASSERT_GT_TYPE_U_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GT, TYPE_U_INT,var1, var2, 1)
+#define ASSERT_GT_TYPE_L_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GT, TYPE_L_INT,var1, var2, 1)
+#define ASSERT_GT_TYPE_U_L_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GT, TYPE_U_L_INT,var1, var2, 1)
+#define ASSERT_GT_TYPE_SIZE_T(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GT, TYPE_SIZE_T,var1, var2, 1)
+#define ASSERT_GT_TYPE_FLOAT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GT, TYPE_FLOAT,var1, var2, 1)
+#define ASSERT_GT_TYPE_DOUBLE(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GT, TYPE_DOUBLE,var1, var2, 1)
+#define ASSERT_GT_TYPE_L_DOUBLE(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GT, TYPE_L_DOUBLE,var1, var2, 1)
+#define ASSERT_GT_TYPE_STRING(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GT, TYPE_STRING,var1, var2, 1)
+
+#define ASSERT_GT(var1, var2)  HANDLE_OP_EXPECT_ASSERT(GT, TYPE_L_INT,var1, var2, 1)
+
+// ************************ end GT  **********************
+
+
+// *********************** begin LE  ************************ 
+// ============== EXPECT ==============================
+
+#define EXPECT_LE_TYPE_CHAR(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LE, TYPE_CHAR,var1, var2, 0)
+#define EXPECT_LE_TYPE_U_CHAR(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LE, TYPE_U_CHAR,var1, var2, 0)
+#define EXPECT_LE_TYPE_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LE, TYPE_INT,var1, var2, 0)
+#define EXPECT_LE_TYPE_U_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LE, TYPE_U_INT,var1, var2, 0)
+#define EXPECT_LE_TYPE_L_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LE, TYPE_L_INT,var1, var2, 0)
+#define EXPECT_LE_TYPE_U_L_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LE, TYPE_U_L_INT,var1, var2, 0)
+#define EXPECT_LE_TYPE_SIZE_T(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LE, TYPE_SIZE_T,var1, var2, 0)
+#define EXPECT_LE_TYPE_FLOAT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LE, TYPE_FLOAT,var1, var2, 0)
+#define EXPECT_LE_TYPE_DOUBLE(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LE, TYPE_DOUBLE,var1, var2, 0)
+#define EXPECT_LE_TYPE_L_DOUBLE(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LE, TYPE_L_DOUBLE,var1, var2, 0)
+#define EXPECT_LE_TYPE_STRING(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LE, TYPE_STRING,var1, var2, 0)
+
+#define EXPECT_LE(var1, var2) HANDLE_OP_EXPECT_ASSERT(LE, TYPE_L_INT,var1, var2, 0)
+
+
+
+// ============== ASERT =====================
+
+#define ASSERT_LE_TYPE_CHAR(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LE, TYPE_CHAR,var1, var2, 1)
+#define ASSERT_LE_TYPE_U_CHAR(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LE, TYPE_U_CHAR,var1, var2, 1)
+#define ASSERT_LE_TYPE_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LE, TYPE_INT,var1, var2, 1)
+#define ASSERT_LE_TYPE_U_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LE, TYPE_U_INT,var1, var2, 1)
+#define ASSERT_LE_TYPE_L_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LE, TYPE_L_INT,var1, var2, 1)
+#define ASSERT_LE_TYPE_U_L_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LE, TYPE_U_L_INT,var1, var2, 1)
+#define ASSERT_LE_TYPE_SIZE_T(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LE, TYPE_SIZE_T,var1, var2, 1)
+#define ASSERT_LE_TYPE_FLOAT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LE, TYPE_FLOAT,var1, var2, 1)
+#define ASSERT_LE_TYPE_DOUBLE(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LE, TYPE_DOUBLE,var1, var2, 1)
+#define ASSERT_LE_TYPE_L_DOUBLE(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LE, TYPE_L_DOUBLE,var1, var2, 1)
+#define ASSERT_LE_TYPE_STRING(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LE, TYPE_STRING,var1, var2, 1)
+
+#define ASSERT_LE(var1, var2)  HANDLE_OP_EXPECT_ASSERT(LE, TYPE_L_INT,var1, var2, 1)
+
+// ************************ end LE  **********************
+
+
+// *********************** begin GE  ************************ 
+// ============== EXPECT ==============================
+
+#define EXPECT_GE_TYPE_CHAR(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GE, TYPE_CHAR,var1, var2, 0)
+#define EXPECT_GE_TYPE_U_CHAR(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GE, TYPE_U_CHAR,var1, var2, 0)
+#define EXPECT_GE_TYPE_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GE, TYPE_INT,var1, var2, 0)
+#define EXPECT_GE_TYPE_U_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GE, TYPE_U_INT,var1, var2, 0)
+#define EXPECT_GE_TYPE_L_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GE, TYPE_L_INT,var1, var2, 0)
+#define EXPECT_GE_TYPE_U_L_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GE, TYPE_U_L_INT,var1, var2, 0)
+#define EXPECT_GE_TYPE_SIZE_T(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GE, TYPE_SIZE_T,var1, var2, 0)
+#define EXPECT_GE_TYPE_FLOAT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GE, TYPE_FLOAT,var1, var2, 0)
+#define EXPECT_GE_TYPE_DOUBLE(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GE, TYPE_DOUBLE,var1, var2, 0)
+#define EXPECT_GE_TYPE_L_DOUBLE(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GE, TYPE_L_DOUBLE,var1, var2, 0)
+#define EXPECT_GE_TYPE_STRING(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GE, TYPE_STRING,var1, var2, 0)
+
+#define EXPECT_GE(var1, var2) HANDLE_OP_EXPECT_ASSERT(GE, TYPE_L_INT,var1, var2, 0)
+
+
+
+// ============== ASERT =====================
+
+#define ASSERT_GE_TYPE_CHAR(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GE, TYPE_CHAR,var1, var2, 1)
+#define ASSERT_GE_TYPE_U_CHAR(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GE, TYPE_U_CHAR,var1, var2, 1)
+#define ASSERT_GE_TYPE_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GE, TYPE_INT,var1, var2, 1)
+#define ASSERT_GE_TYPE_U_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GE, TYPE_U_INT,var1, var2, 1)
+#define ASSERT_GE_TYPE_L_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GE, TYPE_L_INT,var1, var2, 1)
+#define ASSERT_GE_TYPE_U_L_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GE, TYPE_U_L_INT,var1, var2, 1)
+#define ASSERT_GE_TYPE_SIZE_T(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GE, TYPE_SIZE_T,var1, var2, 1)
+#define ASSERT_GE_TYPE_FLOAT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GE, TYPE_FLOAT,var1, var2, 1)
+#define ASSERT_GE_TYPE_DOUBLE(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GE, TYPE_DOUBLE,var1, var2, 1)
+#define ASSERT_GE_TYPE_L_DOUBLE(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GE, TYPE_L_DOUBLE,var1, var2, 1)
+#define ASSERT_GE_TYPE_STRING(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(GE, TYPE_STRING,var1, var2, 1)
+
+#define ASSERT_GE(var1, var2)  HANDLE_OP_EXPECT_ASSERT(GE, TYPE_L_INT,var1, var2, 1)
+
+// ************************ end GE  **********************
+
+
+// *********************** begin NE  ************************ 
+// ============== EXPECT ==============================
+
+#define EXPECT_NE_TYPE_CHAR(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(NE, TYPE_CHAR,var1, var2, 0)
+#define EXPECT_NE_TYPE_U_CHAR(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(NE, TYPE_U_CHAR,var1, var2, 0)
+#define EXPECT_NE_TYPE_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(NE, TYPE_INT,var1, var2, 0)
+#define EXPECT_NE_TYPE_U_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(NE, TYPE_U_INT,var1, var2, 0)
+#define EXPECT_NE_TYPE_L_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(NE, TYPE_L_INT,var1, var2, 0)
+#define EXPECT_NE_TYPE_U_L_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(NE, TYPE_U_L_INT,var1, var2, 0)
+#define EXPECT_NE_TYPE_SIZE_T(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(NE, TYPE_SIZE_T,var1, var2, 0)
+#define EXPECT_NE_TYPE_FLOAT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(NE, TYPE_FLOAT,var1, var2, 0)
+#define EXPECT_NE_TYPE_DOUBLE(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(NE, TYPE_DOUBLE,var1, var2, 0)
+#define EXPECT_NE_TYPE_L_DOUBLE(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(NE, TYPE_L_DOUBLE,var1, var2, 0)
+#define EXPECT_NE_TYPE_STRING(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(NE, TYPE_STRING,var1, var2, 0)
+
+#define EXPECT_NE(var1, var2) HANDLE_OP_EXPECT_ASSERT(NE, TYPE_L_INT,var1, var2, 0)
+
+
+
+// ============== ASERT =====================
+
+#define ASSERT_NE_TYPE_CHAR(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(NE, TYPE_CHAR,var1, var2, 1)
+#define ASSERT_NE_TYPE_U_CHAR(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(NE, TYPE_U_CHAR,var1, var2, 1)
+#define ASSERT_NE_TYPE_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(NE, TYPE_INT,var1, var2, 1)
+#define ASSERT_NE_TYPE_U_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(NE, TYPE_U_INT,var1, var2, 1)
+#define ASSERT_NE_TYPE_L_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(NE, TYPE_L_INT,var1, var2, 1)
+#define ASSERT_NE_TYPE_U_L_INT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(NE, TYPE_U_L_INT,var1, var2, 1)
+#define ASSERT_NE_TYPE_SIZE_T(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(NE, TYPE_SIZE_T,var1, var2, 1)
+#define ASSERT_NE_TYPE_FLOAT(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(NE, TYPE_FLOAT,var1, var2, 1)
+#define ASSERT_NE_TYPE_DOUBLE(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(NE, TYPE_DOUBLE,var1, var2, 1)
+#define ASSERT_NE_TYPE_L_DOUBLE(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(NE, TYPE_L_DOUBLE,var1, var2, 1)
+#define ASSERT_NE_TYPE_STRING(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(NE, TYPE_STRING,var1, var2, 1)
+
+#define ASSERT_NE(var1, var2)  HANDLE_OP_EXPECT_ASSERT(NE, TYPE_L_INT,var1, var2, 1)
+
+// ************************ end NE  **********************
 
 /*
  * ==============  bool ===================

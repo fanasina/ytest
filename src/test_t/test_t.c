@@ -63,48 +63,6 @@ struct failed_lists{
 };
 
 
-void append_failed_list(struct failed_lists **fn_failed_list ,const char *name_failed){
-
-  if(*fn_failed_list){
-    
-    struct failed_lists *tmp_failed_l = *fn_failed_list, *rec_tmp;
-    
-    while(tmp_failed_l){
-      rec_tmp = tmp_failed_l;
-      tmp_failed_l = tmp_failed_l->next; 
-    }
-    tmp_failed_l = malloc(sizeof(struct failed_lists));
-    tmp_failed_l->name = malloc(strlen(name_failed));
-    strcpy(tmp_failed_l->name, name_failed);
-    tmp_failed_l->next = NULL;
-    rec_tmp->next = tmp_failed_l;
-  
-  }
-  else{
-    *fn_failed_list = malloc(sizeof(struct failed_lists));
-    (*fn_failed_list)->name = malloc(strlen(name_failed));
-    strcpy((*fn_failed_list)->name, name_failed);
-    (*fn_failed_list)->next = NULL;
-  }
-
-}
-
-/*
- * print all TESTs failed
- */ 
-
-void list_failed_test(struct failed_lists *test_failed){
-  struct failed_lists *failed_lst = test_failed;
-  while(failed_lst){
-    PRINT_HK_C(RED_K, HK_FL," %s\n",failed_lst->name);
-    failed_lst = failed_lst->next;
-    //if(failed_lst->next) list_failed_test(failed_lst->next);
-  }
-  PRINT_HK_C(DEFAULT_K, HK_EQ,"%s\n","");
-}
-
-
-
 
 /*
  * global variables not exported
@@ -181,8 +139,41 @@ pthread_mutex_t mut_count_fail_local;
  * end of the global variables of test_t.c
  */
 
+/*
+ * 
+ */ 
 
-size_t id_of_thread_executed(size_t id_from_self){
+void append_failed_list(struct failed_lists **fn_failed_list ,const char *name_failed){
+
+  if(*fn_failed_list){
+    
+    struct failed_lists *tmp_failed_l = *fn_failed_list, *rec_tmp;
+    
+    while(tmp_failed_l){
+      rec_tmp = tmp_failed_l;
+      tmp_failed_l = tmp_failed_l->next; 
+    }
+    tmp_failed_l = malloc(sizeof(struct failed_lists));
+    tmp_failed_l->name = malloc(strlen(name_failed));
+    strcpy(tmp_failed_l->name, name_failed);
+    tmp_failed_l->next = NULL;
+    rec_tmp->next = tmp_failed_l;
+  
+  }
+  else{
+    *fn_failed_list = malloc(sizeof(struct failed_lists));
+    (*fn_failed_list)->name = malloc(strlen(name_failed));
+    strcpy((*fn_failed_list)->name, name_failed);
+    (*fn_failed_list)->next = NULL;
+  }
+
+}
+
+/*
+ * match the id global (gives by OS) of the thread with the local (the program) id of thread
+ */ 
+long int id_of_thread_executed(void){
+  size_t id_from_self = pthread_self();
   for(size_t i=0; i<parallel_nb; ++i){
     if(id_thread_self[i] == id_from_self)
       return i;
@@ -209,6 +200,36 @@ size_t extract_num_test__f(const char *name_f){
   }
   return val;
 }
+
+
+
+/*
+ * print all TESTs failed
+ */ 
+
+void list_failed_test(struct failed_lists *test_failed){
+  struct failed_lists *failed_lst = test_failed;
+    long int  id_thrd = id_of_thread_executed();
+  if(id_thrd < 0){
+    while(failed_lst){
+      PRINT_HK_C(RED_K, HK_FL," %s\n",failed_lst->name);
+      failed_lst = failed_lst->next;
+      //if(failed_lst->next) list_failed_test(failed_lst->next);
+    }
+  }else{
+    while(failed_lst){
+      PRINT_HK_C(RED_K, HK_FL," %s, on thread[%ld]\n",failed_lst->name,id_thrd);
+      failed_lst = failed_lst->next;
+      //if(failed_lst->next) list_failed_test(failed_lst->next);
+    }
+
+  }
+
+  PRINT_HK_C(DEFAULT_K, HK_EQ,"%s\n","");
+}
+
+
+
 
 
 #define INCREMENT_EXPECT(expect,name)\
@@ -252,10 +273,11 @@ EXPECTED_EXPECT_F(true,false)
 EXPECTED_EXPECT_F(false,true)
 */
 
-#define EXPECTED_EQ_TYPE(type)                                                            \
+
+#define EXPECTED_OP_TYPE(OP,type)                                                            \
     \
-bool expected_eq_##type(type var1, type var2){                                            \
-  if(COMPARE_N_##type(&var1, &var2) == 0){                                                \
+bool expected_##OP##_##type(type var1, type var2){                                            \
+  if(COMPARE_N_##type(&var1, &var2) OP 0){                                                \
     INCREMENT(count_pass_local); /*++count_pass_local*/                                                                 \
     return true;                                                                          \
   }else {                                                                                 \
@@ -263,8 +285,8 @@ bool expected_eq_##type(type var1, type var2){                                  
     return false;                                                                         \
   }                                                                                       \
 } \
-bool expected_eq_name_##type(type var1, type var2,const char * name){                                            \
-  if(COMPARE_N_##type(&var1, &var2) == 0){                                                \
+bool expected_##OP##_name_##type(type var1, type var2,const char * name){                                            \
+  if(COMPARE_N_##type(&var1, &var2) OP 0){                                                \
     INCREMENT_EXPECT(pass,name);\
     return true;                                                                          \
   }else {                                                                                 \
@@ -273,20 +295,77 @@ bool expected_eq_name_##type(type var1, type var2,const char * name){           
   }                                                                                       \
 }
 
+EXPECTED_OP_TYPE(EQ,TYPE_CHAR)
+EXPECTED_OP_TYPE(EQ,TYPE_U_CHAR)
+EXPECTED_OP_TYPE(EQ,TYPE_INT)
+EXPECTED_OP_TYPE(EQ,TYPE_U_INT)
+EXPECTED_OP_TYPE(EQ,TYPE_L_INT)
+EXPECTED_OP_TYPE(EQ,TYPE_U_L_INT)
+EXPECTED_OP_TYPE(EQ,TYPE_SIZE_T)
+EXPECTED_OP_TYPE(EQ,TYPE_FLOAT)
+EXPECTED_OP_TYPE(EQ,TYPE_DOUBLE)
+EXPECTED_OP_TYPE(EQ,TYPE_L_DOUBLE)
+EXPECTED_OP_TYPE(EQ,TYPE_STRING)
 
+EXPECTED_OP_TYPE(LT,TYPE_CHAR)
+EXPECTED_OP_TYPE(LT,TYPE_U_CHAR)
+EXPECTED_OP_TYPE(LT,TYPE_INT)
+EXPECTED_OP_TYPE(LT,TYPE_U_INT)
+EXPECTED_OP_TYPE(LT,TYPE_L_INT)
+EXPECTED_OP_TYPE(LT,TYPE_U_L_INT)
+EXPECTED_OP_TYPE(LT,TYPE_SIZE_T)
+EXPECTED_OP_TYPE(LT,TYPE_FLOAT)
+EXPECTED_OP_TYPE(LT,TYPE_DOUBLE)
+EXPECTED_OP_TYPE(LT,TYPE_L_DOUBLE)
+EXPECTED_OP_TYPE(LT,TYPE_STRING)
 
-EXPECTED_EQ_TYPE(TYPE_CHAR)
-EXPECTED_EQ_TYPE(TYPE_U_CHAR)
-EXPECTED_EQ_TYPE(TYPE_INT)
-EXPECTED_EQ_TYPE(TYPE_U_INT)
-EXPECTED_EQ_TYPE(TYPE_L_INT)
-EXPECTED_EQ_TYPE(TYPE_U_L_INT)
-EXPECTED_EQ_TYPE(TYPE_SIZE_T)
-EXPECTED_EQ_TYPE(TYPE_FLOAT)
-EXPECTED_EQ_TYPE(TYPE_DOUBLE)
-EXPECTED_EQ_TYPE(TYPE_L_DOUBLE)
-EXPECTED_EQ_TYPE(TYPE_STRING)
+EXPECTED_OP_TYPE(GT,TYPE_CHAR)
+EXPECTED_OP_TYPE(GT,TYPE_U_CHAR)
+EXPECTED_OP_TYPE(GT,TYPE_INT)
+EXPECTED_OP_TYPE(GT,TYPE_U_INT)
+EXPECTED_OP_TYPE(GT,TYPE_L_INT)
+EXPECTED_OP_TYPE(GT,TYPE_U_L_INT)
+EXPECTED_OP_TYPE(GT,TYPE_SIZE_T)
+EXPECTED_OP_TYPE(GT,TYPE_FLOAT)
+EXPECTED_OP_TYPE(GT,TYPE_DOUBLE)
+EXPECTED_OP_TYPE(GT,TYPE_L_DOUBLE)
+EXPECTED_OP_TYPE(GT,TYPE_STRING)
 
+EXPECTED_OP_TYPE(LE,TYPE_CHAR)
+EXPECTED_OP_TYPE(LE,TYPE_U_CHAR)
+EXPECTED_OP_TYPE(LE,TYPE_INT)
+EXPECTED_OP_TYPE(LE,TYPE_U_INT)
+EXPECTED_OP_TYPE(LE,TYPE_L_INT)
+EXPECTED_OP_TYPE(LE,TYPE_U_L_INT)
+EXPECTED_OP_TYPE(LE,TYPE_SIZE_T)
+EXPECTED_OP_TYPE(LE,TYPE_FLOAT)
+EXPECTED_OP_TYPE(LE,TYPE_DOUBLE)
+EXPECTED_OP_TYPE(LE,TYPE_L_DOUBLE)
+EXPECTED_OP_TYPE(LE,TYPE_STRING)
+
+EXPECTED_OP_TYPE(GE,TYPE_CHAR)
+EXPECTED_OP_TYPE(GE,TYPE_U_CHAR)
+EXPECTED_OP_TYPE(GE,TYPE_INT)
+EXPECTED_OP_TYPE(GE,TYPE_U_INT)
+EXPECTED_OP_TYPE(GE,TYPE_L_INT)
+EXPECTED_OP_TYPE(GE,TYPE_U_L_INT)
+EXPECTED_OP_TYPE(GE,TYPE_SIZE_T)
+EXPECTED_OP_TYPE(GE,TYPE_FLOAT)
+EXPECTED_OP_TYPE(GE,TYPE_DOUBLE)
+EXPECTED_OP_TYPE(GE,TYPE_L_DOUBLE)
+EXPECTED_OP_TYPE(GE,TYPE_STRING)
+
+EXPECTED_OP_TYPE(NE,TYPE_CHAR)
+EXPECTED_OP_TYPE(NE,TYPE_U_CHAR)
+EXPECTED_OP_TYPE(NE,TYPE_INT)
+EXPECTED_OP_TYPE(NE,TYPE_U_INT)
+EXPECTED_OP_TYPE(NE,TYPE_L_INT)
+EXPECTED_OP_TYPE(NE,TYPE_U_L_INT)
+EXPECTED_OP_TYPE(NE,TYPE_SIZE_T)
+EXPECTED_OP_TYPE(NE,TYPE_FLOAT)
+EXPECTED_OP_TYPE(NE,TYPE_DOUBLE)
+EXPECTED_OP_TYPE(NE,TYPE_L_DOUBLE)
+EXPECTED_OP_TYPE(NE,TYPE_STRING)
 
 
 void 
@@ -361,6 +440,7 @@ stat_end_run(size_t ntst, struct timespec start_t){
   if(failed_l != NULL){
     PRINT_HK_C(RED_K, HK_FL," %lu tests, listed below:\n",count_fail_global); 
     list_failed_test(failed_l);
+    PRINT_HK_C("","","\n%ld FAILED TESTS \n",count_fail_global);
   }
 }
 bool is_in_array(size_t *array, size_t sz, size_t num){
@@ -543,8 +623,6 @@ void head_all_parallel_run(struct timespec *start_t){
 void head_parallel_run(struct timespec *start_t, size_t id_thrd){
   clock_gettime(CLOCK_REALTIME, start_t);
   PRINT_HK_C(GREEN_K, HK_EQ," Running tests on thread[%ld] ========== ==threadID== %ld \n", id_thrd,pthread_self());
-  count_pass_thread[id_thrd] = 0;
-  count_fail_thread[id_thrd] = 0;
 }
 
 /*
@@ -558,9 +636,9 @@ stat_end_parallel_run(size_t ntst, struct timespec start_t, size_t id_thrd){
   else if(NANOSECOND) PRINT_HK_C(GREEN_K, HK_EQ," %lu tests ran on thread[%ld]. (%ld ns total)\n",ntst, id_thrd, diff_timespec_nanoseconds(end_t, start_t));
   else PRINT_HK_C(GREEN_K, HK_EQ," %lu tests ran on thread[%ld]. (%lf ms total)\n",ntst, id_thrd, diff_timespec_milliseconds(end_t, start_t));
   
-  PRINT_HK_C(GREEN_K, HK_PS," %lu tests\n", count_pass_test[id_thrd]);
+  PRINT_HK_C(GREEN_K, HK_PS," %lu tests passed on thread[%ld]\n", count_pass_thread[id_thrd], id_thrd);
   if(thread_test_failed_l[id_thrd] != NULL){
-    PRINT_HK_C(RED_K, HK_FL," %lu tests, listed below:\n",count_fail_test[id_thrd]); 
+    PRINT_HK_C(RED_K, HK_FL," %lu tests failed on thread[%ld], listed below:\n",count_fail_thread[id_thrd],id_thrd); 
     list_failed_test(thread_test_failed_l[id_thrd]);
   }
 }
@@ -582,6 +660,7 @@ stat_end_all_parallel_run(size_t ntst, struct timespec start_t){
   if(failed_l != NULL){
     PRINT_HK_C(RED_K, HK_FL," %lu tests, listed below:\n",count_fail_global); 
     list_failed_test(failed_l);
+    PRINT_HK_C("","","\n%ld FAILED TESTS \n",count_fail_global);
   }
 }
 
@@ -604,7 +683,7 @@ void end_execute_func_parallel(char *fun_ame, struct timespec start_t, size_t id
   if(count_fail_test[num_test]){
     INCREMENT(count_fail_global); /*++count_fail_global*/
     append_failed_list(&thread_test_failed_l[id_thrd], fun_ame); 
-    ++count_fail_thread[id_thrd];
+    ++(count_fail_thread[id_thrd]);
     LOCK(mut_global_list_fail);
     append_failed_list(&failed_l, fun_ame); 
     UNLOCK(mut_global_list_fail);
@@ -613,7 +692,7 @@ void end_execute_func_parallel(char *fun_ame, struct timespec start_t, size_t id
   }
   else 
   {
-    ++count_pass_thread[id_thrd];
+    ++(count_pass_thread[id_thrd]);
     INCREMENT(count_pass_global); /*++count_pass_global*/
     PRINT_TIMESTAMP_STAT_PARALLEL(GREEN_K);
   }
@@ -674,6 +753,8 @@ init_parallel_test_()
     
   for(size_t i=0; i<parallel_nb; ++i){
     thread_test_failed_l[i] = NULL;
+    count_pass_thread[i] = 0;
+    count_fail_thread[i] = 0;
   }
 
   current_fn = f_beging;
@@ -693,6 +774,8 @@ final_parallel_test_()
 {
   free(count_pass_test);
   free(count_fail_test);
+  free(count_pass_thread);
+  free(count_fail_thread);
 
   free(thread_test_failed_l);
 
