@@ -34,7 +34,7 @@
   #define HK_FL "===== FAIL"
   #define HK_PS "===== PASS"
   #define HK_SK "===== SKIP"
-#endif
+#endif /* HK */
 
 /*
  * compare symbol
@@ -53,16 +53,10 @@
 #define DESCRIPTION_GE "greate than or equality"
 #define DESCRIPTION_NE "inequality"
 
-/*
-// F_OUT file (stream) to log
-#ifndef F_OUT
-  #define F_OUT stdout
-#endif
-*/
 
 #ifndef NOT_COLORED
   #define NOT_COLORED 0
-#endif
+#endif /* NOT_COLORED */
 
 #if 0
 #ifndef PARALLEL
@@ -74,9 +68,94 @@
   #define UNLOCK(mutex_var) pthread_mutex_unlock(&mutex_var);
   #define is_parallel 1
 #endif
-#endif
+#endif /* 0 */
+
+extern FILE **f_ou_th;
+
+// ===================== rec not in file
 
 
+#ifndef  REC_IN_FILE
+
+#define PRINT_LOC(fmt, ...) \
+   fprintf(F_OUT, "%s:%d:%s(): " fmt, __FILE__, \
+      __LINE__, __func__, __VA_ARGS__)
+
+#define PRINTF( ...) \
+   fprintf(F_OUT, __VA_ARGS__)
+/*
+ * print [ HK_NAME ] with color
+ */
+
+#define PRINT_HK_C(color,hk,...)\
+  do{ if(!NOT_COLORED) fprintf(F_OUT, color hk DEFAULT_K  __VA_ARGS__); \
+      else fprintf(F_OUT, hk  __VA_ARGS__); } while(0) 
+
+/* =================================== end no file */
+#else /* REC_IN_FILE  */
+/* ====================== rec in file */
+
+#define PRINT_LOC(fmt, ...) \
+  do{ \
+    if(is_parallel){\
+      size_t id_thread=id_of_thread_executed();\
+      if(id_thread < 0){\
+        fprintf(F_OUT, "%s:%d:%s(): " fmt, __FILE__, \
+        __LINE__, __func__, __VA_ARGS__);\
+      }\
+      else{\
+        fprintf(f_ou_th[id_thread], "%s:%d:%s(): " fmt, __FILE__, \
+        __LINE__, __func__, __VA_ARGS__);\
+      }\
+    } \
+    else{\
+      fprintf(F_OUT, "%s:%d:%s(): " fmt, __FILE__, \
+        __LINE__, __func__, __VA_ARGS__);\
+    }\
+  }while(0)
+
+#define PRINTF( ...) \
+  do{ \
+    if(is_parallel){\
+      size_t id_thread=id_of_thread_executed();\
+      if(id_thread < 0){\
+        fprintf(F_OUT,__VA_ARGS__);\
+      }\
+      else{\
+        fprintf(f_ou_th[id_thread], __VA_ARGS__);\
+      }\
+    } \
+    else{\
+       fprintf(F_OUT, __VA_ARGS__);\
+    }\
+  }while(0)
+
+#define PRINT_HK_C(color,hk,...)\
+  do{ \
+    if(is_parallel){\
+      size_t id_thread=id_of_thread_executed();\
+      if(id_thread < 0){\
+        if(!NOT_COLORED) fprintf(F_OUT, color hk DEFAULT_K  __VA_ARGS__); \
+        else fprintf(F_OUT, hk  __VA_ARGS__); \
+      }\
+      else{\
+        if(!NOT_COLORED) fprintf(f_ou_th[id_thread], color hk DEFAULT_K  __VA_ARGS__); \
+        else fprintf(f_ou_th[id_thread], hk  __VA_ARGS__); \
+      }\
+    } \
+    else{\
+      if(!NOT_COLORED) fprintf(F_OUT, color hk DEFAULT_K  __VA_ARGS__); \
+      else fprintf(F_OUT, hk  __VA_ARGS__); \
+    }\
+  }while(0) 
+
+#endif /* REC_IN_FILE */
+
+// ====================== = end rec log in file
+
+
+
+#if 0
 
 /*
  * print [ HK_NAME ] with color
@@ -84,13 +163,17 @@
 #define PRINT_HK_C(color,hk,format,...)\
   do{ if(!NOT_COLORED) fprintf(F_OUT, color hk DEFAULT_K format, __VA_ARGS__); \
       else fprintf(F_OUT, hk format, __VA_ARGS__); } while(0) \
+
+#endif /* 0 */
       
 /*
  * to skip the bloc test function
  */
-#define SKIP(msg)\
-  PRINT_HK_C(GREEN_K, HK_SK," %s\n",#msg);\
+#define SKIP(...)\
+  PRINT_HK_C(GREEN_K, HK_SK __VA_ARGS__);\
   PRINT_LOC("%s\n\n"," Skiped"); return;
+
+
 
 struct func {
   char *name;
@@ -98,7 +181,10 @@ struct func {
   struct func *next;
 };
 
+
 extern bool is_parallel;
+
+long int id_of_thread_executed(void);
 
 void run_all_tests();
 void execute_all(struct func *fun);
@@ -568,7 +654,5 @@ do{                                                                             
 #define ASSERT_FALSE(val)\
   if(expected_false_f(val,#val,__func__) == false) {error_print("%s\n\n","Failure"); return;}
 */
-
-
 
 #endif /* __TEST_C_H__ */

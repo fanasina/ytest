@@ -30,13 +30,14 @@ GENERATE_PERMUTATION_FUNCTIONS_UNSIGNED(TYPE_SIZE_T)
     p->perm = malloc(size * sizeof(type));\
     return p; }\
 \
-  PERMUTATION_TYPE_SIZE_T * TRANSLATE_TO_SET_THEORIC_SIZE_T_##type(PERMUTATION_##type *p ){\
+  PERMUTATION_TYPE_SIZE_T * TRANSLATE_TO_SET_THEORIC_SIZE_T_##type(const PERMUTATION_##type *p ){\
     if (p == NULL) return NULL;\
     PERMUTATION_TYPE_SIZE_T *t_p = malloc(sizeof(PERMUTATION_TYPE_SIZE_T));\
     size_t size = p->size;\
+    t_p->size = size;\
     t_p->perm = malloc(size * sizeof(TYPE_SIZE_T));\
     type *sorted_perm = malloc(size * sizeof(type));\
-    COPY_ARRAY_##type(sorted_perm, p->perm, size);\
+    COPY_ARRAY_##type(sorted_perm,(const type*)p->perm, size);\
     qsort(sorted_perm, size, sizeof(type), COMPARE_N_##type);\
     size_t *rec_index_visited = malloc(size * sizeof(size_t));\
     size_t cur_rec = 0; bool found_rec;\
@@ -48,12 +49,17 @@ GENERATE_PERMUTATION_FUNCTIONS_UNSIGNED(TYPE_SIZE_T)
             if(rec_index_visited[k] == j){\
               found_rec == true; break; } } \
           if(found_rec == false){\
-            t_p->perm[i] = j;\
+            /*t_p->perm[i] = j;*/\
+            t_p->perm[j] = i;\
             rec_index_visited[cur_rec++] = j; \
-            break; } } } } \
+            break; }\
+        }\
+      }\
+    }\
     free(rec_index_visited);\
     free(sorted_perm);\
-    return t_p; }\
+    return t_p; \
+  }\
 \
   bool IS_PERMUTATION_##type(const PERMUTATION_##type *p){\
     if(p == NULL) return false;\

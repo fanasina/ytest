@@ -11,43 +11,41 @@
 
 #include "src/test_t/test_t.h"
 
-//#include "src/permutation_t/permutation_t.h"
+#include "src/permutation_t/permutation_t.h"
+
 TEST(size_permutation2){
-  printf("another size_permutation2 again\n");
+  PRINTF("another size_permutation2 again\n");
   ASSERT_TRUE(false);
 }
 
 TEST(size_permutation)
 {
-/*
   PERMUTATION_TYPE_CHAR *p = CREATE_PERMUTATION_TYPE_CHAR(3);
   
-  printf(" size = %u \n",p->size);
-  if(p->size == 3) print_OK_with_msg_endl(" FF yeah GOOD test size passed ");
-  else  print_KO_with_msg_endl("NOT GOOD test size not passed ");
-*/
-  printf("test size_permutation2\n");
+  PRINTF(" size = %lu \n",p->size);
+  EXPECT_EQ(p->size, 3);
+  PRINTF("test size_permutation2\n");
 }
 TEST(size_permutation2){
-  printf("another size_permutation2 again false\n");
+  PRINTF("another size_permutation2 again false\n");
   bool val_bool = false;
   ASSERT_TRUE(val_bool);
 }
 TEST(size_permutation2)
 {
-  printf("test size_permutation2\n");
+  PRINTF("test size_permutation2\n");
   bool val_bool = true;
   ASSERT_FALSE(val_bool);
 /*
   PERMUTATION_TYPE_CHAR *p = CREATE_PERMUTATION_TYPE_CHAR(3);
   
-  printf(" size = %u \n",p->size);
+  PRINTF(" size = %u \n",p->size);
   if(p->size == 3) print_OK_with_msg_endl(" FF yeah GOOD test size passed ");
   else  print_KO_with_msg_endl("NOT GOOD test size not passed ");
 */
 }
 TEST(float_equal){
-  printf("another size_permutation2 float\n");
+  PRINTF("another size_permutation2 float\n");
   ASSERT_TRUE(true);
   float a = 1.00001f;
   float b = 1.00001f;
@@ -57,7 +55,7 @@ TEST(float_equal){
   ASSERT_EQ_TYPE_FLOAT(1.0000102f,b);
 }
 TEST(double_equal){
-  printf("another size_permutation2 double\n");
+  PRINTF("another size_permutation2 double\n");
   ASSERT_TRUE(true);
   double a = 1.00000001;
   double b = 1.00000001;
@@ -100,20 +98,32 @@ TEST(expect){
 }
 
 TEST(){
-  printf("no test, only print\n");
+  PRINTF("no test, only print\n");
 }
 
 TEST(){
-  printf("no test, only print\n");
+  PRINTF("no test, only print\n");
 }
 
 TEST(){
-  printf("no test, only print\n");
+  PRINTF("no test, only print\n");
 }
 
 
 TEST(){
-  printf("no test, only print\n");
+
+  PERMUTATION_TYPE_CHAR *p_char = CREATE_PERMUTATION_TYPE_CHAR(6);
+  p_char->perm[0]='B';
+  p_char->perm[1]='A';
+  p_char->perm[2]='Y';
+  p_char->perm[3]='C';
+  p_char->perm[4]='D';
+  p_char->perm[5]='Z';
+  
+  PERMUTATION_TYPE_SIZE_T *tr_p_char = TRANSLATE_TO_SET_THEORIC_SIZE_T_TYPE_CHAR(p_char);
+
+  for(int i = 0; i < tr_p_char->size; ++i) PRINTF(" [%d ]%ld ,",i,tr_p_char->perm[i]);
+  PRINTF("p_char == %s\n",p_char->perm);
 }
 
 TEST(lessThan){

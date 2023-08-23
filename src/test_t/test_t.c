@@ -27,6 +27,8 @@
 #endif
 
 
+
+
 #if 0
 #ifndef PARALLEL
   #define PARALLEL 1
@@ -69,6 +71,8 @@ struct failed_lists{
  * only exist in test_t.c
  */
 bool is_parallel = 0;
+
+FILE **f_ou_th;
 
 size_t count_tests = 0;
 
@@ -174,7 +178,7 @@ void append_failed_list(struct failed_lists **fn_failed_list ,const char *name_f
  */ 
 long int id_of_thread_executed(void){
   size_t id_from_self = pthread_self();
-  for(size_t i=0; i<parallel_nb; ++i){
+  for(size_t i=0; i<parallel_nb + 1; ++i){
     if(id_thread_self[i] == id_from_self)
       return i;
   }
@@ -621,6 +625,9 @@ void head_all_parallel_run(struct timespec *start_t){
  * print on the top of test in parallel
  */ 
 void head_parallel_run(struct timespec *start_t, size_t id_thrd){
+  char name_file_output[256];
+  sprintf(name_file_output,"log_thread_%ld_id_%ld",id_thrd,pthread_self());
+  f_ou_th[id_thrd] = fopen(name_file_output, "w+"); 
   clock_gettime(CLOCK_REALTIME, start_t);
   PRINT_HK_C(GREEN_K, HK_EQ," Running tests on thread[%ld] ========== ==threadID== %ld \n", id_thrd,pthread_self());
 }
@@ -739,6 +746,16 @@ void
 init_parallel_test_()
 {
   is_parallel = 1;
+  
+  f_ou_th = malloc((parallel_nb + 1) *sizeof(FILE*));
+  /*
+   *  on thread principale
+   */
+  char name_file_output[256];
+  sprintf(name_file_output,"log_principal_thread_%ld_id_%ld",parallel_nb,pthread_self());
+  f_ou_th[parallel_nb] = fopen(name_file_output, "w+");
+
+
   count_pass_test = malloc(count_tests * sizeof(size_t));
   count_fail_test = malloc(count_tests * sizeof(size_t));
   for(size_t i=0; i<count_tests; ++i){
@@ -749,8 +766,10 @@ init_parallel_test_()
   thread_test_failed_l = malloc(parallel_nb * sizeof(struct failed_lists*));
   count_pass_thread = malloc(parallel_nb * sizeof(size_t));
   count_fail_thread = malloc(parallel_nb * sizeof(size_t));
-  id_thread_self = malloc(parallel_nb * sizeof(size_t));
-    
+  id_thread_self = malloc((parallel_nb + 1) * sizeof(size_t));
+  
+  id_thread_self[parallel_nb]=   pthread_self();// main thread 
+
   for(size_t i=0; i<parallel_nb; ++i){
     thread_test_failed_l[i] = NULL;
     count_pass_thread[i] = 0;
@@ -786,16 +805,29 @@ final_parallel_test_()
   pthread_mutex_destroy(&mut_count_fail_global);
   pthread_mutex_destroy(&mut_count_pass_local);
   pthread_mutex_destroy(&mut_count_fail_local);
+
+  char reader[256]; 
+  for(size_t id_thrd =0 ; id_thrd <= parallel_nb; ++id_thrd){
+    rewind(f_ou_th[id_thrd]); // put the file pointer to the begin of file;
+
+    while(fgets(reader, 255,f_ou_th[id_thrd] )){
+      fprintf(F_OUT,"%s",reader);
+    }
+    fclose(f_ou_th[id_thrd]);
+  }
+  //fclose(f_ou_th[parallel_nb]);
 }
 
 void run_all_tests_parallel(size_t parallel)
 {
-  parallel_nb = parallel;
+  parallel_nb = parallel; /* need to be here to initialise parallel_nb for init_parallel_test_ */
+  
+  init_parallel_test_();
   
   struct timespec start_t;
+  
   head_all_parallel_run(&start_t);
 
-  init_parallel_test_();
 
   pthread_t *thrd = malloc(parallel_nb * sizeof(pthread_t));
   size_t *id_th = malloc( parallel_nb * sizeof(size_t));

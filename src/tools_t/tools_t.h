@@ -12,6 +12,7 @@
   #define DEBUG 0
 #endif
 
+
 // F_OUT file (stream) to log
 #ifndef F_OUT
   #define F_OUT stdout
@@ -20,6 +21,10 @@
 #ifndef F_ERR
   #define F_ERR stderr
 #endif
+
+
+
+
 
 /*
 #ifndef SECOND
@@ -51,7 +56,7 @@ long diff_timespec_nanoseconds(struct timespec time_stop, struct timespec time_s
    fprintf(F_ERR, "%s:%d:%s(): " fmt, __FILE__, \
       __LINE__, __func__, __VA_ARGS__); 
 
-#define PRINT_LOC(fmt, ...) \
+#define PRINT_LOC_T(fmt, ...) \
    fprintf(F_OUT, "%s:%d:%s(): " fmt, __FILE__, \
       __LINE__, __func__, __VA_ARGS__); 
 
