@@ -1,8 +1,35 @@
 #include "src/tools_t/tools_t.h"
 
 
+void gotoxy(int x, int y)
+{
+    printf("%c[%d;%df", 0x1B, y, x);
+}
 
+/*
+void get_cursor_position(int *col, int *rows)
+{
+    int a = 0;
+    int i = 0;
+    char buf[4];
 
+    write(1, "\033[6n", 4); // string asking for the cursor position
+    read(1, buf, 4);
+
+    while (buf[i])
+    {
+        if (buf[i] >= 48 && buf[i] <= 57)
+        {
+            if (a == 0)
+                *rows = atoi(&buf[i]) - 1;
+            else
+                *col = atoi(&buf[i]) - 1;
+            a++;
+        }
+        i++;
+    }
+}
+*/
 
 /*
 double diff_timespec_seconds(struct timespec time_stop, struct timespec time_start){

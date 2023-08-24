@@ -75,7 +75,16 @@ extern FILE **f_ou_th;
 // ===================== rec not in file
 
 
-#ifndef  REC_IN_FILE
+#ifndef SAVE_LOG
+#define SAVE_LOG 0
+#else
+#ifndef ORDER_LOG
+  #define ORDER_LOG 1
+#endif
+#endif
+
+
+#ifndef  ORDER_LOG
 
 #define PRINT_LOC(fmt, ...) \
    fprintf(F_OUT, "%s:%d:%s(): " fmt, __FILE__, \
@@ -92,7 +101,7 @@ extern FILE **f_ou_th;
       else fprintf(F_OUT, hk  __VA_ARGS__); } while(0) 
 
 /* =================================== end no file */
-#else /* REC_IN_FILE  */
+#else /* ORDER_LOG  */
 /* ====================== rec in file */
 
 #define PRINT_LOC(fmt, ...) \
@@ -149,7 +158,7 @@ extern FILE **f_ou_th;
     }\
   }while(0) 
 
-#endif /* REC_IN_FILE */
+#endif /* ORDER_LOG */
 
 // ====================== = end rec log in file
 
@@ -194,7 +203,7 @@ void run_some_tests(size_t cnt, ... );
 void run_all_tests_exept(size_t cnt, ... );
 void run_some_tests_ordered(size_t cnt, ... );
 
-void run_all_tests_parallel(size_t parallel);
+void run_all_tests_parallel(size_t parallel /*, int max_col*/);
 
 
 

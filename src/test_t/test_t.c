@@ -26,8 +26,19 @@
   #define NANOSECOND 0
 #endif
 
+#ifndef PROGRESS
+  #define PROGRESS 0
+#endif
 
-
+#if 0
+#ifndef SAVE_LOG
+#define SAVE_LOG 0
+#else
+#ifndef ORDER_LOG
+  #define ORDER_LOG 1
+#endif
+#endif
+#endif
 
 #if 0
 #ifndef PARALLEL
@@ -70,6 +81,8 @@ struct failed_lists{
  * global variables not exported
  * only exist in test_t.c
  */
+
+bool progress = false;
 bool is_parallel = 0;
 
 FILE **f_ou_th;
@@ -102,7 +115,7 @@ size_t *count_pass_thread = NULL;
 size_t *count_fail_thread = NULL;
 
 size_t *id_thread_self = NULL;
-
+char **log_name_file_thrd = NULL;
 /*
  * the first instance of the func struct, 
  * it containis the first test
@@ -188,7 +201,9 @@ long int id_of_thread_executed(void){
 
 
 /*
- * format name of TEST(name_f) is: TEST_name_f____NUM, we extract NUM here
+ * format name of TEST(name_f) is: 'TEST_name_f____NUM', 
+ * and name attribute is 'TEST(name_f): test N° NUM!' (! at the end is random): 
+ * we extract NUM here
  * to have hash_table of the count when parallel test!
  */
 size_t extract_num_test__f(const char *name_f){
@@ -200,7 +215,7 @@ size_t extract_num_test__f(const char *name_f){
       val += p * (name_f[i]-'0');
       p *= 10;
     }
-    else break;
+    else if( name_f[i] == ' ' ||  name_f[i] == '_' ) break;
   }
   return val;
 }
@@ -214,7 +229,7 @@ size_t extract_num_test__f(const char *name_f){
 void list_failed_test(struct failed_lists *test_failed){
   struct failed_lists *failed_lst = test_failed;
     long int  id_thrd = id_of_thread_executed();
-  if(id_thrd < 0){
+  if(id_thrd < 0 || id_thrd == parallel_nb ){
     while(failed_lst){
       PRINT_HK_C(RED_K, HK_FL," %s\n",failed_lst->name);
       failed_lst = failed_lst->next;
@@ -625,9 +640,8 @@ void head_all_parallel_run(struct timespec *start_t){
  * print on the top of test in parallel
  */ 
 void head_parallel_run(struct timespec *start_t, size_t id_thrd){
-  char name_file_output[256];
-  sprintf(name_file_output,"log_thread_%ld_id_%ld",id_thrd,pthread_self());
-  f_ou_th[id_thrd] = fopen(name_file_output, "w+"); 
+  sprintf(log_name_file_thrd[id_thrd],"log_thread_%ld_id_%ld",id_thrd,pthread_self());
+  f_ou_th[id_thrd] = fopen(log_name_file_thrd[id_thrd], "w+"); 
   clock_gettime(CLOCK_REALTIME, start_t);
   PRINT_HK_C(GREEN_K, HK_EQ," Running tests on thread[%ld] ========== ==threadID== %ld \n", id_thrd,pthread_self());
 }
@@ -705,6 +719,42 @@ void end_execute_func_parallel(char *fun_ame, struct timespec start_t, size_t id
   }
 }
 
+#if 1
+void progress_test_(int max_colon){
+  struct func *tmp;
+  size_t num_test=0;
+  int  cur = 0, len;
+  //get_cursor_position(&col, &row);
+
+  char prgss[]="/ | --";
+  len=strlen(prgss);
+  do{
+    LOCK(mut_current_test);
+    tmp = current_fn;
+    UNLOCK(mut_current_test);
+    if(tmp)
+      num_test = extract_num_test__f(tmp->name);
+    gotoxy(13,0);
+    for(int i=0; i<(num_test*max_colon/count_tests); ++i) printf("#");
+    //printf("%c",prgss[cur]);
+    printf("\33[2K\r");  /* remove current line and go to begin of the current line */
+    if(cur<len-1) ++cur;
+    else cur=0;
+    //printf("\n");
+    //sleep(1);
+    //usleep(50000);
+  }while(tmp);
+
+}
+
+void*
+run_progress_tests(void *max_d)
+{
+   int max_col = 180; //*(int*)max_d;
+   //progress_test_(max_col);
+}
+
+#endif
 
 void execute_test_parallel(size_t id_thrd){
   
@@ -745,15 +795,22 @@ run_parallel_tests(void *id)
 void
 init_parallel_test_()
 {
+  progress = PROGRESS;
+
   is_parallel = 1;
   
   f_ou_th = malloc((parallel_nb + 1) *sizeof(FILE*));
+  log_name_file_thrd = malloc((parallel_nb + 1) *sizeof(char*));
+  for(size_t i=0; i<=parallel_nb; ++i){
+    log_name_file_thrd[i] = malloc((256) *sizeof(char));
+  }
+
   /*
    *  on thread principale
    */
-  char name_file_output[256];
-  sprintf(name_file_output,"log_principal_thread_%ld_id_%ld",parallel_nb,pthread_self());
-  f_ou_th[parallel_nb] = fopen(name_file_output, "w+");
+  sprintf(log_name_file_thrd[parallel_nb],"log_principal_thread_%ld_id_%ld",parallel_nb,pthread_self());
+  f_ou_th[parallel_nb] = fopen(log_name_file_thrd[parallel_nb], "w+");
+
 
 
   count_pass_test = malloc(count_tests * sizeof(size_t));
@@ -816,9 +873,14 @@ final_parallel_test_()
     fclose(f_ou_th[id_thrd]);
   }
   //fclose(f_ou_th[parallel_nb]);
+  if(!SAVE_LOG){
+    for(size_t i=0; i<=parallel_nb; ++i){
+      remove(log_name_file_thrd[i]);
+    }
+  }
 }
 
-void run_all_tests_parallel(size_t parallel)
+void run_all_tests_parallel(size_t parallel /*, int max_col*/)
 {
   parallel_nb = parallel; /* need to be here to initialise parallel_nb for init_parallel_test_ */
   
@@ -828,6 +890,11 @@ void run_all_tests_parallel(size_t parallel)
   
   head_all_parallel_run(&start_t);
 
+#if 1
+  pthread_t thrd_progress;
+if(progress)  pthread_create(&thrd_progress, NULL, run_progress_tests, NULL);
+//if(progress)  pthread_create(&thrd_progress, NULL, run_progress_tests, (void*)&max_col);
+#endif
 
   pthread_t *thrd = malloc(parallel_nb * sizeof(pthread_t));
   size_t *id_th = malloc( parallel_nb * sizeof(size_t));
@@ -841,6 +908,8 @@ void run_all_tests_parallel(size_t parallel)
     pthread_join(thrd[i], NULL);
   }
 
+if(progress)  pthread_join(thrd_progress, NULL);
+  
   stat_end_all_parallel_run(count_tests, start_t );
 
   free(id_th);

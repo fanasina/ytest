@@ -39,6 +39,10 @@ double diff_timespec_milliseconds(struct timespec time_stop, struct timespec tim
 long diff_timespec_nanoseconds(struct timespec time_stop, struct timespec time_start);
 */
 
+void gotoxy(int x, int y);
+//void get_cursor_position(int *col, int *rows);
+
+
 #define debug_print(fmt, ...) \
   do { if (DEBUG) fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__, \
       __LINE__, __func__, __VA_ARGS__); } while (0)

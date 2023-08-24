@@ -133,6 +133,14 @@ TEST(lessThan){
 
 }
 
+TEST(sleep){sleep(2);}
+TEST(sleep){sleep(2);}
+TEST(sleep){sleep(2);}
+TEST(sleep){sleep(2);}
+TEST(sleep){sleep(2);}
+TEST(sleep){sleep(2);}
+TEST(sleep){sleep(2);}
+
 int main(){
   
   //run_all_tests();
