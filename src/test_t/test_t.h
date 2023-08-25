@@ -54,11 +54,11 @@
 #define DESCRIPTION_NE "inequality"
 
 
-#ifndef NOT_COLORED
-  #define NOT_COLORED 0
-#endif /* NOT_COLORED */
-
 #if 0
+#ifndef unicolour
+  #define unicolour 0
+#endif /* unicolour */
+
 #ifndef PARALLEL
   #define PARALLEL 1
   #define LOCK(mut)
@@ -66,11 +66,12 @@
 #else /*PARALLEL defined*/
   #define LOCK(mutex_var)  pthread_mutex_lock(&mutex_var);
   #define UNLOCK(mutex_var) pthread_mutex_unlock(&mutex_var);
-  #define is_parallel 1
+  #define is_parallel_nb 1
 #endif
 #endif /* 0 */
 
 extern FILE **f_ou_th;
+extern bool unicolour;
 
 // ===================== rec not in file
 
@@ -97,7 +98,7 @@ extern FILE **f_ou_th;
  */
 
 #define PRINT_HK_C(color,hk,...)\
-  do{ if(!NOT_COLORED) fprintf(F_OUT, color hk DEFAULT_K  __VA_ARGS__); \
+  do{ if(!unicolour) fprintf(F_OUT, color hk DEFAULT_K  __VA_ARGS__); \
       else fprintf(F_OUT, hk  __VA_ARGS__); } while(0) 
 
 /* =================================== end no file */
@@ -106,7 +107,7 @@ extern FILE **f_ou_th;
 
 #define PRINT_LOC(fmt, ...) \
   do{ \
-    if(is_parallel){\
+    if(is_parallel_nb){\
       size_t id_thread=id_of_thread_executed();\
       if(id_thread < 0){\
         fprintf(F_OUT, "%s:%d:%s(): " fmt, __FILE__, \
@@ -125,7 +126,7 @@ extern FILE **f_ou_th;
 
 #define PRINTF( ...) \
   do{ \
-    if(is_parallel){\
+    if(is_parallel_nb){\
       size_t id_thread=id_of_thread_executed();\
       if(id_thread < 0){\
         fprintf(F_OUT,__VA_ARGS__);\
@@ -141,19 +142,19 @@ extern FILE **f_ou_th;
 
 #define PRINT_HK_C(color,hk,...)\
   do{ \
-    if(is_parallel){\
+    if(is_parallel_nb){\
       size_t id_thread=id_of_thread_executed();\
       if(id_thread < 0){\
-        if(!NOT_COLORED) fprintf(F_OUT, color hk DEFAULT_K  __VA_ARGS__); \
+        if(!unicolour) fprintf(F_OUT, color hk DEFAULT_K  __VA_ARGS__); \
         else fprintf(F_OUT, hk  __VA_ARGS__); \
       }\
       else{\
-        if(!NOT_COLORED) fprintf(f_ou_th[id_thread], color hk DEFAULT_K  __VA_ARGS__); \
+        if(!unicolour) fprintf(f_ou_th[id_thread], color hk DEFAULT_K  __VA_ARGS__); \
         else fprintf(f_ou_th[id_thread], hk  __VA_ARGS__); \
       }\
     } \
     else{\
-      if(!NOT_COLORED) fprintf(F_OUT, color hk DEFAULT_K  __VA_ARGS__); \
+      if(!unicolour) fprintf(F_OUT, color hk DEFAULT_K  __VA_ARGS__); \
       else fprintf(F_OUT, hk  __VA_ARGS__); \
     }\
   }while(0) 
@@ -170,7 +171,7 @@ extern FILE **f_ou_th;
  * print [ HK_NAME ] with color
  */
 #define PRINT_HK_C(color,hk,format,...)\
-  do{ if(!NOT_COLORED) fprintf(F_OUT, color hk DEFAULT_K format, __VA_ARGS__); \
+  do{ if(!unicolour) fprintf(F_OUT, color hk DEFAULT_K format, __VA_ARGS__); \
       else fprintf(F_OUT, hk format, __VA_ARGS__); } while(0) \
 
 #endif /* 0 */
@@ -191,21 +192,26 @@ struct func {
 };
 
 
-extern bool is_parallel;
+extern bool is_parallel_nb;
 
 long int id_of_thread_executed(void);
+
+void parse_options(int argc, char **argv);
 
 void run_all_tests();
 void execute_all(struct func *fun);
 void append_func(void (*run)(void), char *name);
-//__attribute__((destructor))  void purge_tests();
 void run_some_tests(size_t cnt, ... );
 void run_all_tests_exept(size_t cnt, ... );
 void run_some_tests_ordered(size_t cnt, ... );
 
 void run_all_tests_parallel(size_t parallel /*, int max_col*/);
 
-
+/* 
+ * to launch test with different parameters without re-compile it  
+ * it can print help if need!
+ * */
+void run_all_tests_args(int argc, char **argv);
 
 bool expected_true_f(bool val);
 bool expected_false_f(bool val);
@@ -337,7 +343,7 @@ GEN_EXPECTED_OP_TYPE_FUNC(NE, TYPE_STRING)
    */
 #define HANDLE_OP_EXPECT_ASSERT(OP,type,var1,var2,is_assert)                                                          \
 do{      \
-   if(is_parallel == 0){\
+   if(is_parallel_nb == 0){\
       if(expected_##OP##_##type(var1, var2)){                                                                       \
         PRINT_HK_C(GREEN_K,HK_TR," 1 test passed from %s \n\n",__func__);                                       \
       }                                                                                                         \
@@ -598,7 +604,7 @@ do{      \
 
 #define HANDLE_EXPECT_NOT_EXPECT_ASSERT(expect,not_expect,var1,is_assert)                             \
 do{                                                                                               \
-   if(is_parallel==0){\
+   if(is_parallel_nb==0){\
       if(expected_##expect##_f(var1)){                                                                \
         PRINT_HK_C(GREEN_K,HK_TR," 1 test passed from %s \n\n",__func__);                             \
       }                                                                                               \

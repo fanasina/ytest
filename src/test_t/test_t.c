@@ -18,13 +18,18 @@
 
 /*
  * by default display in millisecond
- */ 
+ */
+/*
 #ifndef SECOND
   #define SECOND 0
 #endif
 #ifndef NANOSECOND
   #define NANOSECOND 0
 #endif
+*/
+
+#define NANOSECOND  (timeunit[0]=='n')
+#define SECOND  (timeunit[0]=='s')
 
 #ifndef PROGRESS
   #define PROGRESS 0
@@ -56,7 +61,7 @@
 
 #define INCREMENT(variable)\
   do{\
-    if(is_parallel){\
+    if(is_parallel_nb){\
       LOCK(mut_##variable); \
       ++variable;\
       UNLOCK(mut_##variable);\
@@ -75,15 +80,40 @@ struct failed_lists{
   struct failed_lists *next;
 };
 
+#define default_ordered 0
+#define default_unicolour 0
+#define default_removelog  0
+#define default_parallel_nb 1
 
 
 /*
  * global variables not exported
  * only exist in test_t.c
  */
+/*
+ * begin variable option
+ */
+bool some_thing_wrong = 0;
 
+bool help=0;
+bool ordered= 0;
+bool unicolour = 0;
+bool removelog = 0;
+char *timeunit="ms";
+char *savelog=NULL;
+char *default_timeunit="ms";
+char *default_savelog="log_all_tests";
+/*
+ * number of threads
+ */ 
+size_t parallel_nb = 0;
+
+/*
+ * end variable option
+ */ 
+
+bool is_parallel_nb = 0;
 bool progress = false;
-bool is_parallel = 0;
 
 FILE **f_ou_th;
 
@@ -103,11 +133,6 @@ size_t count_fail_local = 0;
 size_t *count_pass_test = NULL;
 size_t *count_fail_test = NULL;
  
-/*
- * number of threads
- */ 
-size_t parallel_nb = 0;
-
 /*
  * count on each thread [PARALLEL]
  */
@@ -206,18 +231,153 @@ long int id_of_thread_executed(void){
  * we extract NUM here
  * to have hash_table of the count when parallel test!
  */
-size_t extract_num_test__f(const char *name_f){
+size_t extract_num__f(const char *name_f){
   size_t len = strlen(name_f);
   size_t val = 0, p = 1;
-  for(size_t i= len-1; i>=0; --i){
+  for(long i= len-1; i>=0; --i){
     PRINT_DEBUG(" name_f[%ld] = %c\n",i,name_f[i]);
     if(name_f[i] >= '0' && name_f[i] <= '9'){
       val += p * (name_f[i]-'0');
       p *= 10;
     }
-    else if( name_f[i] == ' ' ||  name_f[i] == '_' ) break;
+    else if( name_f[i] == ' ' ||  name_f[i] == '_' || name_f[i] == '=' ) break;
   }
   return val;
+}
+
+void usage(int argc, char **argv){
+  printf("usage: %s [OPTIONS] [<ARGS>] \n\n  or : %s [OPTIONS]=[<ARGS>]\n\n",argv[0],argv[0]);
+  printf("OPTIONS\n");
+  printf("\t -h, --help \n\t\tprint help, options variables\n\n");
+  printf("\t -p <NB>, --parallel <NB>, -p=<NB>, --parallel=<NB>\n\t\tby default the program ran in sequantial all test, \n\t\tif this option is set, the program run tests on NB threads.\n\t\tEach thread pull up one test out the list of all test not yet executed,\n\t\tand execute it, until the list is empty \n\n");
+  printf("\t -t <unit>, --time <unit>, -t=<unit>, --time=<unit>  \n\t\tby default unit is millisecons ms, the other of unit are choices are second (or s), and nanosecond (or ns)\n\t\tex: -t ns or -t=nanosecond or --time=n to set nanosecond unit\n\n");
+  printf("\t -u , --unicolour\n\t\tby default, the result is colored, if you choice this option, it prints with default color\n\n");
+  printf("\t -o, --ordered\n\t\tthis option is usefull if you choose to use parallel tests,\n\t\tby default, each thread share the screen to print results,\n\t\tthis option create file to record log of each thread on file,\n\t\tand print on screen all results at the end of all tests\n\n");
+  printf("\t -r , --remove\n\t\tif the option ordered is choosen if parallel tests,\n\t\tthis option remove the file logs of each thread after all tests.\n\n");
+  printf("\t -s <file>, --savelog <file>, -s=file, --savelog=file\n\t\tthis option save the global ordered result in 'file',\n\t\this option active the option -o or --ordered. \n\n");
+
+  if(some_thing_wrong){
+    printf("invalid argument\n");
+    exit(0);
+  }
+}
+
+
+const char* extract_string_after_equal_symbole_in_string(const char * in_str){
+  size_t len=strlen(in_str);
+    
+  for(long i=0; i<len-1; ++i){
+    if(in_str[i]=='=') 
+      return in_str+i+1;
+  }
+  return NULL; // check for '\0' or ' ' return !
+}
+
+long int extract_num_after_equal_symbole_in_string(char * in_str){
+  size_t len=strlen(in_str);
+  long int val=0, p=1;
+  for(long i=len-1; i>=0; --i){
+    PRINT_DEBUG("(%s)[%ld]=%c\n",in_str,i,in_str[i]);
+    if(in_str[i]=='=') return val;
+    if(in_str[i] >= '0' && in_str[i] <= '9' ){
+      val += p * (in_str[i]-'0');
+      p *= 10;
+    }
+  }
+  if(val) return val;
+  return -1;
+} 
+
+#define IF_OPTION_WITH_ARG_NUM(option)\
+  if(argv[i][0]=='-'){\
+    j=1;\
+    if(argv[i][j]=='-') ++j;\
+    if(argv[i][j] == #option[0]){\
+      long ret_num=extract_num_after_equal_symbole_in_string(argv[i]);\
+    PRINT_DEBUG("option=%s, ret_num = %ld, argv[%d]=%s\n",#option,ret_num,i,argv[i]);\
+      is_##option = 1;\
+      if(ret_num > -1)\
+        option = ret_num;\
+      else{\
+        if(i<argc-1){\
+          if(argv[i+1][0]=='-'){\
+            help=1;\
+            option = default_##option;\
+            some_thing_wrong = 1;\
+          }\
+          else{\
+            ret_num=extract_num_after_equal_symbole_in_string(argv[++i]);\
+            if(ret_num>0)\
+              option = ret_num;\
+            else{ \
+              help=1;\
+              option = default_##option;\
+              some_thing_wrong = 1;\
+            }\
+          }\
+        }\
+        else{\
+          help=1;\
+          option = default_##option;\
+          some_thing_wrong = 1;\
+        }\
+      }\
+    PRINT_DEBUG("option %s activated, its value is %ld\n",#option,option);\
+      continue;\
+    }\
+  }\
+
+#define IF_OPTION_WITH_ARG_STR(option)\
+  if(argv[i][0]=='-'){\
+    j=1;\
+    if(argv[i][j]=='-') ++j;\
+    if(argv[i][j] == #option[0]){\
+      char* ret_str=(char*)extract_string_after_equal_symbole_in_string(argv[i]);\
+    PRINT_DEBUG("option=%s, ret_str = %s, argv[%d]=%s\n",#option,ret_str,i,argv[i]);\
+      if(ret_str ==NULL || strlen(ret_str)==0){\
+        if(i<argc-1){\
+          if(argv[i+1][0]=='-')\
+            help=1;\
+          else\
+            option = argv[++i];\
+        }\
+        else{\
+          help=1;\
+        }\
+      }\
+      else option = ret_str;\
+      continue;\
+    }\
+  }\
+       
+/*
+ * if the variable option is boolean
+ */
+
+#define IF_OPTION_NO_ARG(option)\
+  if(argv[i][0]=='-'){\
+    j=1;\
+    if(argv[i][j]=='-') ++j;\
+    if(argv[i][j] == #option[0]){\
+      option=1;\
+      continue;\
+    }\
+  }\
+
+
+void parse_options(int argc, char **argv){
+  int j;
+  for(int i=1; i<argc; ++i){
+    PRINT_DEBUG("argc=%d, argv[%d]=%s\n",argc,i,argv[i]);
+    IF_OPTION_NO_ARG(help)
+    IF_OPTION_WITH_ARG_NUM(parallel_nb)
+    IF_OPTION_WITH_ARG_STR(savelog)
+    IF_OPTION_WITH_ARG_STR(timeunit)
+    IF_OPTION_NO_ARG(ordered)
+    IF_OPTION_NO_ARG(removelog)    
+    IF_OPTION_NO_ARG(unicolour)    
+  }
+
 }
 
 
@@ -226,24 +386,29 @@ size_t extract_num_test__f(const char *name_f){
  * print all TESTs failed
  */ 
 
+#define LISTE_ALL_FAILED_TEST_IN_F_OUT\
+  while(failed_lst){\
+      PRINT_HK_C(RED_K, HK_FL," %s\n",failed_lst->name);\
+      failed_lst = failed_lst->next;\
+    }
+
+
 void list_failed_test(struct failed_lists *test_failed){
   struct failed_lists *failed_lst = test_failed;
+  if(is_parallel_nb){
     long int  id_thrd = id_of_thread_executed();
-  if(id_thrd < 0 || id_thrd == parallel_nb ){
-    while(failed_lst){
-      PRINT_HK_C(RED_K, HK_FL," %s\n",failed_lst->name);
-      failed_lst = failed_lst->next;
-      //if(failed_lst->next) list_failed_test(failed_lst->next);
+    if(id_thrd < 0 || id_thrd == parallel_nb ){
+      LISTE_ALL_FAILED_TEST_IN_F_OUT
+    }else{
+      while(failed_lst){
+        PRINT_HK_C(RED_K, HK_FL," %s, on thread[%ld]\n",failed_lst->name,id_thrd);
+        failed_lst = failed_lst->next;
+      }
     }
-  }else{
-    while(failed_lst){
-      PRINT_HK_C(RED_K, HK_FL," %s, on thread[%ld]\n",failed_lst->name,id_thrd);
-      failed_lst = failed_lst->next;
-      //if(failed_lst->next) list_failed_test(failed_lst->next);
-    }
-
   }
-
+  else{
+    LISTE_ALL_FAILED_TEST_IN_F_OUT
+  }
   PRINT_HK_C(DEFAULT_K, HK_EQ,"%s\n","");
 }
 
@@ -253,13 +418,9 @@ void list_failed_test(struct failed_lists *test_failed){
 
 #define INCREMENT_EXPECT(expect,name)\
   do{\
-    size_t num_test=extract_num_test__f(name);\
+    size_t num_test=extract_num__f(name);\
     ++count_## expect ##_test[num_test];\
     PRINT_DEBUG("INCREMENT cout_%s_test[%ld] = %ld\n",#expect, num_test,count_## expect ##_test[num_test]); \
-    /*PRINT_DEBUG(" cout_%s_test[%ld] = %ld , count_%s_thread[%ld] = %ld\n",#expect, num_test,count_## expect ##_test[num_test]); \
-    size_t num_thread= id_of_thread_executed(pthread_self());\
-    ++count_## expect ##_thread[num_thread];\
-    PRINT_DEBUG(" cout_%s_thread[%ld] = %ld , count_%s_thread[%ld] = %ld\n",#expect, num_thread,count_## expect ##_thread[num_thread]);*/ \
   }while(0);
 
 
@@ -287,11 +448,6 @@ bool expected_##expect##_f_name(bool val, const char * name){                   
 
 EXPECTED_EXPECT_F(true)
 EXPECTED_EXPECT_F(false)
-/*
-EXPECTED_EXPECT_F(true,false)
-EXPECTED_EXPECT_F(false,true)
-*/
-
 
 #define EXPECTED_OP_TYPE(OP,type)                                                            \
     \
@@ -699,7 +855,7 @@ void begin_execute_func_parallel(char *fun_ame, struct timespec *start_t, size_t
 
 void end_execute_func_parallel(char *fun_ame, struct timespec start_t, size_t id_thrd){
   struct timespec end_t; clock_gettime(CLOCK_REALTIME, &end_t);
-  size_t num_test = extract_num_test__f(fun_ame);  
+  size_t num_test = extract_num__f(fun_ame);  
   PRINT_DEBUG(" ... thread[%ld], count_fail_test[%ld] = %ld ... %s\n", id_thrd, num_test, count_fail_test[num_test],fun_ame);
   if(count_fail_test[num_test]){
     INCREMENT(count_fail_global); /*++count_fail_global*/
@@ -733,7 +889,7 @@ void progress_test_(int max_colon){
     tmp = current_fn;
     UNLOCK(mut_current_test);
     if(tmp)
-      num_test = extract_num_test__f(tmp->name);
+      num_test = extract_num__f(tmp->name);
     gotoxy(13,0);
     for(int i=0; i<(num_test*max_colon/count_tests); ++i) printf("#");
     //printf("%c",prgss[cur]);
@@ -797,7 +953,7 @@ init_parallel_test_()
 {
   progress = PROGRESS;
 
-  is_parallel = 1;
+  is_parallel_nb = 1;
   
   f_ou_th = malloc((parallel_nb + 1) *sizeof(FILE*));
   log_name_file_thrd = malloc((parallel_nb + 1) *sizeof(char*));
@@ -863,21 +1019,37 @@ final_parallel_test_()
   pthread_mutex_destroy(&mut_count_pass_local);
   pthread_mutex_destroy(&mut_count_fail_local);
 
-  char reader[256]; 
-  for(size_t id_thrd =0 ; id_thrd <= parallel_nb; ++id_thrd){
-    rewind(f_ou_th[id_thrd]); // put the file pointer to the begin of file;
 
-    while(fgets(reader, 255,f_ou_th[id_thrd] )){
-      fprintf(F_OUT,"%s",reader);
+  char reader[256]; 
+  
+  if(savelog){
+    FILE *f_savelog;
+    f_savelog=fopen(savelog, "w+");
+    for(size_t id_thrd =0 ; id_thrd <= parallel_nb; ++id_thrd){
+      rewind(f_ou_th[id_thrd]); // put the file pointer to the begin of file;
+      while(fgets(reader, 255,f_ou_th[id_thrd] )){
+        fprintf(F_OUT,"%s",reader);
+        fprintf(f_savelog,"%s",reader);
+      }
+      fclose(f_ou_th[id_thrd]);
     }
-    fclose(f_ou_th[id_thrd]);
+    fclose(f_savelog);
+  }else{
+    for(size_t id_thrd =0 ; id_thrd <= parallel_nb; ++id_thrd){
+      rewind(f_ou_th[id_thrd]); // put the file pointer to the begin of file;
+      while(fgets(reader, 255,f_ou_th[id_thrd] ))
+        fprintf(F_OUT,"%s",reader); 
+      fclose(f_ou_th[id_thrd]);
+    }
   }
-  //fclose(f_ou_th[parallel_nb]);
-  if(!SAVE_LOG){
+  
+  if(removelog){
     for(size_t i=0; i<=parallel_nb; ++i){
       remove(log_name_file_thrd[i]);
     }
   }
+
+
 }
 
 void run_all_tests_parallel(size_t parallel /*, int max_col*/)
@@ -919,7 +1091,13 @@ if(progress)  pthread_join(thrd_progress, NULL);
 }
 
 
-
+void run_all_tests_args(int argc, char **argv){
+  
+  parse_options(argc,argv);
+  if(help) usage(argc,argv);
+  if(is_parallel_nb) run_all_tests_parallel(parallel_nb);
+  else run_all_tests();
+}
 
 void 
 clear_all_func(struct func **fun)

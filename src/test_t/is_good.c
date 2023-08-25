@@ -141,10 +141,12 @@ TEST(sleep){sleep(2);}
 TEST(sleep){sleep(2);}
 TEST(sleep){sleep(2);}
 
-int main(){
+int main(int argc, char **argv){
   
   //run_all_tests();
-  run_all_tests_parallel(4);
+  //run_all_tests_parallel(4);
+
+  run_all_tests_args(argc, argv);
 
   //purge_tests();
   //run_some_tests(8, 1, 2, 2, 3, 3, 0, 4, 1);
