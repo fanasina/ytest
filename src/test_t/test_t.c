@@ -971,8 +971,10 @@ run_parallel_tests(void *id)
 void
 init_parallel_test_()
 {
-  progress = ordered;
+  if(savelog) ordered =1;
 
+  progress = ordered;
+  
   is_parallel_nb = 1;
   
   f_ou_th = malloc((parallel_nb + 1) *sizeof(FILE*));
