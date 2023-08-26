@@ -46,34 +46,10 @@
 #define GE >=
 #define NE !=
 
-#define DESCRIPTION_EQ "equality"
-#define DESCRIPTION_LT "less than"
-#define DESCRIPTION_GT "greate than"
-#define DESCRIPTION_LE "less than or equality"
-#define DESCRIPTION_GE "greate than or equality"
-#define DESCRIPTION_NE "inequality"
-
-
-#if 0
-#ifndef unicolour
-  #define unicolour 0
-#endif /* unicolour */
-
-#ifndef PARALLEL
-  #define PARALLEL 1
-  #define LOCK(mut)
-  #define UNLOCK(mut)
-#else /*PARALLEL defined*/
-  #define LOCK(mutex_var)  pthread_mutex_lock(&mutex_var);
-  #define UNLOCK(mutex_var) pthread_mutex_unlock(&mutex_var);
-  #define is_parallel_nb 1
-#endif
-#endif /* 0 */
 
 extern FILE **f_ou_th;
 extern bool unicolour;
-
-// ===================== rec not in file
+extern bool ordered;
 
 
 #ifndef SAVE_LOG
@@ -85,85 +61,77 @@ extern bool unicolour;
 #endif
 
 
-#ifndef  ORDER_LOG
-
-#define PRINT_LOC(fmt, ...) \
-   fprintf(F_OUT, "%s:%d:%s(): " fmt, __FILE__, \
-      __LINE__, __func__, __VA_ARGS__)
-
-#define PRINTF( ...) \
-   fprintf(F_OUT, __VA_ARGS__)
-/*
- * print [ HK_NAME ] with color
- */
-
-#define PRINT_HK_C(color,hk,...)\
-  do{ if(!unicolour) fprintf(F_OUT, color hk DEFAULT_K  __VA_ARGS__); \
-      else fprintf(F_OUT, hk  __VA_ARGS__); } while(0) 
-
-/* =================================== end no file */
-#else /* ORDER_LOG  */
-/* ====================== rec in file */
 
 #define PRINT_LOC(fmt, ...) \
   do{ \
-    if(is_parallel_nb){\
-      size_t id_thread=id_of_thread_executed();\
-      if(id_thread < 0){\
-        fprintf(F_OUT, "%s:%d:%s(): " fmt, __FILE__, \
-        __LINE__, __func__, __VA_ARGS__);\
-      }\
+    if(ordered){\
+      if(is_parallel_nb){\
+        size_t id_thread=id_of_thread_executed();\
+        if(id_thread < 0){\
+          fprintf(F_OUT, "%s:%d:%s(): " fmt, __FILE__, \
+          __LINE__, __func__, __VA_ARGS__);\
+        }\
+        else{\
+          fprintf(f_ou_th[id_thread], "%s:%d:%s(): " fmt, __FILE__, \
+          __LINE__, __func__, __VA_ARGS__);\
+        }\
+      } \
       else{\
-        fprintf(f_ou_th[id_thread], "%s:%d:%s(): " fmt, __FILE__, \
-        __LINE__, __func__, __VA_ARGS__);\
+        fprintf(F_OUT, "%s:%d:%s(): " fmt, __FILE__, \
+          __LINE__, __func__, __VA_ARGS__);\
       }\
-    } \
+    }\
     else{\
       fprintf(F_OUT, "%s:%d:%s(): " fmt, __FILE__, \
-        __LINE__, __func__, __VA_ARGS__);\
+      __LINE__, __func__, __VA_ARGS__);\
     }\
   }while(0)
 
 #define PRINTF( ...) \
   do{ \
-    if(is_parallel_nb){\
-      size_t id_thread=id_of_thread_executed();\
-      if(id_thread < 0){\
-        fprintf(F_OUT,__VA_ARGS__);\
-      }\
+    if(ordered){\
+      if(is_parallel_nb){\
+        size_t id_thread=id_of_thread_executed();\
+        if(id_thread < 0){\
+          fprintf(F_OUT,__VA_ARGS__);\
+        }\
+        else{\
+          fprintf(f_ou_th[id_thread], __VA_ARGS__);\
+        }\
+      } \
       else{\
-        fprintf(f_ou_th[id_thread], __VA_ARGS__);\
+         fprintf(F_OUT, __VA_ARGS__);\
       }\
-    } \
+    }\
     else{\
-       fprintf(F_OUT, __VA_ARGS__);\
+      fprintf(F_OUT, __VA_ARGS__);\
     }\
   }while(0)
 
 #define PRINT_HK_C(color,hk,...)\
   do{ \
-    if(is_parallel_nb){\
-      size_t id_thread=id_of_thread_executed();\
-      if(id_thread < 0){\
+    if(ordered){\
+      if(is_parallel_nb){\
+        size_t id_thread=id_of_thread_executed();\
+        if(id_thread < 0){\
+          if(!unicolour) fprintf(F_OUT, color hk DEFAULT_K  __VA_ARGS__); \
+          else fprintf(F_OUT, hk  __VA_ARGS__); \
+        }\
+        else{\
+          if(!unicolour) fprintf(f_ou_th[id_thread], color hk DEFAULT_K  __VA_ARGS__); \
+          else fprintf(f_ou_th[id_thread], hk  __VA_ARGS__); \
+        }\
+      } \
+      else{\
         if(!unicolour) fprintf(F_OUT, color hk DEFAULT_K  __VA_ARGS__); \
         else fprintf(F_OUT, hk  __VA_ARGS__); \
       }\
-      else{\
-        if(!unicolour) fprintf(f_ou_th[id_thread], color hk DEFAULT_K  __VA_ARGS__); \
-        else fprintf(f_ou_th[id_thread], hk  __VA_ARGS__); \
-      }\
-    } \
+    }\
     else{\
-      if(!unicolour) fprintf(F_OUT, color hk DEFAULT_K  __VA_ARGS__); \
-      else fprintf(F_OUT, hk  __VA_ARGS__); \
+       if(!unicolour) fprintf(F_OUT, color hk DEFAULT_K  __VA_ARGS__); \
+       else fprintf(F_OUT, hk  __VA_ARGS__);  \
     }\
   }while(0) 
-
-#endif /* ORDER_LOG */
-
-// ====================== = end rec log in file
-
-
 
 #if 0
 
@@ -426,7 +394,6 @@ do{      \
 #define EXPECT_LT(var1, var2) HANDLE_OP_EXPECT_ASSERT(LT, TYPE_L_INT,var1, var2, 0)
 
 
-
 // ============== ASERT =====================
 
 #define ASSERT_LT_TYPE_CHAR(var1, var2) 	HANDLE_OP_EXPECT_ASSERT(LT, TYPE_CHAR,var1, var2, 1)
@@ -651,7 +618,7 @@ do{                                                                             
   void CONCAT(TEST_##name_f##____,count)(void);                                       \
   __attribute__((constructor))                                                \
   void CONCAT(append_test_##name_f,count)(void){                              \
-    append_func(CONCAT(TEST_##name_f##____,count),STRFY(TEST(name_f): test N° count ));          \
+    append_func(CONCAT(TEST_##name_f##____,count),STRFY(TEST(name_f): test N° count|));          \
   }                                                                           \
   void CONCAT(TEST_##name_f##____,count)(void)
 

@@ -84,6 +84,7 @@ struct failed_lists{
 #define default_unicolour 0
 #define default_removelog  0
 #define default_parallel_nb 1
+#define default_width 1
 
 
 /*
@@ -103,6 +104,8 @@ char *timeunit="ms";
 char *savelog=NULL;
 char *default_timeunit="ms";
 char *default_savelog="log_all_tests";
+
+size_t width = 80;
 /*
  * number of threads
  */ 
@@ -113,6 +116,7 @@ size_t parallel_nb = 0;
  */ 
 
 bool is_parallel_nb = 0;
+bool is_width=0;
 bool progress = false;
 
 FILE **f_ou_th;
@@ -226,7 +230,7 @@ long int id_of_thread_executed(void){
 
 
 /*
- * format name of TEST(name_f) is: 'TEST_name_f____NUM', 
+ * format name of TEST(name_f) is: 'TEST_name_f____NUM|', 
  * and name attribute is 'TEST(name_f): test N° NUM!' (! at the end is random): 
  * we extract NUM here
  * to have hash_table of the count when parallel test!
@@ -235,7 +239,8 @@ size_t extract_num__f(const char *name_f){
   size_t len = strlen(name_f);
   size_t val = 0, p = 1;
   for(long i= len-1; i>=0; --i){
-    PRINT_DEBUG(" name_f[%ld] = %c\n",i,name_f[i]);
+    PRINT_DEBUG(" name_f(%s)[%ld] = %c\n",name_f,i,name_f[i]);
+    if(name_f[i]=='|') val = 0;
     if(name_f[i] >= '0' && name_f[i] <= '9'){
       val += p * (name_f[i]-'0');
       p *= 10;
@@ -254,7 +259,8 @@ void usage(int argc, char **argv){
   printf("\t -u , --unicolour\n\t\tby default, the result is colored, if you choice this option, it prints with default color\n\n");
   printf("\t -o, --ordered\n\t\tthis option is usefull if you choose to use parallel tests,\n\t\tby default, each thread share the screen to print results,\n\t\tthis option create file to record log of each thread on file,\n\t\tand print on screen all results at the end of all tests\n\n");
   printf("\t -r , --remove\n\t\tif the option ordered is choosen if parallel tests,\n\t\tthis option remove the file logs of each thread after all tests.\n\n");
-  printf("\t -s <file>, --savelog <file>, -s=file, --savelog=file\n\t\tthis option save the global ordered result in 'file',\n\t\this option active the option -o or --ordered. \n\n");
+  printf("\t -s <file>, --savelog <file>, -s=file, --savelog=file\n\t\tthis option save the global ordered result in 'file',\n\t\tthis option active the option -o or --ordered. \n\n");
+  printf("\t -w <WID>, --width <WID>, -w=WID, --savelog=WID\n\t\tthis option change the width of the progress bar to WID,\n\t\tex: -w100, or --width=100 or -wi 100\n\n");
 
   if(some_thing_wrong){
     printf("invalid argument\n");
@@ -371,6 +377,7 @@ void parse_options(int argc, char **argv){
     PRINT_DEBUG("argc=%d, argv[%d]=%s\n",argc,i,argv[i]);
     IF_OPTION_NO_ARG(help)
     IF_OPTION_WITH_ARG_NUM(parallel_nb)
+    IF_OPTION_WITH_ARG_NUM(width)
     IF_OPTION_WITH_ARG_STR(savelog)
     IF_OPTION_WITH_ARG_STR(timeunit)
     IF_OPTION_NO_ARG(ordered)
@@ -875,8 +882,9 @@ void end_execute_func_parallel(char *fun_ame, struct timespec start_t, size_t id
   }
 }
 
-#if 1
-void progress_test_(int max_colon){
+unsigned sleep(unsigned x) { time_t t0=time(0); while (difftime(time(0),t0)<x); return 0; }
+
+void progress_test_(){
   struct func *tmp;
   size_t num_test=0;
   int  cur = 0, len;
@@ -885,32 +893,44 @@ void progress_test_(int max_colon){
   char prgss[]="/ | --";
   len=strlen(prgss);
   do{
-    LOCK(mut_current_test);
+    //LOCK(mut_current_test);
     tmp = current_fn;
-    UNLOCK(mut_current_test);
+    //UNLOCK(mut_current_test);
     if(tmp)
       num_test = extract_num__f(tmp->name);
-    gotoxy(13,0);
-    for(int i=0; i<(num_test*max_colon/count_tests); ++i) printf("#");
+    //gotoxy(13,0);
+    printf("\r[");
+    for(int i=0; i< width; ++i) {
+      if(i<=(num_test+1)*width/count_tests){
+          //usleep(20000);
+          printf("#");
+      }
+      else printf(" ");
+    }
+      printf("|%ld%%, test N° %ld/%ld]",(num_test+1)*100/count_tests,num_test,count_tests-1);
+      fflush(stdout);
+    
+    
     //printf("%c",prgss[cur]);
-    printf("\33[2K\r");  /* remove current line and go to begin of the current line */
+    //printf("\33[2K\r");  // remove current line and go to begin of the current line 
     if(cur<len-1) ++cur;
     else cur=0;
     //printf("\n");
     //sleep(1);
-    //usleep(50000);
+    //usleep(500000);
   }while(tmp);
 
+  printf("\n");
 }
 
 void*
 run_progress_tests(void *max_d)
 {
-   int max_col = 180; //*(int*)max_d;
-   //progress_test_(max_col);
+   int max_col = 80; //*(int*)max_d;
+   progress_test_(max_col);
 }
 
-#endif
+
 
 void execute_test_parallel(size_t id_thrd){
   
@@ -951,7 +971,7 @@ run_parallel_tests(void *id)
 void
 init_parallel_test_()
 {
-  progress = PROGRESS;
+  progress = ordered;
 
   is_parallel_nb = 1;
   
