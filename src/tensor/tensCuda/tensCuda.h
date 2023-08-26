@@ -6,12 +6,12 @@
 
 #include <stdexcept>
 
-//#include "/home/fanasina/progr_/ptens0neD/src/tensor/tens0neD/tens0neD.h"
-#include "src/tensor/tens0neD/tens0neD.h"
+//#include "/home/fanasina/progr_/ptens0neD/tensor/tens0neD/tens0neD.h"
+#include "tensor/tens0neD/tens0neD.h"
 
-//#include "/home/fanasina/progr_/ptens0neD/src/tensor/tensCuda/d_tensCuda.h"
-#include "src/tensor/tensCuda/d_tensCuda.h"
-//#include "src/dimension/dimension.h"
+//#include "/home/fanasina/progr_/ptens0neD/tensor/tensCuda/d_tensCuda.h"
+#include "tensor/tensCuda/d_tensCuda.h"
+//#include "dimension/dimension.h"
 
 template<typename T>
 struct Tensor;

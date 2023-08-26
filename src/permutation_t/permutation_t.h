@@ -1,8 +1,8 @@
 #ifndef __PERMUTATION_T_C_H__
 #define __PERMUTATION_T_C_H__
 
-#include "src/tools_t/tools_t.h"
-#include "src/set_theoric_t/set_theoric_t.h"
+#include "tools_t/tools_t.h"
+#include "set_theoric_t/set_theoric_t.h"
 
 /* struct of permutation, not necessarly set_theoric
  *

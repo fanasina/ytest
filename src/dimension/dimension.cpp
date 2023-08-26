@@ -8,14 +8,14 @@
 
 
 
-//#include "/home/fanasina/progr_/ptens0neD/src/dimension/dimension.h"
+//#include "/home/fanasina/progr_/ptens0neD/dimension/dimension.h"
 
-//#include "/home/fanasina/progr_/ptens0neD/src/permutation/permutation.h"
+//#include "/home/fanasina/progr_/ptens0neD/permutation/permutation.h"
 
 
-#include "src/dimension/dimension.hpp"
+#include "dimension/dimension.hpp"
 
-#include "src/permutation/permutation.hpp"
+#include "permutation/permutation.hpp"
 //#include "permutation.h"
 
 /*void dimension::initDim(int* arr, bool end = true) {

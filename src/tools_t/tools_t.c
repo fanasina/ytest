@@ -1,4 +1,4 @@
-#include "src/tools_t/tools_t.h"
+#include "tools_t/tools_t.h"
 
 
 void gotoxy(int x, int y)

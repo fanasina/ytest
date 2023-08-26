@@ -8,13 +8,13 @@
 
 //#include "tensor.h"
 //#include "cudatensor.h"
-//#include "/home/fanasina/progr_/ptens0neD/src/dimension/dimension.h"
-//#include "/home/fanasina/progr_/ptens0neD/src/permutation/permutation.h"
-//#include "/home/fanasina/progr_/ptens0neD/src/tensor/tensCuda/tensCuda.h"
+//#include "/home/fanasina/progr_/ptens0neD/dimension/dimension.h"
+//#include "/home/fanasina/progr_/ptens0neD/permutation/permutation.h"
+//#include "/home/fanasina/progr_/ptens0neD/tensor/tensCuda/tensCuda.h"
 
-#include "src/dimension/dimension.h"
-#include "src/permutation/permutation.h"
-#include "src/tensor/tensCuda/tensCuda.h"
+#include "dimension/dimension.h"
+#include "permutation/permutation.h"
+#include "tensor/tensCuda/tensCuda.h"
 
 template<typename T>
 struct Tensor {

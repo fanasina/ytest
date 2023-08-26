@@ -1,4 +1,4 @@
-#include "src/test_t/test_t.h"
+#include "test_t/test_t.h"
 
 /*
 #define DEFAULT_K "\033[0m" //Resets the text to default color

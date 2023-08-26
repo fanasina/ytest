@@ -7,10 +7,10 @@
 #include <algorithm>
 
 
-//#include "/home/fanasina/progr_/ptens0neD/src/tensor/tens0neD/tens0neD.h"
+//#include "/home/fanasina/progr_/ptens0neD/tensor/tens0neD/tens0neD.h"
 
-//#include "/home/fanasina/progr_/ptens0neD/src/tensor/tensCuda/tensCuda.h"
-#include "src/tensor/tensCuda/tensCuda.h"
+//#include "/home/fanasina/progr_/ptens0neD/tensor/tensCuda/tensCuda.h"
+#include "tensor/tensCuda/tensCuda.h"
 
 
 

@@ -1,7 +1,7 @@
 #ifndef __COORDINATE_C__H__
 #define __COORDINATE_C__H__
 
-#include "src/dimension/dimension.h"
+#include "dimension/dimension.h"
 
 
 struct coordinate

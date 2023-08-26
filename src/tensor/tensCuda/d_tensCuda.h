@@ -6,8 +6,8 @@
 
 //#include "cuda_device_runtime_api.h"
 
-//#include "/home/fanasina/progr_/ptens0neD/src/tensor/tensCuda/d_tensCuda.h"
-#include "src/tensor/tensCuda/d_tensCuda.h"
+//#include "/home/fanasina/progr_/ptens0neD/tensor/tensCuda/d_tensCuda.h"
+#include "tensor/tensCuda/d_tensCuda.h"
 
 
 //#1D grid of 1D blocks

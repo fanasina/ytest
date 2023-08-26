@@ -1,5 +1,5 @@
 
-#include "src/set_theoric_t/set_theoric_t.h"
+#include "set_theoric_t/set_theoric_t.h"
 
 #define GENERATE_SET_THEORIC(type)                                      \
   SET_THEORIC_##type * CREATE_SET_THEORIC_##type(size_t id){            \

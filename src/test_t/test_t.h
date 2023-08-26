@@ -9,7 +9,7 @@
 #include <pthread.h>
 //#include <unistd.h>
 
-#include "src/tools_t/tools_t.h"
+#include "tools_t/tools_t.h"
 
 
 #define DEFAULT_K "\033[0m" //Resets the text to default color

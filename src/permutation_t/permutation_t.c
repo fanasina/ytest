@@ -1,4 +1,4 @@
-#include "src/permutation_t/permutation_t.h"
+#include "permutation_t/permutation_t.h"
 
 #define GENERATE_PERMUTATION_FUNCTIONS_UNSIGNED(type)\
   bool IS_PERMUTATION_SET_THEORIC_##type(const PERMUTATION_##type *p){\

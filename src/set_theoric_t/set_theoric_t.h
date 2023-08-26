@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 
-#include "src/tools_t/tools_t.h"
+#include "tools_t/tools_t.h"
 
 #define GENERATE_UNSIGNED_SET_THEORIC(type)                       \
   struct SET_THEORIC_##type{                                      \

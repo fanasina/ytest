@@ -9,9 +9,9 @@
   #include <windows.h>
 #endif
 
-#include "src/test_t/test_t.h"
+#include "test_t/test_t.h"
 
-#include "src/permutation_t/permutation_t.h"
+#include "permutation_t/permutation_t.h"
 
 TEST(size_permutation2){
   PRINTF("another size_permutation2 again\n");

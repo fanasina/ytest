@@ -7,14 +7,14 @@
 #include <algorithm>
 
 
-//#include "/home/fanasina/progr_/ptens0neD/src/tensor/tens0neD/tens0neD.h"
-#include "src/tensor/tens0neD/tens0neD.h"
+//#include "/home/fanasina/progr_/ptens0neD/tensor/tens0neD/tens0neD.h"
+#include "tensor/tens0neD/tens0neD.h"
 //#include "include/tens0neD.h"
 
 
 //#include "cudatensor.h"
-//#include "/home/fanasina/progr_/ptens0neD/src/permutation/permutation.h"
-#include "src/permutation/permutation.h"
+//#include "/home/fanasina/progr_/ptens0neD/permutation/permutation.h"
+#include "permutation/permutation.h"
 
 
 template<typename T>
