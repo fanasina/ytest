@@ -12,13 +12,13 @@ OBJ=$(SRC:.c=.o)
 TEST_DIR=$(ROOT_DIR)
 EXECSRC=$(TEST_DIR)/$(NAME_TEST).c
 EXEC=$(ROOT_DIR)/launch_$(NAME_TEST)
-PERMSRC=$(wildcard */perm*/*perm*.c)
+PERMSRC=$(wildcard */**perm*.c)
 PERMSRC_O=$(PERMSRC:.c=.o)
-SETTSRC=$(wildcard */set*/set*.c)
+SETTSRC=$(wildcard */**set*.c)
 SETTSRC_O=$(SETTSRC:.c=.o)
-TOOLSRC=$(wildcard */too*/tool*.c)
+TOOLSRC=$(wildcard */**tool*.c)
 TOOLSRC_O=$(TOOLSRC:.c=.o)
-TESTSRC=$(wildcard */test*/test*.c)
+TESTSRC=$(wildcard */**test*.c)
 TESTSRC_O=$(TESTSRC:.c=.o)
 
 
