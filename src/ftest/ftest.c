@@ -260,7 +260,7 @@ void usage(int argc, char **argv){
   printf("\t -o, --ordered\n\t\tthis option is usefull if you choose to use parallel tests,\n\t\tby default, each thread share the screen to print results,\n\t\tthis option create file to record log of each thread on file,\n\t\tand print on screen all results at the end of all tests\n\n");
   printf("\t -r , --remove\n\t\tif the option ordered is choosen if parallel tests,\n\t\tthis option remove the file logs of each thread after all tests.\n\n");
   printf("\t -s <file>, --savelog <file>, -s=file, --savelog=file\n\t\tthis option save the global ordered result in 'file',\n\t\tthis option active the option -o or --ordered. \n\n");
-  printf("\t -w <WID>, --width <WID>, -w=WID, --savelog=WID\n\t\tthis option change the width of the progress bar to WID,\n\t\tex: -w100, or --width=100 or -wi 100\n\n");
+  printf("\t -w <WID>, --width <WID>, -w=WID, --savelog=WID\n\t\tthis option change the width of the progress bar to WID, by default, WID=80,\n\t\tex: -w100, or --width=100 or -wi 100\n\n");
 
   if(some_thing_wrong){
     printf("invalid argument\n");
