@@ -9,9 +9,9 @@ SRC_DIR=$(ROOT_DIR)/src
 SRC=$(wildcard */*/*.c) 
 OBJ=$(SRC:.c=.o)
 #HEADS=$(OBJS:.o=.h)
-TEST_DIR=$(ROOT_DIR)
+TEST_DIR=$(ROOT_DIR)/test
 EXECSRC=$(TEST_DIR)/$(NAME_TEST).c
-EXEC=$(ROOT_DIR)/launch_$(NAME_TEST)
+EXEC=$(ROOT_DIR)/launch_$(NAME_TEST)_m
 PERMSRC=$(wildcard */**perm*.c)
 PERMSRC_O=$(PERMSRC:.c=.o)
 SETTSRC=$(wildcard */**set*.c)

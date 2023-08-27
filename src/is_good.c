@@ -9,7 +9,7 @@
   #include <windows.h>
 #endif
 
-#include "test_t/test_t.h"
+#include "ftest/ftest.h"
 
 #include "permutation_t/permutation_t.h"
 

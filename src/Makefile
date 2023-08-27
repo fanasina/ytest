@@ -18,7 +18,7 @@ SETTSRC=$(wildcard set*/set*.c)
 SETTSRC_O=$(SETTSRC:.c=.o)
 TOOLSRC=$(wildcard too*/tool*.c)
 TOOLSRC_O=$(TOOLSRC:.c=.o)
-TESTSRC=$(wildcard test*/test*.c)
+TESTSRC=$(wildcard *test*/*test*.c)
 TESTSRC_O=$(TESTSRC:.c=.o)
 
 
