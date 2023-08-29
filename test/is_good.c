@@ -26,6 +26,8 @@ TEST(size_permutation)
   EXPECT_EQ(p->size, 3);
   PRINTF("test size_permutation2\n");
 }
+
+#if 1
 TEST(size_permutation2){
   PRINTF("another size_permutation2 again false\n");
   bool val_bool = false;
@@ -140,6 +142,8 @@ TEST(sleep){sleep(2);}
 TEST(sleep){sleep(2);}
 TEST(sleep){sleep(2);}
 TEST(sleep){sleep(2);}
+
+#endif
 
 int main(int argc, char **argv){
   

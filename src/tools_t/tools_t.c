@@ -102,6 +102,7 @@ TYPE_STRING TYPE_STRING_TO_STR(TYPE_STRING var){
 int 
 COMPARE_N_TYPE_STRING(const void *a,const  void* b)
 {
+  PRINT_DEBUG("a=%s, b=%s\n",(char*)a, (char*)b);
   return strcmp(( char*)a,( char*)b);
 }
 

@@ -1,7 +1,7 @@
 
 NAME_TEST=is_good
 CC=gcc
-LDFLAGS=-lpthread
+LDFLAGS=-lpthread -D DEBUG=1
 ROOT_DIR=$(shell pwd)
 INCLUDE_DIR=$(ROOT_DIR)/src
 CFLAGS=-I$(INCLUDE_DIR)

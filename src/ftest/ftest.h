@@ -169,9 +169,11 @@ void parse_options(int argc, char **argv);
 void run_all_tests();
 void execute_all(struct func *fun);
 void append_func(void (*run)(void), char *name);
+/*
 void run_some_tests(size_t cnt, ... );
 void run_all_tests_exept(size_t cnt, ... );
 void run_some_tests_ordered(size_t cnt, ... );
+*/
 
 void run_all_tests_parallel(size_t parallel /*, int max_col*/);
 

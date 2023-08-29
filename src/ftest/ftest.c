@@ -102,10 +102,19 @@ bool unicolour = 0;
 bool removelog = 0;
 char *timeunit="ms";
 char *savelog=NULL;
-char *default_timeunit="ms";
+char *defiault_timeunit="ms";
 char *default_savelog="log_all_tests";
 
 size_t width = 80;
+
+bool some_tests_selected=0; 
+
+size_t *array_TYPE_SIZE_T=NULL; /* if active, size = count_tests */
+char **array_TYPE_STRING=NULL;
+
+size_t cur_array_TYPE_SIZE_T=0; /* < count_tests */
+size_t cur_array_TYPE_STRING=0;
+
 /*
  * number of threads
  */ 
@@ -250,6 +259,8 @@ size_t extract_num__f(const char *name_f){
   return val;
 }
 
+// ===================================== begin options handle =======================================================
+
 void usage(int argc, char **argv){
   printf("usage: %s [OPTIONS] [<ARGS>] \n\n  or : %s [OPTIONS]=[<ARGS>]\n\n",argv[0],argv[0]);
   printf("OPTIONS\n");
@@ -262,6 +273,19 @@ void usage(int argc, char **argv){
   printf("\t -s <file>, --savelog <file>, -s=file, --savelog=file\n\t\tthis option save the global ordered result in 'file',\n\t\tthis option active the option -o or --ordered. \n\n");
   printf("\t -w <WID>, --width <WID>, -w=WID, --savelog=WID\n\t\tthis option change the width of the progress bar to WID, by default, WID=80,\n\t\tex: -w100, or --width=100 or -wi 100\n\n");
 
+  printf("\t -n=<NUM1>,<NUM2> <NUM3>... ,--numtests=<NUM1>,<NUM2>...\n\t\tthis option allow to execute only the selected numbers of tests (in the order in file test)\n\t\tex: -n=0,6,3 8 to execute   the tests 0,3,6,8 (if the number is less than the count of all tests)\n\n"); 
+  printf("\t -l=<NAME1>,<NAME2> <NAME3>... ,--listests=<NAME1>,<NAME2>...<NAMEn>\n\t\tthis option allow to execute only the selected name of tests. It allows empty name by using '-l=,'\n\t\tex:  -l=name0,,name2 : execute only (if they exist): TEST(name0),TEST(),TEST(name2)\n\n"); 
+
+  if(array_TYPE_SIZE_T){
+    for(int i=0; i< cur_array_TYPE_SIZE_T; ++i){
+      PRINT_DEBUG("array_TYPE_SIZE_T[%d]=%ld\n",i,array_TYPE_SIZE_T[i]);
+    }
+  }
+  if(array_TYPE_STRING) {
+    for(int i=0; i< cur_array_TYPE_STRING; ++i){
+      PRINT_DEBUG("array_TYPE_STRING[%d]=%s\n",i,array_TYPE_STRING[i]);
+    }
+  }
   if(some_thing_wrong){
     printf("invalid argument\n");
     exit(0);
@@ -294,11 +318,18 @@ long int extract_num_after_equal_symbole_in_string(char * in_str){
   return -1;
 } 
 
+#define LOG_WRONG(option,arg,msg)\
+  some_thing_wrong=1;\
+  help=1;\
+  printf("incorrect %s option is interpreted as -%c, %s  \n\n",arg,#option[0],msg);\
+  break;
+
 #define IF_OPTION_WITH_ARG_NUM(option)\
   if(argv[i][0]=='-'){\
     j=1;\
-    if(argv[i][j]=='-') ++j;\
+    while(argv[i][j]=='-') ++j;\
     if(argv[i][j] == #option[0]){\
+      arg=argv[i];\
       long ret_num=extract_num_after_equal_symbole_in_string(argv[i]);\
     PRINT_DEBUG("option=%s, ret_num = %ld, argv[%d]=%s\n",#option,ret_num,i,argv[i]);\
       is_##option = 1;\
@@ -307,25 +338,22 @@ long int extract_num_after_equal_symbole_in_string(char * in_str){
       else{\
         if(i<argc-1){\
           if(argv[i+1][0]=='-'){\
-            help=1;\
             option = default_##option;\
-            some_thing_wrong = 1;\
+            LOG_WRONG(option,arg, "wait for args")\
           }\
           else{\
             ret_num=extract_num_after_equal_symbole_in_string(argv[++i]);\
             if(ret_num>0)\
               option = ret_num;\
             else{ \
-              help=1;\
               option = default_##option;\
-              some_thing_wrong = 1;\
+              LOG_WRONG(option,arg, "wait for args")\
             }\
           }\
         }\
         else{\
-          help=1;\
           option = default_##option;\
-          some_thing_wrong = 1;\
+          LOG_WRONG(option,arg, "wait for args")\
         }\
       }\
     PRINT_DEBUG("option %s activated, its value is %ld\n",#option,option);\
@@ -336,8 +364,9 @@ long int extract_num_after_equal_symbole_in_string(char * in_str){
 #define IF_OPTION_WITH_ARG_STR(option)\
   if(argv[i][0]=='-'){\
     j=1;\
-    if(argv[i][j]=='-') ++j;\
+    while(argv[i][j]=='-') ++j;/* to accept multiple -- */\
     if(argv[i][j] == #option[0]){\
+      arg=argv[i];\
       char* ret_str=(char*)extract_string_after_equal_symbole_in_string(argv[i]);\
     PRINT_DEBUG("option=%s, ret_str = %s, argv[%d]=%s\n",#option,ret_str,i,argv[i]);\
       if(ret_str ==NULL || strlen(ret_str)==0){\
@@ -363,16 +392,109 @@ long int extract_num_after_equal_symbole_in_string(char * in_str){
 #define IF_OPTION_NO_ARG(option)\
   if(argv[i][0]=='-'){\
     j=1;\
-    if(argv[i][j]=='-') ++j;\
+    while(argv[i][j]=='-') ++j;\
     if(argv[i][j] == #option[0]){\
       option=1;\
       continue;\
     }\
   }\
 
+void extract_to_array_TYPE_SIZE_T(char * in_str){
+  size_t len=strlen(in_str);
+  long int val=0, p=10;
+  for(long i=0; i<len; ++i){
+    PRINT_DEBUG("(%s)[%ld]=%c\n",in_str,i,in_str[i]);
+    if(in_str[i]=='-'){/*we don't need the option name */
+      while((in_str[i] >= '0' && in_str[i] <= '9' ) || (in_str[i] >= 'A' && in_str[i] <= 'z' ) || (in_str[i]=='_')|| (in_str[i]=='-')){
+        ++i;
+      }
+    }
+    else if(in_str[i] >= '0' && in_str[i] <= '9' ){
+      val = (p * val) + (in_str[i]-'0');
+    }
+    else{
+      /* rec val in array */
+      PRINT_DEBUG("val=(%ld) \n",val);
+      array_TYPE_SIZE_T[cur_array_TYPE_SIZE_T++]=val;
+      val=0;  
+    }
+  }
+      PRINT_DEBUG("end val=(%ld) \n",val);
+  if(val)
+      array_TYPE_SIZE_T[cur_array_TYPE_SIZE_T++]=val;
+ 
+}
+
+void extract_to_array_TYPE_STRING(char * in_str){
+  size_t len=strlen(in_str);
+  char *val=malloc(len);
+  size_t cur_val=0;
+  for(long i=0; i<len; ++i){
+    if(in_str[i]=='-'){/*we don't need the option name */
+      while((in_str[i] >= '0' && in_str[i] <= '9' ) || (in_str[i] >= 'A' && in_str[i] <= 'z' ) || (in_str[i]=='_')|| (in_str[i]=='-')){
+        ++i;
+      }
+    }
+    else if((in_str[i] >= '0' && in_str[i] <= '9' ) || (in_str[i] >= 'A' && in_str[i] <= 'z' ) || (in_str[i]=='_')){
+      val[cur_val++] = in_str[i];
+    }
+    else{
+      /* rec val in array */
+      val[cur_val++]='\0';
+
+      PRINT_DEBUG("val_str=(((%s) cur_val=[%ld]\n",val,cur_val);
+      array_TYPE_STRING[cur_array_TYPE_STRING]=malloc(strlen(val));
+      strcpy(array_TYPE_STRING[cur_array_TYPE_STRING++],val);
+      cur_val=0;
+    }
+  }
+  if(cur_val){
+      val[cur_val++]='\0';
+      PRINT_DEBUG("val_str=(%s) cur_val=[%ld]\n",val,cur_val);
+   
+      array_TYPE_STRING[cur_array_TYPE_STRING]=malloc(strlen(val));
+      strcpy(array_TYPE_STRING[cur_array_TYPE_STRING++],val);
+
+  }
+}
+
+
+
+#define IF_OPTION_WITH_MULTIPLE_ARG(option,type)\
+  if(argv[i][0]=='-'){\
+    j=1;\
+    while(argv[i][j]=='-') ++j;\
+    if(argv[i][j] == #option[0]){\
+      arg=argv[i];\
+      array_##type=malloc(sizeof(type)*count_tests);\
+      some_tests_selected= 1;\
+      do{\
+        extract_to_array_##type(argv[i]);\
+        PRINT_DEBUG("option=%s, cur = %ld, argv[%d]=%s\n",#option,cur_array_##type,i,argv[i]);\
+      }while(i<argc-1 && argv[++i][0] != '-');\
+      PRINT_DEBUG("after while option=%s, cur = %ld, argv[%d]=%s\n",#option,cur_array_##type,i,argv[i]);\
+      if(argv[i][0]=='-'){/* handle to allow next option */\
+        j=1;while(argv[i][j]=='-') ++j;\
+        if (argv[i][j] != #option[0]) --i;\
+      }\
+      PRINT_DEBUG("after if arc-1 option=%s, cur = %ld, i=%d, et argv[i+1]=%s\n",#option,cur_array_##type,i,argv[i+1]);\
+      continue;\
+    }\
+  }\
+
+
+/*
+ * if no continue call, it means no match option!
+ */
+
+#define IF_NO_MATCH_DO_WRONG \
+  printf("option %s inconnu\n",argv[i]);\
+  help=1; some_thing_wrong=1; break;
+
 
 void parse_options(int argc, char **argv){
   int j;
+  char *arg;
   for(int i=1; i<argc; ++i){
     PRINT_DEBUG("argc=%d, argv[%d]=%s\n",argc,i,argv[i]);
     IF_OPTION_NO_ARG(help)
@@ -382,12 +504,15 @@ void parse_options(int argc, char **argv){
     IF_OPTION_WITH_ARG_STR(timeunit)
     IF_OPTION_NO_ARG(ordered)
     IF_OPTION_NO_ARG(removelog)    
-    IF_OPTION_NO_ARG(unicolour)    
+    IF_OPTION_NO_ARG(unicolour)
+    IF_OPTION_WITH_MULTIPLE_ARG(numsuit,TYPE_SIZE_T)
+    IF_OPTION_WITH_MULTIPLE_ARG(listsuite,TYPE_STRING) 
+    IF_NO_MATCH_DO_WRONG
   }
 
 }
 
-
+// ==================================================== end handle  option ================================
 
 /*
  * print all TESTs failed
@@ -604,7 +729,8 @@ void end_execute_func(char *fun_ame, struct timespec start_t){
  */ 
 void head_run(size_t nbtest, struct timespec *start_t){
   clock_gettime(CLOCK_REALTIME, start_t);
-  PRINT_HK_C(GREEN_K, HK_EQ," Running %lu tests.\n",nbtest);
+  if(cur_array_TYPE_SIZE_T || cur_array_TYPE_STRING) PRINT_HK_C(GREEN_K, HK_EQ," Running tests.\n");
+  else PRINT_HK_C(GREEN_K, HK_EQ," Running %lu tests.\n",nbtest);
 }
 
 /*
@@ -625,29 +751,105 @@ stat_end_run(size_t ntst, struct timespec start_t){
     PRINT_HK_C("","","\n%ld FAILED TESTS \n",count_fail_global);
   }
 }
-bool is_in_array(size_t *array, size_t sz, size_t num){
-  bool found = false;
-  for(size_t i = 0; i < sz; ++i){
-    if(array[i] == num){
-      found = true;
-      break;
+
+/*
+ * need to separate num type and ptr type because of (void*)
+ * in the 2 below macros
+ */
+
+#define GEN_IS_IN_ARRAY_PTR(type)\
+bool is_in_array_##type(type *array, type val){\
+  bool found = false;\
+  for(size_t i = 0; i < cur_array_##type; ++i){\
+    PRINT_DEBUG("compare |%s| in array and val: |%s|\n",type##_TO_STR(array[i]), type##_TO_STR(val));\
+    if(COMPARE_N_##type((void*)(array[i]),(void*)val  ) == 0 ){\
+      found = true;\
+      break;\
+    }\
+  }\
+  PRINT_DEBUG(" val return = %d \n",found);\
+  return found;\
+}\
+
+#define GEN_IS_IN_ARRAY_NUM(type)\
+bool is_in_array_##type(type *array, type val){\
+  bool found = false;\
+  for(size_t i = 0; i < cur_array_##type; ++i){\
+    PRINT_DEBUG("compare |%s| in array and val: |%s|\n",type##_TO_STR(array[i]), type##_TO_STR(val));\
+    if(COMPARE_N_##type((void*)(&array[i]),(void*)&val  ) == 0 ){\
+      found = true;\
+      break;\
+    }\
+  }\
+  PRINT_DEBUG(" val return = %d \n",found);\
+  return found;\
+}\
+
+
+GEN_IS_IN_ARRAY_PTR(TYPE_STRING)
+GEN_IS_IN_ARRAY_NUM(TYPE_SIZE_T)
+
+/*
+ * extract name test between () beacuse the syntax is TEST(name_test)
+ */ 
+void extract_name_test_from_name(char *name_org, char **name_f){
+  size_t len=strlen(name_org); 
+  long cur=-1;
+  char *name_test=malloc(len);
+  for(size_t i=0; i<len; ++i){
+    if(cur == -1 && name_org[i]=='(')
+      cur=0;
+    else if(cur >=0){
+      if(name_org[i] == ')')
+        break;
+      else
+        name_test[cur++]=name_org[i];
     }
-  }
-  return found;
+  } 
+  name_test[cur]='\0';
+  PRINT_DEBUG("name_test =%s\n",name_test);
+  *name_f = name_test;
+
 }
+
+#define CHECK_IF_SELECTED_TEST(name_f)\
+  exec_test=0;\
+  if(some_tests_selected == 0){\
+     exec_test=1; \
+  }\
+  else{\
+    if(cur_array_TYPE_SIZE_T){\
+      num_f=extract_num__f(name_f) ;\
+      exec_test = is_in_array_TYPE_SIZE_T(array_TYPE_SIZE_T,  num_f);\
+    }\
+    if(exec_test == 0 && cur_array_TYPE_STRING){\
+      extract_name_test_from_name(name_f, &name_test);\
+      exec_test = is_in_array_TYPE_STRING(array_TYPE_STRING,  name_test );\
+      free(name_test);\
+    }\
+  }\
+      
+  
 
 void execute_all(struct func *fun){
   struct func *tmp = fun;
   struct timespec start_t;
+  size_t num_f;
+  char *name_test=NULL;
+  bool exec_test=0;
   //PRINT_HK_C(GREEN_K, HK_EQ," Running %lu tests.\n",count_tests);
   while(tmp){
-    begin_execute_func(tmp->name, &start_t);
-    tmp->run();
-    end_execute_func(tmp->name, start_t);
+    CHECK_IF_SELECTED_TEST(tmp->name)
+    if(exec_test){
+      begin_execute_func(tmp->name, &start_t);
+      tmp->run();
+      end_execute_func(tmp->name, start_t);
+    }
     tmp = tmp->next;
   }
 }
 
+/*
 void execute_one_test(struct func *fun, size_t num){
   size_t cur = 0;
   struct timespec start_t;
@@ -747,7 +949,7 @@ run_all_tests_exept(size_t cnt, ... )
    if(count_tests >= cnt)
      stat_end_run(count_tests - cnt, start_t);
 }
-
+*/
 
 void
 run_all_tests()
@@ -755,7 +957,8 @@ run_all_tests()
    struct timespec start_t;
    head_run(count_tests, &start_t);
    execute_all(f_beging);
-   stat_end_run(count_tests, start_t);
+   //stat_end_run(count_tests, start_t);
+   stat_end_run(count_pass_global + count_fail_global, start_t);
 }
 
 #if 0
@@ -796,7 +999,8 @@ run_all_div_tests(void *id)
  */
 void head_all_parallel_run(struct timespec *start_t){
   clock_gettime(CLOCK_REALTIME, start_t);
-  PRINT_HK_C(GREEN_K, HK_EQ," Running tests on %ld threads\n", parallel_nb);
+  if (cur_array_TYPE_SIZE_T || cur_array_TYPE_STRING) PRINT_HK_C(GREEN_K, HK_EQ," Running tests on %ld threads\n", parallel_nb);
+  else  PRINT_HK_C(GREEN_K, HK_EQ," Running %ld tests on %ld threads\n",count_tests, parallel_nb);
 }
 
 /*
@@ -936,6 +1140,9 @@ void execute_test_parallel(size_t id_thrd){
   
   struct timespec start_t;
   struct func *tmp;
+  size_t num_f;
+  char *name_test=NULL;
+  bool exec_test=0;
  
   do{ 
     LOCK(mut_current_test);
@@ -943,10 +1150,13 @@ void execute_test_parallel(size_t id_thrd){
     if(tmp){
       current_fn = tmp->next;
       UNLOCK(mut_current_test);
-      PRINT_DEBUG(" *** thread[%ld], func_name = %s *** \n", id_thrd, tmp->name);
-      begin_execute_func_parallel(tmp->name, &start_t, id_thrd);
-      tmp->run();
-      end_execute_func_parallel(tmp->name, start_t, id_thrd);
+      CHECK_IF_SELECTED_TEST(tmp->name)
+      if(exec_test){
+        PRINT_DEBUG(" *** thread[%ld], func_name = %s *** \n", id_thrd, tmp->name);
+        begin_execute_func_parallel(tmp->name, &start_t, id_thrd);
+        tmp->run();
+        end_execute_func_parallel(tmp->name, start_t, id_thrd);
+      }
     }
     else{
       UNLOCK(mut_current_test);
@@ -1104,7 +1314,8 @@ if(progress)  pthread_create(&thrd_progress, NULL, run_progress_tests, NULL);
 
 if(progress)  pthread_join(thrd_progress, NULL);
   
-  stat_end_all_parallel_run(count_tests, start_t );
+  //stat_end_all_parallel_run(count_tests, start_t );
+  stat_end_all_parallel_run(count_pass_global + count_fail_global, start_t );
 
   free(id_th);
   free(thrd);
