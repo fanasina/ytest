@@ -84,7 +84,7 @@ struct failed_lists{
 #define default_unicolour 0
 #define default_removelog  0
 #define default_parallel_nb 1
-#define default_width 1
+//#define default_width 1
 
 
 /*
@@ -102,10 +102,10 @@ bool unicolour = 0;
 bool removelog = 0;
 char *timeunit="ms";
 char *savelog=NULL;
-char *defiault_timeunit="ms";
+char *default_timeunit="ms";
 char *default_savelog="log_all_tests";
 
-size_t width = 80;
+//size_t width = 80;
 
 bool some_tests_selected=0; 
 
@@ -125,7 +125,7 @@ size_t parallel_nb = 0;
  */ 
 
 bool is_parallel_nb = 0;
-bool is_width=0;
+//bool is_width=0;
 bool progress = false;
 
 FILE **f_ou_th;
@@ -271,7 +271,7 @@ void usage(int argc, char **argv){
   printf("\t -o, --ordered\n\t\tthis option is usefull if you choose to use parallel tests,\n\t\tby default, each thread share the screen to print results,\n\t\tthis option create file to record log of each thread on file,\n\t\tand print on screen all results at the end of all tests\n\n");
   printf("\t -r , --remove\n\t\tif the option ordered is choosen if parallel tests,\n\t\tthis option remove the file logs of each thread after all tests.\n\n");
   printf("\t -s <file>, --savelog <file>, -s=file, --savelog=file\n\t\tthis option save the global ordered result in 'file',\n\t\tthis option active the option -o or --ordered. \n\n");
-  printf("\t -w <WID>, --width <WID>, -w=WID, --savelog=WID\n\t\tthis option change the width of the progress bar to WID, by default, WID=80,\n\t\tex: -w100, or --width=100 or -wi 100\n\n");
+//  printf("\t -w <WID>, --width <WID>, -w=WID, --savelog=WID\n\t\tthis option change the width of the progress bar to WID, by default, WID=80,\n\t\tex: -w100, or --width=100 or -wi 100\n\n");
 
   printf("\t -n=<NUM1>,<NUM2> <NUM3>... ,--numtests=<NUM1>,<NUM2>...\n\t\tthis option allow to execute only the selected numbers of tests (in the order in file test)\n\t\tex: -n=0,6,3 8 to execute   the tests 0,3,6,8 (if the number is less than the count of all tests)\n\n"); 
   printf("\t -l=<NAME1>,<NAME2> <NAME3>... ,--listests=<NAME1>,<NAME2>...<NAMEn>\n\t\tthis option allow to execute only the selected name of tests. It allows empty name by using '-l=,'\n\t\tex:  -l=name0,,name2 : execute only (if they exist): TEST(name0),TEST(),TEST(name2)\n\n"); 
@@ -499,7 +499,7 @@ void parse_options(int argc, char **argv){
     PRINT_DEBUG("argc=%d, argv[%d]=%s\n",argc,i,argv[i]);
     IF_OPTION_NO_ARG(help)
     IF_OPTION_WITH_ARG_NUM(parallel_nb)
-    IF_OPTION_WITH_ARG_NUM(width)
+    //IF_OPTION_WITH_ARG_NUM(width)
     IF_OPTION_WITH_ARG_STR(savelog)
     IF_OPTION_WITH_ARG_STR(timeunit)
     IF_OPTION_NO_ARG(ordered)
@@ -1087,41 +1087,70 @@ void end_execute_func_parallel(char *fun_ame, struct timespec start_t, size_t id
 }
 
 unsigned sleep(unsigned x) { time_t t0=time(0); while (difftime(time(0),t0)<x); return 0; }
+unsigned nnsleep(long long x) {
+  struct timespec time_stop; 
+  struct timespec time_start; 
+  clock_gettime(CLOCK_REALTIME, &time_start);
+
+  long long diff; 
+  do{
+    clock_gettime(CLOCK_REALTIME, &time_stop);
+
+    diff = 1.0e9 * (time_stop.tv_sec - time_start.tv_sec) + (time_stop.tv_nsec - time_start.tv_nsec);
+  }while(diff < x);
+  return 0; 
+}
 
 void progress_test_(){
   struct func *tmp;
   size_t num_test=0;
   int  cur = 0, len;
   //get_cursor_position(&col, &row);
+  int width;
+  long int chg=0; 
 
-  char prgss[]="/ | --";
+  char prgss[]="\\|/-";
+  struct winsize w;
+  //ioctl(1,TIOCGWINSZ, &w); // 1 =STDOUT_FILENO 
+  //printf ("lines %d\n", w.ws_row);
+  //width = w.ws_col - 50;
+  //printf ("columns %d vs width.choice: %d\n", w.ws_col, width);
+
   len=strlen(prgss);
+  
   do{
+    ioctl(1,TIOCGWINSZ, &w); // 1 =STDOUT_FILENO 
+    width = w.ws_col - 50;
     //LOCK(mut_current_test);
     tmp = current_fn;
     //UNLOCK(mut_current_test);
     if(tmp)
       num_test = extract_num__f(tmp->name);
     //gotoxy(13,0);
-    printf("\r[");
+    printf("\r(%c)[",prgss[cur]);
+    
     for(int i=0; i< width; ++i) {
       if(i<=(num_test+1)*width/count_tests){
           //usleep(20000);
           printf("#");
       }
-      else printf(" ");
+      else printf(".");
     }
-      printf("|%ld%%, test N° %ld/%ld]",(num_test+1)*100/count_tests,num_test,count_tests-1);
+      printf("|%3ld%%, test N° %ld/%ld]",(num_test+1)*100/count_tests,num_test,count_tests-1);
       fflush(stdout);
     
     
     //printf("%c",prgss[cur]);
     //printf("\33[2K\r");  // remove current line and go to begin of the current line 
-    if(cur<len-1) ++cur;
-    else cur=0;
+    //if(chg==40000){
+      chg=0;
+      if(cur<len-1) ++cur;
+      else cur=0;
+    //}else ++chg;
     //printf("\n");
     //sleep(1);
     //usleep(500000);
+    nnsleep(200000000);// 200 milliseconds
   }while(tmp);
 
   printf("\n");

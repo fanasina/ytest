@@ -8,6 +8,7 @@
 //#include <time.h>
 #include <pthread.h>
 //#include <unistd.h>
+#include <sys/ioctl.h> /* to have size of screen, for progress bar */
 
 #include "tools_t/tools_t.h"
 
@@ -107,6 +108,8 @@ extern bool ordered;
       fprintf(F_OUT, __VA_ARGS__);\
     }\
   }while(0)
+
+#define LOG(...) PRINTF(__VA_ARGS__)
 
 #define PRINT_HK_C(color,hk,...)\
   do{ \

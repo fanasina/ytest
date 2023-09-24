@@ -10,6 +10,7 @@
 #endif
 
 #include "ftest/ftest.h"
+#include "fmock/fmock.h"
 
 #include "permutation_t/permutation_t.h"
 
@@ -138,10 +139,50 @@ TEST(lessThan){
 TEST(sleep){sleep(2);}
 TEST(sleep){sleep(2);}
 TEST(sleep){sleep(2);}
-TEST(sleep){sleep(2);}
-TEST(sleep){sleep(2);}
-TEST(sleep){sleep(2);}
-TEST(sleep){sleep(2);}
+TEST(sleep){sleep(1);}
+TEST(sleep){sleep(1);}
+TEST(sleep){sleep(1);}
+TEST(sleep){sleep(1);}
+TEST(sleep){sleep(1);}
+TEST(sleep){sleep(1);}
+TEST(sleep){sleep(1);}
+TEST(sleep){sleep(1);}
+TEST(sleep){sleep(1);}
+TEST(sleep){sleep(1);}
+TEST(sleep){sleep(1);}
+TEST(sleep){sleep(1);}
+TEST(sleep){sleep(1);}
+TEST(sleep){sleep(1);}
+TEST(sleep){sleep(1);}
+TEST(sleep){sleep(1);}
+
+TEST(sleep){sleep(1);}
+TEST(sleep){sleep(1);}
+TEST(sleep){sleep(1);}
+TEST(sleep){sleep(1);}
+TEST(sleep){sleep(1);}
+TEST(sleep){sleep(1);}
+TEST(sleep){sleep(1);}
+TEST(sleep){sleep(1);}
+TEST(sleep){sleep(1);}
+TEST(sleep){sleep(1);}
+TEST(sleep){sleep(1);}
+TEST(sleep){sleep(1);}
+
+
+MOCK_FUNC(int, f_mock, (), ())
+  
+EXPECT_MOCK_CALL(int,f_mock, (),1, 2)  {return 12;}
+EXPECT_MOCK_CALL(int,f_mock, (),1, 0)  {return 10;}
+
+EXPECT_MOCK_CALL(int,f_mock, (),0, 1)  {return 18;}
+EXPECT_MOCK_CALL(int,f_mock, (),1, INFINITY)  {return -18;}
+
+TEST(mock){
+  for(int i = 0; i<8; ++i)
+    LOG("call %d: ret:%d\n",i,f_mock());
+}
+
 
 #endif
 
