@@ -14,6 +14,8 @@
 
 #include "permutation_t/permutation_t.h"
 
+#if 1
+
 TEST(size_permutation2){
   PRINTF("another size_permutation2 again\n");
   ASSERT_TRUE(false);
@@ -28,7 +30,6 @@ TEST(size_permutation)
   PRINTF("test size_permutation2\n");
 }
 
-#if 1
 TEST(size_permutation2){
   PRINTF("another size_permutation2 again false\n");
   bool val_bool = false;
@@ -165,26 +166,115 @@ TEST(sleep){sleep(1);}
 TEST(sleep){sleep(1);}
 TEST(sleep){sleep(1);}
 TEST(sleep){sleep(1);}
+
 TEST(sleep){sleep(1);}
 TEST(sleep){sleep(1);}
 TEST(sleep){sleep(1);}
 
+#endif
 
 MOCK_FUNC(int, f_mock, (), ())
   
-EXPECT_MOCK_CALL(int,f_mock, (),1, 2)  {return 12;}
-EXPECT_MOCK_CALL(int,f_mock, (),1, 0)  {return 10;}
+EXPECT_MOCK_CALL(int,f_mock, (),1, 2)  {/*EXPECT_EQ(1,3);*/ EXPECT_EQ_IN_MOCKF(21,21,f_mock);
+  EXPECT_EQ_IN_MOCKF(23,24,f_mock); return 12;}
+EXPECT_MOCK_CALL(int,f_mock, (),1, 1)  { EXPECT_EQ_IN_MOCKF(23,21,f_mock);return 10;}
 
-EXPECT_MOCK_CALL(int,f_mock, (),0, 1)  {return 18;}
+EXPECT_MOCK_CALL(int,f_mock, (),1==2||2<1, 1)  {return 18;}
 EXPECT_MOCK_CALL(int,f_mock, (),1, INFINITY)  {return -18;}
 
-TEST(mock){
-  for(int i = 0; i<8; ++i)
-    LOG("call %d: ret:%d\n",i,f_mock());
+TEST(mockf1){
+  INIT_CALLER_MOCK(f_mock);
+
+  for(int i = 0; i<8; ++i){
+    
+   LOG("call f_mock:%d: ret:%d\n",i,f_mock());
+   // int val=f_mock();
+    //PRINTF("call f_mock:%d: ret:%d\n",i,val);
+  }
+
+}
+
+MOCK_FUNC(int, f2_mock,(int a,int b),(a,b))
+
+EXPECT_MOCK_CALL(int, f2_mock, (int a,int b), (a<b), 3){
+  return a+b;
+}
+
+EXPECT_MOCK_CALL(int, f2_mock, (int a,int b), ((a<b)&&(b<100)), 1){
+  return a*b;
+}
+
+WILL_MOCK_CALL(int, f2_mock, (int a,int b), (a!=b), 6){
+  return a/b;
+}
+EXPECT_MOCK_CALL(int, f2_mock, (int a,int b), (a==b), 1){
+  return a/b;
 }
 
 
-#endif
+MOCK_FUNC(int, f3_mock,(int a,int b),(a,b))
+
+EXPECT_MOCK_CALL(int, f3_mock, (int a,int b), (a<b), 2){
+  return a+b;
+}
+
+EXPECT_MOCK_CALL(int, f2_mock, (int a,int b), ((a<b)&&(b<100)), 1){
+  return a*b;
+}
+
+WILL_MOCK_CALL(int, f2_mock, (int a,int b), (a!=b), 6){
+  return a/b;
+}
+EXPECT_MOCK_CALL(int, f2_mock, (int a,int b), (a==b), 1){
+  return a/b;
+}
+
+
+
+
+EXPECT_MOCK_CALL(int, f2_mock, (int a,int b), (1), INFINITY){
+  return a*b;
+}
+
+TEST(f2mock_test){
+  INIT_CALLER_MOCK(f2_mock);
+  //LOG("--------------------------- > call f2_mock:%d: %d\n",0,f2_mock(1,4));
+  
+  
+  for(int i=0; i<8; ++i){
+
+    if(i<2) {
+      //int val = f2_mock(i,4);
+      //LOG("call f2_mock:%d: %d\n",i,val);
+      LOG("call f2_mock:%d: %d\n",i,f2_mock(i,4));
+
+    }
+    else if(i<4) LOG("call:%d: %d\n",i,f2_mock(i,3));
+    else LOG("call:%d:%d\n",i,f2_mock(i,i*i));
+  }
+  
+}
+
+
+TEST(f3_mock_test){
+  INIT_CALLER_MOCK(f3_mock);
+  
+  
+  for(int i=0; i<7; ++i){
+
+    if(i<1) {
+     LOG("call f3_mock:%d: %d\n",i,f3_mock(1,i));
+
+    }
+    else LOG("call:%d:%d\n",i,f3_mock(i,i*i));
+  }
+  for(int i=COLOR_SZ-1; i>=0; --i)
+    LOG("%s colors_fld\n",colors_f[i]);
+
+}
+
+
+
 
 int main(int argc, char **argv){
   

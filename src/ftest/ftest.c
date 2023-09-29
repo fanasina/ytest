@@ -94,9 +94,11 @@ struct failed_lists{
 /*
  * begin variable option
  */
+
 bool some_thing_wrong = 0;
 
 bool help=0;
+bool only_usage=0;
 bool ordered= 0;
 bool unicolour = 0;
 bool removelog = 0;
@@ -104,8 +106,12 @@ char *timeunit="ms";
 char *savelog=NULL;
 char *default_timeunit="ms";
 char *default_savelog="log_all_tests";
+char *default_bar_progress="  c";
 
 //size_t width = 80;
+
+char *colors_f[]={DEFAULT_K, GREEN_K, RED_K, YELLOW_K, BLUE_K, ""};
+int kdefaukt=0, kgreen=1, kred=2, kyellow=3, kblue=4, knothing=5;
 
 bool some_tests_selected=0; 
 
@@ -125,8 +131,11 @@ size_t parallel_nb = 0;
  */ 
 
 bool is_parallel_nb = 0;
-//bool is_width=0;
-bool progress = false;
+bool log_parallel = true;
+bool progress = true; // false;
+
+char *bar_progress = "  c"; /*{fill_bar,fill_dot,colored} */
+bool is_bar_progress = true;
 
 FILE **f_ou_th;
 
@@ -268,13 +277,18 @@ void usage(int argc, char **argv){
   printf("\t -p <NB>, --parallel <NB>, -p=<NB>, --parallel=<NB>\n\t\tby default the program ran in sequantial all test, \n\t\tif this option is set, the program run tests on NB threads.\n\t\tEach thread pull up one test out the list of all test not yet executed,\n\t\tand execute it, until the list is empty \n\n");
   printf("\t -t <unit>, --time <unit>, -t=<unit>, --time=<unit>  \n\t\tby default unit is millisecons ms, the other of unit are choices are second (or s), and nanosecond (or ns)\n\t\tex: -t ns or -t=nanosecond or --time=n to set nanosecond unit\n\n");
   printf("\t -u , --unicolour\n\t\tby default, the result is colored, if you choice this option, it prints with default color\n\n");
-  printf("\t -o, --ordered\n\t\tthis option is usefull if you choose to use parallel tests,\n\t\tby default, each thread share the screen to print results,\n\t\tthis option create file to record log of each thread on file,\n\t\tand print on screen all results at the end of all tests\n\n");
-  printf("\t -r , --remove\n\t\tif the option ordered is choosen if parallel tests,\n\t\tthis option remove the file logs of each thread after all tests.\n\n");
+//  printf("\t -o, --ordered\n\t\tthis option is usefull if you choose to use parallel tests,\n\t\tby default, each thread share the screen to print results,\n\t\tthis option create file to record log of each thread on file,\n\t\tand print on screen all results at the end of all tests\n\n");
+  printf("\t -r , --remove\n\t\tif the option parallel is choosen the result on each thread is record in separate files,\n\t\tthis option remove the file logs of each thread after all tests.\n\n");
   printf("\t -s <file>, --savelog <file>, -s=file, --savelog=file\n\t\tthis option save the global ordered result in 'file',\n\t\tthis option active the option -o or --ordered. \n\n");
 //  printf("\t -w <WID>, --width <WID>, -w=WID, --savelog=WID\n\t\tthis option change the width of the progress bar to WID, by default, WID=80,\n\t\tex: -w100, or --width=100 or -wi 100\n\n");
 
   printf("\t -n=<NUM1>,<NUM2> <NUM3>... ,--numtests=<NUM1>,<NUM2>...\n\t\tthis option allow to execute only the selected numbers of tests (in the order in file test)\n\t\tex: -n=0,6,3 8 to execute   the tests 0,3,6,8 (if the number is less than the count of all tests)\n\n"); 
   printf("\t -l=<NAME1>,<NAME2> <NAME3>... ,--listests=<NAME1>,<NAME2>...<NAMEn>\n\t\tthis option allow to execute only the selected name of tests. It allows empty name by using '-l=,'\n\t\tex:  -l=name0,,name2 : execute only (if they exist): TEST(name0),TEST(),TEST(name2)\n\n"); 
+
+  printf("\t -b <BPRGSS>, --bar_progress <BPRGSS>, -b=BPRGSS, --bar_progress=BPRGSS. Example: -b=\"#_c\"\n\t\tthis option change progression bar if it is active. The first character (\'#\') fills the bar\n\t\tthe second char (\'_\') fills the other part of bar. the bar is colored if the 3rd char is \'c\' and not if different.\n\t\tby default the progress bar is active and the option is -b=\"  c\", if need not colored, we can put -b=\"  n\" option.\n\n");
+  printf("\t -z=<option> \n\t\tthis option is to set option=0,\n\t\tfor example, -z=progress is to not load progress bar, it is need if we want to redirect (pipe) the result to file.\n\t\tother option: -z=log_parallel (to avoid logs not ordered when parallel tests which is loged by default)\n\n");
+  //printf(" log_parallel ={%d}\n\n",log_parallel);
+  //printf(" progress ={%d}\n\n",progress);
 
   if(array_TYPE_SIZE_T){
     for(int i=0; i< cur_array_TYPE_SIZE_T; ++i){
@@ -290,6 +304,7 @@ void usage(int argc, char **argv){
     printf("invalid argument\n");
     exit(0);
   }
+  if(only_usage) exit(0);
 }
 
 
@@ -384,7 +399,9 @@ long int extract_num_after_equal_symbole_in_string(char * in_str){
       continue;\
     }\
   }\
-       
+
+
+
 /*
  * if the variable option is boolean
  */
@@ -395,9 +412,41 @@ long int extract_num_after_equal_symbole_in_string(char * in_str){
     while(argv[i][j]=='-') ++j;\
     if(argv[i][j] == #option[0]){\
       option=1;\
+      if(0==strcmp(#option,"help")){ only_usage=1;break;}\
       continue;\
     }\
   }\
+
+
+#define IF_OPTION_TO_ZERO(option)\
+  if(argv[i][0]=='-'){\
+    j=1;\
+    while(argv[i][j]=='-') ++j;/* to accept multiple -- */\
+    if(argv[i][j] == 'z' ){\
+      arg=argv[i];\
+      char* ret_str=(char*)extract_string_after_equal_symbole_in_string(argv[i]);\
+    PRINT_DEBUG("to zero option={%s}, ret_str = {%s}, argv[%d]={%s}\n",#option,ret_str,i,argv[i]);\
+      if(ret_str == NULL || strlen(ret_str)==0){\
+        if(i<argc-1){\
+          if(argv[i+1][0]=='-')\
+            help=1;\
+          else if(0==strcmp(#option, argv[i+1])){ \
+              option=0;\
+              ++i;\
+              continue;\
+          }\
+        }\
+        else{\
+          help=1;\
+        }\
+      }\
+      else if(0==strcmp(#option,ret_str)){ \
+        option = 0;\
+        continue;\
+      }\
+    }\
+  }\
+      
 
 void extract_to_array_TYPE_SIZE_T(char * in_str){
   size_t len=strlen(in_str);
@@ -489,7 +538,7 @@ void extract_to_array_TYPE_STRING(char * in_str){
 
 #define IF_NO_MATCH_DO_WRONG \
   printf("option %s inconnu\n",argv[i]);\
-  help=1; some_thing_wrong=1; break;
+  help=1; some_thing_wrong=1;  break;
 
 
 void parse_options(int argc, char **argv){
@@ -502,9 +551,12 @@ void parse_options(int argc, char **argv){
     //IF_OPTION_WITH_ARG_NUM(width)
     IF_OPTION_WITH_ARG_STR(savelog)
     IF_OPTION_WITH_ARG_STR(timeunit)
+    IF_OPTION_WITH_ARG_STR(bar_progress)
     IF_OPTION_NO_ARG(ordered)
     IF_OPTION_NO_ARG(removelog)    
     IF_OPTION_NO_ARG(unicolour)
+    IF_OPTION_TO_ZERO(progress)
+    IF_OPTION_TO_ZERO(log_parallel)
     IF_OPTION_WITH_MULTIPLE_ARG(numsuit,TYPE_SIZE_T)
     IF_OPTION_WITH_MULTIPLE_ARG(listsuite,TYPE_STRING) 
     IF_NO_MATCH_DO_WRONG
@@ -674,6 +726,115 @@ EXPECTED_OP_TYPE(NE,TYPE_DOUBLE)
 EXPECTED_OP_TYPE(NE,TYPE_L_DOUBLE)
 EXPECTED_OP_TYPE(NE,TYPE_STRING)
 
+// ====================== progress bar =================
+
+
+unsigned sleep(unsigned x) { time_t t0=time(0); while (difftime(time(0),t0)<x); return 0; }
+unsigned nnsleep(long long x) {
+  struct timespec time_stop; 
+  struct timespec time_start; 
+  clock_gettime(CLOCK_REALTIME, &time_start);
+
+  long long diff; 
+  do{
+    clock_gettime(CLOCK_REALTIME, &time_stop);
+
+    diff = 1.0e9 * (time_stop.tv_sec - time_start.tv_sec) + (time_stop.tv_nsec - time_start.tv_nsec);
+  }while(diff < x);
+  return 0; 
+}
+
+void progress_test_(){
+  struct func *tmp;
+  size_t num_test=0;
+  int  cur = 0, len;
+  //get_cursor_position(&col, &row);
+  int width;
+  long int chg=0; 
+
+  char prgss[]="\\|/-";
+  struct winsize w;
+  //ioctl(1,TIOCGWINSZ, &w); // 1 =STDOUT_FILENO 
+  //printf ("lines %d\n", w.ws_row);
+  //width = w.ws_col - 50;
+  //printf ("columns %d vs width.choice: %d\n", w.ws_col, width);
+
+  len=strlen(prgss);
+  
+  do{
+    ioctl(1,TIOCGWINSZ, &w); // 1 =STDOUT_FILENO 
+    width = w.ws_col - 50;
+    //LOCK(mut_current_test);
+    tmp = current_fn;
+    //UNLOCK(mut_current_test);
+    if(tmp)
+      num_test = extract_num__f(tmp->name);
+    //gotoxy(13,0);
+    printf("\r(%c)[",prgss[cur]);
+    
+    for(int i=0; i< width; ++i) {
+      if(i<=(num_test+1)*width/count_tests){
+          //usleep(20000);
+          printf("#");
+      }
+      else printf(".");
+    }
+      printf("|%3ld%%, test N° %ld/%ld]",(num_test+1)*100/count_tests,num_test,count_tests-1);
+      fflush(stdout);
+    
+    
+    //printf("%c",prgss[cur]);
+    //printf("\33[2K\r");  // remove current line and go to begin of the current line 
+    //if(chg==40000){
+      chg=0;
+      if(cur<len-1) ++cur;
+      else cur=0;
+    //}else ++chg;
+    //printf("\n");
+    //sleep(1);
+    //usleep(500000);
+    nnsleep(200000000);// 200 milliseconds
+  }while(tmp);
+
+  printf("\n");
+}
+
+void bar_progress_test_(){
+  bar_progress_start();
+  
+  struct func *tmp;
+  size_t num_test=0;
+  
+  do{
+    tmp = current_fn;
+    //UNLOCK(mut_current_test);
+    if(tmp)
+      num_test = extract_num__f(tmp->name);
+    if(strlen(bar_progress) < strlen(default_bar_progress))
+      bar_progress_step_msg(num_test, count_tests, "test N°", default_bar_progress[0],default_bar_progress[1],default_bar_progress[2]=='c'); 
+    else bar_progress_step_msg(num_test, count_tests, "test N°", bar_progress[0],bar_progress[1],bar_progress[2]=='c'); 
+    nnsleep(200000000);// 200 milliseconds
+  }while(tmp);
+
+
+
+  bar_progress_stop();
+
+}
+
+void*
+run_progress_tests(void *max_d)
+{
+   int max_col = 80; //*(int*)max_d;
+   //progress_test_(max_col);
+   bar_progress_test_();
+}
+
+
+
+
+
+// ====================== end funcs progress bar ======= 
 
 void 
 append_func(void (*run)(void), char *name){
@@ -839,6 +1000,7 @@ void execute_all(struct func *fun){
   bool exec_test=0;
   //PRINT_HK_C(GREEN_K, HK_EQ," Running %lu tests.\n",count_tests);
   while(tmp){
+    current_fn = tmp;
     CHECK_IF_SELECTED_TEST(tmp->name)
     if(exec_test){
       begin_execute_func(tmp->name, &start_t);
@@ -847,118 +1009,28 @@ void execute_all(struct func *fun){
     }
     tmp = tmp->next;
   }
+  current_fn = tmp;
 }
 
-/*
-void execute_one_test(struct func *fun, size_t num){
-  size_t cur = 0;
-  struct timespec start_t;
-  struct func *tmp = fun;
-  while(tmp){
-    if(cur++ == num){
-      begin_execute_func(tmp->name, &start_t);
-      tmp->run();
-      end_execute_func(tmp->name, start_t);
-    }
-    tmp = tmp->next;
-  }
-}
-
-
-void execute_some_tests_ordered(struct func *fun, size_t cnt, size_t *array )
-{   
-  struct timespec start_t;
-  struct func *tmp = fun;
-  size_t cur = 0, index = 0;
-  
-  while(tmp){
-    if((cur < cnt) && (index++ == array[cur])){
-      begin_execute_func(tmp->name, &start_t);
-      tmp->run();
-      end_execute_func(tmp->name, start_t);
-      ++cur;
-    }   
-    tmp = tmp->next;
-  }
-}
-
-void
-run_some_tests(size_t cnt, ...)
-{
-   struct timespec start_t;
-   head_run(cnt, &start_t);
-   va_list args;
-   va_start(args, cnt);
-   for(size_t i=0; i < cnt; ++i){
-    execute_one_test(f_beging, va_arg(args, size_t));
-   }
-   va_end(args);
-   stat_end_run(cnt, start_t);
-}
-
-void 
-run_some_tests_ordered(size_t cnt, ... )
-{
-   struct timespec start_t;
-   head_run(cnt, &start_t);
-   va_list args;
-   va_start(args, cnt);
-   size_t *array=malloc(cnt*sizeof(size_t));
-   for(size_t i=0; i < cnt; ++i){
-    array[i] = va_arg(args, size_t);
-   }
-
-   execute_some_tests_ordered(f_beging, cnt, array);
-   va_end(args);
-   stat_end_run(cnt, start_t);
-}
-
-
-
-
-void execute_all_tests_exept(struct func *fun, size_t cnt, size_t *array )
-{ 
-  struct timespec start_t; 
-  struct func *tmp = fun;
-  size_t cur = 0;
-  while(tmp){
-    if(!is_in_array(array, cnt, cur++)){
-      begin_execute_func(tmp->name, &start_t);
-      tmp->run();
-      end_execute_func(tmp->name, start_t);
-    }
-    tmp = tmp->next;
-  }
-}
-
-void 
-run_all_tests_exept(size_t cnt, ... )
-{
-   struct timespec start_t;
-   if(count_tests >= cnt)
-      head_run(count_tests - cnt, &start_t);
-   va_list args;
-   va_start(args, cnt);
-   size_t *array=malloc(cnt*sizeof(size_t));
-   for(size_t i=0; i < cnt; ++i){
-      array[i] = va_arg(args, size_t);
-   }
-
-   execute_all_tests_exept(f_beging, cnt, array);
-   va_end(args);
-   if(count_tests >= cnt)
-     stat_end_run(count_tests - cnt, start_t);
-}
-*/
 
 void
 run_all_tests()
 {
-   struct timespec start_t;
+  //progress = true;
+ #if 1
+  pthread_t thrd_progress;
+  if(progress)  pthread_create(&thrd_progress, NULL, run_progress_tests, NULL);
+//if(progress)  pthread_create(&thrd_progress, NULL, run_progress_tests, (void*)&max_col);
+#endif
+
+  struct timespec start_t;
    head_run(count_tests, &start_t);
    execute_all(f_beging);
    //stat_end_run(count_tests, start_t);
    stat_end_run(count_pass_global + count_fail_global, start_t);
+
+   if(progress)  pthread_join(thrd_progress, NULL);
+
 }
 
 #if 0
@@ -1086,85 +1158,6 @@ void end_execute_func_parallel(char *fun_ame, struct timespec start_t, size_t id
   }
 }
 
-unsigned sleep(unsigned x) { time_t t0=time(0); while (difftime(time(0),t0)<x); return 0; }
-unsigned nnsleep(long long x) {
-  struct timespec time_stop; 
-  struct timespec time_start; 
-  clock_gettime(CLOCK_REALTIME, &time_start);
-
-  long long diff; 
-  do{
-    clock_gettime(CLOCK_REALTIME, &time_stop);
-
-    diff = 1.0e9 * (time_stop.tv_sec - time_start.tv_sec) + (time_stop.tv_nsec - time_start.tv_nsec);
-  }while(diff < x);
-  return 0; 
-}
-
-void progress_test_(){
-  struct func *tmp;
-  size_t num_test=0;
-  int  cur = 0, len;
-  //get_cursor_position(&col, &row);
-  int width;
-  long int chg=0; 
-
-  char prgss[]="\\|/-";
-  struct winsize w;
-  //ioctl(1,TIOCGWINSZ, &w); // 1 =STDOUT_FILENO 
-  //printf ("lines %d\n", w.ws_row);
-  //width = w.ws_col - 50;
-  //printf ("columns %d vs width.choice: %d\n", w.ws_col, width);
-
-  len=strlen(prgss);
-  
-  do{
-    ioctl(1,TIOCGWINSZ, &w); // 1 =STDOUT_FILENO 
-    width = w.ws_col - 50;
-    //LOCK(mut_current_test);
-    tmp = current_fn;
-    //UNLOCK(mut_current_test);
-    if(tmp)
-      num_test = extract_num__f(tmp->name);
-    //gotoxy(13,0);
-    printf("\r(%c)[",prgss[cur]);
-    
-    for(int i=0; i< width; ++i) {
-      if(i<=(num_test+1)*width/count_tests){
-          //usleep(20000);
-          printf("#");
-      }
-      else printf(".");
-    }
-      printf("|%3ld%%, test N° %ld/%ld]",(num_test+1)*100/count_tests,num_test,count_tests-1);
-      fflush(stdout);
-    
-    
-    //printf("%c",prgss[cur]);
-    //printf("\33[2K\r");  // remove current line and go to begin of the current line 
-    //if(chg==40000){
-      chg=0;
-      if(cur<len-1) ++cur;
-      else cur=0;
-    //}else ++chg;
-    //printf("\n");
-    //sleep(1);
-    //usleep(500000);
-    nnsleep(200000000);// 200 milliseconds
-  }while(tmp);
-
-  printf("\n");
-}
-
-void*
-run_progress_tests(void *max_d)
-{
-   int max_col = 80; //*(int*)max_d;
-   progress_test_(max_col);
-}
-
-
-
 void execute_test_parallel(size_t id_thrd){
   
   struct timespec start_t;
@@ -1212,7 +1205,7 @@ init_parallel_test_()
 {
   if(savelog) ordered =1;
 
-  progress = ordered;
+  //progress = ordered;
   
   is_parallel_nb = 1;
   
@@ -1281,8 +1274,13 @@ final_parallel_test_()
   pthread_mutex_destroy(&mut_count_fail_local);
 
 
-  char reader[256]; 
+  char reader[256]="here the ordered results on each threads"; 
+ 
+  struct winsize w;
+  ioctl(1, TIOCGWINSZ, &w);
   
+  fprintf(F_OUT,"\n\n%0*d\n %*s \n%0*d\n\n",w.ws_col,0, (int)(w.ws_col+strlen(reader))/2, reader,w.ws_col,0 );
+
   if(savelog){
     FILE *f_savelog;
     f_savelog=fopen(savelog, "w+");
@@ -1307,6 +1305,7 @@ final_parallel_test_()
   if(removelog){
     for(size_t i=0; i<=parallel_nb; ++i){
       remove(log_name_file_thrd[i]);
+      PRINT_DEBUG("file log of treard[%ld] removed\n",i);
     }
   }
 

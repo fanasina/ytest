@@ -11,11 +11,16 @@
 #include <sys/ioctl.h> /* to have size of screen, for progress bar */
 
 #include "tools_t/tools_t.h"
-
+#include "bar_progress/bar_progress.h"
 
 #define DEFAULT_K "\033[0m" //Resets the text to default color
 #define GREEN_K "\033[0;32m" 
 #define RED_K "\033[0;31m"
+#define YELLOW_K "\033[0;33m"
+#define BLUE_K "\033[0;34m"
+
+#define COLOR_SZ 6
+extern char *colors_f[];
 
 #ifdef HK
   #define HK_EQ "[==========]"
@@ -51,7 +56,9 @@
 extern FILE **f_ou_th;
 extern bool unicolour;
 extern bool ordered;
+extern bool log_parallel;
 
+extern int kdefaukt, kgreen, kred, kyellow, kblue, knothing;
 
 #ifndef SAVE_LOG
 #define SAVE_LOG 0
@@ -61,11 +68,152 @@ extern bool ordered;
 #endif
 #endif
 
+#define BUF_SIZE 256
 
+#define INIT_STREAM_(stream,buf,len)\
+  FILE *stream;\
+  char *buf;\
+  size_t len;\
+  stream = open_memstream (&buf, &len);\
+  if (stream == NULL) { fprintf(stderr," error open_memstream %s:%d:%s \n",__FILE__,__LINE__,__func__); exit(0); }
+ 
+
+#define CLOSE_STREAM_(stream, buf)\
+  fclose (stream);\
+  free (buf);
+
+#define directory_in_memory "/dev/shm"
+
+#define BUILD_PATH_ID_FILE(dir,id) STRFY(dir/id)
+
+#define INIT_STREAM_MEM(stream, buf)\
+  char *buf = malloc(BUF_SIZE);\
+  char *filename=malloc(strlen(directory_in_memory) + strlen("tmp_")+32) ;\
+  sprintf(filename,"%s/tmp_%ld",directory_in_memory,pthread_self());\
+  FILE *stream = fopen(filename,"w+");\
+  if (stream == NULL) { fprintf(stderr," error open stream on \'tmp\' %s:%d:%s \n",__FILE__,__LINE__,__func__); exit(0); }
+  
+#define BEGIN_CPY_STREAM_MEM(stream, buf)\
+  rewind(stream);\
+  while(fgets(buf, BUF_SIZE, stream)){
+    
+  
+#define END_CPY_STREAM_MEM(stream, buf)\
+  }\
+  fclose(stream);\
+  free(buf);\
+  remove(filename);
+
+
+#if 1
+/*
+ *  to execute once in print functions in the case of log_parallel (printing on screen and recording in file), we have to copy to string before copy it, 
+ *  I've tried open_memstream but it have some bugs. 
+ *  so I use normal fopen a file a memory location '/dev/shm', it is remove after use!
+ */
+#define PRINT_HK_C(color,hk,...)\
+   do{ \
+      if(is_parallel_nb){\
+        size_t id_thread=id_of_thread_executed();\
+        if(log_parallel){\
+          INIT_STREAM_MEM(stream, msg);\
+          if(!unicolour) fprintf(stream, color hk DEFAULT_K  __VA_ARGS__); \
+          else fprintf(stream, hk  __VA_ARGS__); \
+          BEGIN_CPY_STREAM_MEM (stream, msg)\
+            fprintf(F_OUT,"%s",msg);\
+            if(id_thread >= 0){\
+              fprintf(f_ou_th[id_thread],"%s",msg); \
+            }\
+          END_CPY_STREAM_MEM (stream, msg);\
+        }\
+        else{\
+          if(id_thread < 0){\
+            if(!unicolour) fprintf(F_OUT, color hk DEFAULT_K  __VA_ARGS__); \
+            else fprintf(F_OUT, hk  __VA_ARGS__); \
+          }\
+          else{\
+            if(!unicolour) fprintf(f_ou_th[id_thread], color hk DEFAULT_K  __VA_ARGS__); \
+            else fprintf(f_ou_th[id_thread], hk  __VA_ARGS__); \
+          }\
+        }\
+      } \
+    else{\
+       if(!unicolour) fprintf(F_OUT, color hk DEFAULT_K  __VA_ARGS__); \
+       else fprintf(F_OUT, hk  __VA_ARGS__);  \
+    }\
+  }while(0) 
+
+   
 
 #define PRINT_LOC(fmt, ...) \
   do{ \
-    if(ordered){\
+    /*if(ordered){*/\
+      if(is_parallel_nb){\
+        size_t id_thread=id_of_thread_executed();\
+        if(log_parallel){\
+          INIT_STREAM_MEM (stream, msg);\
+          fprintf(stream, "%s:%d:%s(): " fmt, __FILE__, __LINE__, __func__, __VA_ARGS__);\
+          BEGIN_CPY_STREAM_MEM (stream, msg);\
+          fprintf(F_OUT, "%s",msg);\
+          if(id_thread >= 0){\
+            fprintf(f_ou_th[id_thread], "%s",msg);\
+          }\
+          END_CPY_STREAM_MEM (stream, msg);\
+        }\
+        else{\
+          if(id_thread < 0){\
+            fprintf(F_OUT, "%s:%d:%s(): " fmt, __FILE__, \
+            __LINE__, __func__, __VA_ARGS__);\
+          }\
+          else{\
+            fprintf(f_ou_th[id_thread], "%s:%d:%s(): " fmt, __FILE__, \
+            __LINE__, __func__, __VA_ARGS__);\
+          }\
+        }\
+      } \
+     else{\
+      fprintf(F_OUT, "%s:%d:%s(): " fmt, __FILE__, \
+      __LINE__, __func__, __VA_ARGS__);\
+    }\
+  }while(0)
+
+#define PRINTF( ...) \
+  do{ \
+    if(is_parallel_nb){\
+      size_t id_thread=id_of_thread_executed();\
+      if(log_parallel){\
+        INIT_STREAM_MEM (stream, msg);\
+        fprintf(stream,  __VA_ARGS__);\
+        BEGIN_CPY_STREAM_MEM (stream, msg);\
+        fprintf(F_OUT,"%s",msg);\
+        if(id_thread >= 0){\
+          fprintf(f_ou_th[id_thread],"%s",msg);\
+        }\
+        END_CPY_STREAM_MEM(stream, msg);\
+      }\
+      else{\
+        if(id_thread < 0){\
+          fprintf(F_OUT,__VA_ARGS__);\
+        }\
+        else{\
+          fprintf(f_ou_th[id_thread], __VA_ARGS__);\
+        }\
+      }\
+    } \
+    else{\
+      fprintf(F_OUT, __VA_ARGS__);\
+    }\
+  }while(0)
+
+#define LOG(...) PRINTF(__VA_ARGS__)
+
+//#endif
+#else  /* below alternative of above solution, but it execute twice functions called in print functions when log_parallel == 1 */
+//#if 1
+
+#define PRINT_LOC(fmt, ...) \
+  do{ \
+    /*if(ordered){*/\
       if(is_parallel_nb){\
         size_t id_thread=id_of_thread_executed();\
         if(id_thread < 0){\
@@ -77,12 +225,12 @@ extern bool ordered;
           __LINE__, __func__, __VA_ARGS__);\
         }\
       } \
-      else{\
+      /*else{\
         fprintf(F_OUT, "%s:%d:%s(): " fmt, __FILE__, \
           __LINE__, __func__, __VA_ARGS__);\
       }\
     }\
-    else{\
+    else{*/if(log_parallel || !is_parallel_nb){\
       fprintf(F_OUT, "%s:%d:%s(): " fmt, __FILE__, \
       __LINE__, __func__, __VA_ARGS__);\
     }\
@@ -90,7 +238,8 @@ extern bool ordered;
 
 #define PRINTF( ...) \
   do{ \
-    if(ordered){\
+    printf("\n\n sizeof VARGS:%ld \n\n",sizeof(__VA_ARGS__));\
+    /*if(ordered){*/\
       if(is_parallel_nb){\
         size_t id_thread=id_of_thread_executed();\
         if(id_thread < 0){\
@@ -100,11 +249,11 @@ extern bool ordered;
           fprintf(f_ou_th[id_thread], __VA_ARGS__);\
         }\
       } \
-      else{\
+      /*else{\
          fprintf(F_OUT, __VA_ARGS__);\
       }\
     }\
-    else{\
+    else{*/if(log_parallel || !is_parallel_nb){\
       fprintf(F_OUT, __VA_ARGS__);\
     }\
   }while(0)
@@ -113,7 +262,7 @@ extern bool ordered;
 
 #define PRINT_HK_C(color,hk,...)\
   do{ \
-    if(ordered){\
+    /*if(ordered){*/\
       if(is_parallel_nb){\
         size_t id_thread=id_of_thread_executed();\
         if(id_thread < 0){\
@@ -125,16 +274,19 @@ extern bool ordered;
           else fprintf(f_ou_th[id_thread], hk  __VA_ARGS__); \
         }\
       } \
-      else{\
+      /*else{\
         if(!unicolour) fprintf(F_OUT, color hk DEFAULT_K  __VA_ARGS__); \
         else fprintf(F_OUT, hk  __VA_ARGS__); \
-      }\
-    }\
-    else{\
+      }*/\
+    /*}*/\
+    /*else{*/if(log_parallel || !is_parallel_nb){\
        if(!unicolour) fprintf(F_OUT, color hk DEFAULT_K  __VA_ARGS__); \
        else fprintf(F_OUT, hk  __VA_ARGS__);  \
     }\
   }while(0) 
+
+#endif    
+
 
 #if 0
 
@@ -152,7 +304,7 @@ extern bool ordered;
  */
 #define SKIP(...)\
   PRINT_HK_C(GREEN_K, HK_SK __VA_ARGS__);\
-  PRINT_LOC("%s\n\n"," Skiped"); return;
+  PRINT_LOC("%s\n\n" DEFAULT_K," Skiped "); return;
 
 
 
@@ -308,9 +460,41 @@ GEN_EXPECTED_OP_TYPE_FUNC(NE, TYPE_L_DOUBLE)
 GEN_EXPECTED_OP_TYPE_FUNC(NE, TYPE_STRING)
 /* 
  * ********************  end NE generation ************************
- */ 
+ */
 
+/*
+ * only expect
+ */
+#define HANDLE_OP_EXPECT_NAME(OP,type,var1,var2,name_f,msg_call)                                                          \
+do{      \
+   if(is_parallel_nb == 0){\
+      if(expected_##OP##_##type(var1, var2)){                                                                       \
+        PRINT_HK_C(GREEN_K,HK_TR," 1 %s passed from %s \n\n",name_f,msg_call);                                       \
+      }                                                                                                         \
+      else{                                                                                                     \
+        /*PRINT_LOC("Failure\nExpected %s of these values:\n   %s\n\tWhich is:  %s\n %s\n\tWhich is: %s\n\n"\
+          ,DESCRIPTION_##OP,#var1, type##_TO_STR(var1),  #var2, type##_TO_STR(var2));  */                                          \
+        PRINT_LOC("Failure\nExpected: (%s) %s (%s) :\n Value of %s: %s \n Value of %s: %s\n\n"\
+          ,#var1,STRFY(OP),#var2,#var1, type##_TO_STR(var1),  #var2, type##_TO_STR(var2));                                            \
+        PRINT_HK_C(RED_K,HK_TR," 1 %s failed from %s \n",name_f,msg_call);                                           \
+      }                                                                                                         \
+   }else {                                                                                                         \
+      if(expected_##OP##_name_##type(var1, var2, name_f)){                                                                       \
+        PRINT_HK_C(GREEN_K,HK_TR," 1 %s passed from %s \n\n",name_f,msg_call);                                       \
+        /*PRINT_HK_C(GREEN_K,HK_TR," 1 test passed from %s \n\n",name_f);*/                                       \
+      }                                                                                                         \
+      else{                                                                                                     \
+        /*PRINT_LOC("Failure\nExpected %s of these values:\n   %s\n\tWhich is:  %s\n %s\n\tWhich is: %s\n\n"\
+         ,DESCRIPTION_##OP ,#var1, type##_TO_STR(var1),  #var2, type##_TO_STR(var2));*/                                            \
+        PRINT_LOC("Failure\nExpected: (%s) %s (%s) :\n Value of %s: %s \n Value of %s: %s\n\n"\
+          ,#var1,STRFY(OP),#var2,#var1, type##_TO_STR(var1),  #var2, type##_TO_STR(var2));                                            \
+        PRINT_HK_C(RED_K,HK_TR," 1 %s failed from %s \n",name_f,msg_call);                                           \
+      }                                                                                                         \
+    }\
+}while(0);
 
+//#define EXPECT_OP_(OP,type,var1,var2)  HANDLE_OP_EXPECT_(OP,type,var1,var2)
+  
   /**
    * is_assert : 0 for EXPECT and 1 for ASSERT 
    */
@@ -609,7 +793,7 @@ do{                                                                             
 #define CONCAT(x,y) x ## y
 #define STRFY(x) # x 
 
-#define test_label test
+//#define test_label test
 
 #define FTEST_(count, name_f)                                                 \
   void CONCAT(test_##name_f##____,count)(void);                               \
@@ -623,7 +807,7 @@ do{                                                                             
   void CONCAT(TEST_##name_f##____,count)(void);                                       \
   __attribute__((constructor))                                                \
   void CONCAT(append_test_##name_f,count)(void){                              \
-    append_func(CONCAT(TEST_##name_f##____,count),STRFY(TEST(name_f): test N° count|));          \
+    append_func(CONCAT(TEST_##name_f##____,count),STRFY (TEST(name_f): test N° count| ) );          \
   }                                                                           \
   void CONCAT(TEST_##name_f##____,count)(void)
 
