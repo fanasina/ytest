@@ -148,7 +148,7 @@ char * number_call_translate(long nb){
 
 #define PRINT_VAR_CUR(mockinfo)\
     do{\
-      PRINTF("\n\tlist of variables when %s was called:\n\t\t",mockinfo->str_namefunc);\
+      PRINTF("\n%s list of variables when %s was called, whith condition %s:\n\t\t",HK_EQ,mockinfo->str_namefunc,mockinfo->str_conditions);\
       size_t cal_cur=0;\
       struct list_current_variable *tmp_cur_v = mockinfo->l_current_var;\
       while(tmp_cur_v){\
@@ -190,7 +190,7 @@ __attribute__((destructor))
  PRINT_DEBUG("**** STAT mock function:%s, conditions:%s t_left:%ld, init_left:%ld, failed_call:%ld\n",tmock->str_namefunc, tmock->str_conditions, tmock->times_left,tmock->init_times_left, tmock->failed_call);
       if((tmock->expect_call) && (tmock->init_times_left == tmock->times_left) || (tmock->failed_call)){
         if(tmock->l_current_var){
-          PRINTF("%s%s %s%s %s: expect %s, it was called %ld times and failed %ld times, with condition %s\n",colors_f[kred],HK_TR,colors_f[kyellow],tmock->str_namefunc,DEFAULT_K, 
+          PRINTF("%s%s %s%s %s: expect %s, it was called %ld times and failed %ld times, with condition %s\n",colors_f[kred],HK_FL,colors_f[kyellow],tmock->str_namefunc,DEFAULT_K, 
             number_call_translate(tmock->init_times_left),
             tmock->call/*tmock->failed_call + (tmock->init_times_left - tmock->times_left)*/, 
             tmock->failed_call,
@@ -199,7 +199,7 @@ __attribute__((destructor))
           PRINT_VAR_CUR(tmock);
         }
         else 
-          PRINTF("%s%s %s%s %s: expect %s, it was called %ld times and failed %ld times, with condition %s \n",colors_f[kred],HK_TR,colors_f[kyellow],tmock->str_namefunc,DEFAULT_K, 
+          PRINTF("%s%s %s%s %s: expect %s, it was called %ld times and failed %ld times, with condition %s \n",colors_f[kred],HK_FL,colors_f[kyellow],tmock->str_namefunc,DEFAULT_K, 
             number_call_translate(tmock->init_times_left),
             tmock->call/*tmock->failed_call + (tmock->init_times_left - tmock->times_left)*/, 
             tmock->failed_call, 
@@ -241,12 +241,12 @@ __attribute__((destructor))
             
             if(tmp_inf_mock->l_current_var){
               PRINTF("%s%s%s %s\t expect %s,\t called %ld times and failed %ld times,\t called by: %s ,\t with condition: %s%s\n" , 
-                colors_f[!unicolour*(kred - success)],tab_hk_f[hk_EQ+success],colors_f[knothing * success],tmp_inf_mock->str_namefunc, number_call_translate(tmp_inf_mock->init_times_left), tmp_inf_mock->call, 
+                colors_f[!unicolour*(kred - success)],tab_hk_f[hk_FL-success],colors_f[knothing * success],tmp_inf_mock->str_namefunc, number_call_translate(tmp_inf_mock->init_times_left), tmp_inf_mock->call, 
                 tmp_inf_mock->failed_call, tmp_inf_mock->str_caller, tmp_inf_mock->str_conditions, DEFAULT_K);
               PRINT_VAR_CUR(tmp_inf_mock);
             }else{
               PRINTF("%s%s%s %s\t expect %s,\t called %ld times and failed %ld times,\t call by: %s ,\t with condition: %s%s\n" , 
-                colors_f[!unicolour*(kred - success)],tab_hk_f[hk_EQ+success],colors_f[knothing*success],tmp_inf_mock->str_namefunc, number_call_translate(tmp_inf_mock->init_times_left), tmp_inf_mock->call, 
+                colors_f[!unicolour*(kred - success)],tab_hk_f[hk_FL-success],colors_f[knothing*success],tmp_inf_mock->str_namefunc, number_call_translate(tmp_inf_mock->init_times_left), tmp_inf_mock->call, 
                 tmp_inf_mock->failed_call, tmp_inf_mock->str_caller, tmp_inf_mock->str_conditions , DEFAULT_K);
 
               /*PRINTF("%s%s %s\t expect %s,\t called %ld times and failed %ld times,\t with condition: %s,\t call by: %s %s\n" , 
@@ -257,12 +257,12 @@ __attribute__((destructor))
             int success = !(tmp_inf_mock->failed_call);
             if(tmp_inf_mock->l_current_var){
               PRINTF("%s%s%s %s\t  will %s,\t called %ld times and failed %ld times,\t called by: %s ,\t with condition: %s,%s\n" , 
-                colors_f[!unicolour*(kred + success)],tab_hk_f[hk_EQ+success],colors_f[knothing*success],tmp_inf_mock->str_namefunc, number_call_translate(tmp_inf_mock->init_times_left), tmp_inf_mock->call, 
+                colors_f[!unicolour*(kred + success)],tab_hk_f[hk_FL-success],colors_f[knothing*success],tmp_inf_mock->str_namefunc, number_call_translate(tmp_inf_mock->init_times_left), tmp_inf_mock->call, 
                 tmp_inf_mock->failed_call, tmp_inf_mock->str_caller, tmp_inf_mock->str_conditions , DEFAULT_K);
               PRINT_VAR_CUR(tmp_inf_mock);
             }else{
               PRINTF("%s%s%s %s\t will %s,\t called %ld times and failed %ld times,\t called by: %s ,\t with condition: %s %s\n" , 
-                colors_f[!unicolour*(kred + success)],tab_hk_f[hk_EQ+success],colors_f[knothing*success],tmp_inf_mock->str_namefunc, number_call_translate(tmp_inf_mock->init_times_left), tmp_inf_mock->call, 
+                colors_f[!unicolour*(kred + success)],tab_hk_f[hk_FL-success],colors_f[knothing*success],tmp_inf_mock->str_namefunc, number_call_translate(tmp_inf_mock->init_times_left), tmp_inf_mock->call, 
                 tmp_inf_mock->failed_call, tmp_inf_mock->str_caller, tmp_inf_mock->str_conditions , DEFAULT_K);
 
 
