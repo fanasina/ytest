@@ -8,11 +8,19 @@
 #define INITSTATE -1
 #define DONOTHING 0
 
+/*
+ * list of each variable called 
+ * use str_print_current_variables attibute function pointer to record variable
+ * so if STR_PRINT_CUR_VAR is not defined, this list is empty!
+ */
 struct list_current_variable{
   char *str_current_variables;
   struct list_current_variable *next;
 };
 
+/*
+ * list to store info abou mock function 
+ */
 struct func_mock_info_struct{
   long id;
   char *str_namefunc;
@@ -28,6 +36,9 @@ struct func_mock_info_struct{
   struct func_mock_info_struct *next;
 };
 
+/*
+ * to list all mock responses of all mock functions in one list
+ */
 struct list_base_fmock{
   struct func_mock_info_struct *info_mock;
   struct list_base_fmock *next;
@@ -119,15 +130,16 @@ extern struct list_base_fmock *g_list_base_fmock;
 
 char* extract_name_func_mock(char *input);
 
-
-
+/*
+ * used in mock functions to check the conditions
+ */
 #define EXPECT_EQ_IN_MOCKF(var1,var2, name_f_mocked)\
   do{ HANDLE_OP_EXPECT_NAME(EQ,TYPE_INT,var1,var2,(list_mo_ ## name_f_mocked.info_mock)->str_caller,"mock test")}while(0)
     
 
-      /*
-       *  to inject the name TEST in the mock attribute info
-       */
+/*
+ *  to inject the name TEST caller in the mock attribute info, usefull in logs and stats
+ */
 #define INIT_CALLER_MOCK(namefunction)/* */\
   do{\
       struct list_mock_return_ ## namefunction *tmp_mock = &list_mo_ ## namefunction;\
@@ -138,6 +150,12 @@ char* extract_name_func_mock(char *input);
       }\
  }while(0);
 
+/*
+ * to create/ define str_print_current_variables functions
+ * prototype:  char* str_print_current_variables (prototype of mock function)
+ * the args of the macro are the same of MOCK_FUNC without the returntype which is always (char*).
+ * It need to be defined after MOCK_FUNC but need to be before EXPECT_MOCK_CALL or WILL_MOCK_CALL
+ */
 
 #define STR_PRINT_CUR_VAR(namefunction, args_prototype_with_parenthesis, args_call_with_parenthesis)\
   char* str_print_variables ## namefunction args_prototype_with_parenthesis;\
