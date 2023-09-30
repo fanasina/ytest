@@ -111,7 +111,10 @@ char *default_bar_progress="  c";
 //size_t width = 80;
 
 char *colors_f[]={DEFAULT_K, GREEN_K, RED_K, YELLOW_K, BLUE_K, ""};
-int kdefaukt=0, kgreen=1, kred=2, kyellow=3, kblue=4, knothing=5;
+int kdefault=0, kgreen=1, kred=2, kyellow=3, kblue=4 ,   knothing= Dknothing;
+
+char *tab_hk_f[]={ HK_EQ, HK_TR, HK_RN, HK_DN, HK_OK, HK_FL, HK_PS, HK_SK };
+int hk_EQ=0, hk_TR=1, hk_RN=2, hk_DN=3, hk_OK=4, hk_FL=5, hk_PS=6, hk_SK=7 ;
 
 bool some_tests_selected=0; 
 
@@ -267,6 +270,43 @@ size_t extract_num__f(const char *name_f){
   }
   return val;
 }
+ /* TEST_funcname___NUM -> TEST(funcname) */
+char* extract_func_edited_TEST_from_exec_func_name(char* func_name){
+  size_t len=strlen(func_name);
+  char *ret_name=malloc(len);
+  strcpy(ret_name, func_name);
+  char *pad="____";
+  size_t len_pad=strlen(pad); 
+  ret_name[4]='(';
+  for(size_t i=5;i<len-len_pad; ++i){
+    if(0==strncmp(func_name+i, pad,len_pad)){
+      ret_name[i]=')';
+      ret_name[i+1]='\0';
+    }
+  }
+  return ret_name;
+}
+
+// ========================== =================================
+void setup_variables_before_exec(){
+  if(unicolour){
+    size_t len_bp = strlen(bar_progress);
+    size_t len_db = strlen(default_bar_progress);
+    if( len_bp >= len_db ){
+      char *tmp_bp=malloc(len_bp);
+      strcpy(tmp_bp,bar_progress);  
+      tmp_bp[2]='u';
+      bar_progress=tmp_bp;
+    }
+    else{
+      char *tmp_bp=malloc(len_bp);
+      strcpy(tmp_bp,default_bar_progress);  
+      tmp_bp[2]='u';
+      default_bar_progress=tmp_bp;
+    }
+  } 
+}
+
 
 // ===================================== begin options handle =======================================================
 
@@ -305,6 +345,7 @@ void usage(int argc, char **argv){
     exit(0);
   }
   if(only_usage) exit(0);
+
 }
 
 
@@ -562,6 +603,7 @@ void parse_options(int argc, char **argv){
     IF_NO_MATCH_DO_WRONG
   }
 
+  setup_variables_before_exec();
 }
 
 // ==================================================== end handle  option ================================
@@ -744,6 +786,8 @@ unsigned nnsleep(long long x) {
   return 0; 
 }
 
+#if 0
+
 void progress_test_(){
   struct func *tmp;
   size_t num_test=0;
@@ -798,6 +842,8 @@ void progress_test_(){
 
   printf("\n");
 }
+
+#endif
 
 void bar_progress_test_(){
   bar_progress_start();
@@ -951,7 +997,7 @@ GEN_IS_IN_ARRAY_PTR(TYPE_STRING)
 GEN_IS_IN_ARRAY_NUM(TYPE_SIZE_T)
 
 /*
- * extract name test between () beacuse the syntax is TEST(name_test)
+ * extract name test between () because the syntax is TEST(name_test)
  */ 
 void extract_name_test_from_name(char *name_org, char **name_f){
   size_t len=strlen(name_org); 
@@ -1351,10 +1397,11 @@ if(progress)  pthread_join(thrd_progress, NULL);
   final_parallel_test_();
 }
 
-
 void run_all_tests_args(int argc, char **argv){
   
   parse_options(argc,argv);
+
+
   if(help) usage(argc,argv);
   if(is_parallel_nb) run_all_tests_parallel(parallel_nb);
   else run_all_tests();

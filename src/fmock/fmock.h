@@ -8,11 +8,18 @@
 #define INITSTATE -1
 #define DONOTHING 0
 
+struct list_current_variable{
+  char *str_current_variables;
+  struct list_current_variable *next;
+};
+
 struct func_mock_info_struct{
   long id;
   char *str_namefunc;
   char *str_conditions;
   char *str_caller;
+  //char *str_current_variables;
+  struct list_current_variable *l_current_var;
   int expect_call;/* 1 if EXPECT_MOCK_CALL and 0 if WILL_MOCK_CALL */
   long call;/* increment when call (try to executed) and 0 if not : init value */
   long failed_call;/* increment when condition not fill and 0 if not : init value */
@@ -27,9 +34,11 @@ struct list_base_fmock{
 };
 
 
+
 int parse_count_args_(char *input);
 void append_fmock_to_listmock(struct func_mock_info_struct **f_mock_list,  struct func_mock_info_struct *f_mock);
 void append_list_base_fmock(struct list_base_fmock **l_fmock, struct func_mock_info_struct *f_mock);
+void append_variable_current(struct list_current_variable **lcurrent_var, char *current_var);
 
 extern struct func_mock_info_struct *f_mock_glist;
 extern struct list_base_fmock *g_list_base_fmock;
@@ -48,6 +57,7 @@ extern struct list_base_fmock *g_list_base_fmock;
   struct list_mock_return_ ## namefunction{\
     returntype (*run) args_prototype_with_parenthesis;\
     int (*call_mock_condition) args_prototype_with_parenthesis ;/* to store condition */\
+    char* (*str_print_current_variables) args_prototype_with_parenthesis ;/* to store current variables CREATE by macro STR_PRINT_CUR_VAR same arguments as MOCK_FUNC without returntype whoch is always char * */\
     /*int arg_count;*/\
     struct func_mock_info_struct *info_mock;\
     struct list_mock_return_ ## namefunction *next;\
@@ -58,6 +68,7 @@ extern struct list_base_fmock *g_list_base_fmock;
     (list_mo_ ## namefunction.info_mock)->init_times_left = INITSTATE;\
     /*list_mo_ ## namefunction.arg_count = parse_count_args_(#args_prototype_with_parenthesis);\
     list_mo_ ## namefunction.call_mock_condition = malloc(list_mo_ ## namefunction.arg_count * sizeof( int (*)(void*))) ;*/\
+    list_mo_ ## namefunction.str_print_current_variables = NULL;\
     list_mo_ ## namefunction.next = NULL;\
   }\
   returntype namefunction args_prototype_with_parenthesis {\
@@ -71,6 +82,8 @@ extern struct list_base_fmock *g_list_base_fmock;
     }\
     while(tmp_mock->next && (tmp_mock->info_mock)->times_left == 0) tmp_mock = tmp_mock->next ;\
     ++((tmp_mock->info_mock)->call);\
+    if(tmp_mock->str_print_current_variables)\
+      append_variable_current(&((tmp_mock->info_mock)->l_current_var), tmp_mock->str_print_current_variables args_call_with_parenthesis);\
     /*LOG("condition_func:%d\n", tmp_mock->call_mock_condition args_call_with_parenthesis);*/ /*LOG("%s\n","failure condition");*/\
     /*EXPECT_EQ_TYPE_INT(1, tmp_mock->call_mock_condition args_call_with_parenthesis);*/ /*LOG("%s\n","failure condition");*/\
     if ((tmp_mock->info_mock)->times_left == 0) /*no longer response, default return */ \
@@ -107,33 +120,10 @@ extern struct list_base_fmock *g_list_base_fmock;
 char* extract_name_func_mock(char *input);
 
 
+
 #define EXPECT_EQ_IN_MOCKF(var1,var2, name_f_mocked)\
   do{ HANDLE_OP_EXPECT_NAME(EQ,TYPE_INT,var1,var2,(list_mo_ ## name_f_mocked.info_mock)->str_caller,"mock test")}while(0)
     
-#if 0
-      (tmp_mock->info_mock)->expect_call = f_expect_call;\
-      (tmp_mock->info_mock)->init_times_left = repeat;\
-      (tmp_mock->info_mock)->times_left = repeat;\
-      (tmp_mock->info_mock)->next = NULL;\
-      tmp_mock->call_mock_condition = CONCAT(namefunction ## _cond_, id);\
-      tmp_mock->run = CONCAT(run_ ## namefunction ## _line_, id);\
- 
-
-
-      (tmp_mock->next)->run = CONCAT(run_ ## namefunction ## _line_, id);\
-      (tmp_mock->next)->call_mock_condition = CONCAT(namefunction ## _cond_, id);\
-      (tmp_mock->next)->info_mock  = malloc(sizeof(struct func_mock_info_struct));\
-      ((tmp_mock->next)->info_mock)->expect_call = f_expect_call;\
-      ((tmp_mock->next)->info_mock)->init_times_left = repeat;\
-      ((tmp_mock->next)->info_mock)->times_left = repeat;\
-      ((tmp_mock->next)->info_mock)->str_namefunc = malloc(strlen(#namefunction));\
-      strcpy(((tmp_mock->next)->info_mock)->str_namefunc, #namefunction);\
-      ((tmp_mock->next)->info_mock)->str_conditions = malloc(strlen(#condition_on_args_expression));\
-      strcpy(((tmp_mock->next)->info_mock)->str_conditions, #condition_on_args_expression;\
-      ((tmp_mock->next)->info_mock)->next = NULL;\
-      (tmp_mock->next)->next = NULL;\
-
-#endif
 
       /*
        *  to inject the name TEST in the mock attribute info
@@ -148,54 +138,74 @@ char* extract_name_func_mock(char *input);
       }\
  }while(0);
 
-#define FILL_MOCK_INFO(tmp_new_mock, namefunction, condition_on_args_expression , repeat, f_expect_call, id) \
-      (tmp_new_mock)->run = CONCAT(run_ ## namefunction ## _line_, id);\
+
+#define STR_PRINT_CUR_VAR(namefunction, args_prototype_with_parenthesis, args_call_with_parenthesis)\
+  char* str_print_variables ## namefunction args_prototype_with_parenthesis;\
+__attribute__((constructor)) void create_str_print_variables ## namefunction(){\
+  list_mo_ ## namefunction .str_print_current_variables = str_print_variables ## namefunction;\
+  }\
+  char* str_print_variables ## namefunction args_prototype_with_parenthesis
+
+
+#define PRE_ID ___line_
+
+
+#define FILL_MOCK_INFO(tmp_new_mock, namefunction, condition_on_args_expression , repeat, f_expect_call, pre_id, id, is_init) \
+      (tmp_new_mock)->run = CONCAT(run_ ## namefunction ## pre_id, id);\
       (tmp_new_mock)->call_mock_condition = CONCAT(namefunction ## _cond_, id);\
+      if(!is_init)\
+        tmp_new_mock->str_print_current_variables = list_mo_ ## namefunction .str_print_current_variables;\
       /*(tmp_new_mock)->info_mock  = malloc(sizeof(struct func_mock_info_struct));*/\
       ((tmp_new_mock)->info_mock)->expect_call = f_expect_call;\
       ((tmp_new_mock)->info_mock)->call = 0;\
       ((tmp_new_mock)->info_mock)->failed_call = 0;\
       ((tmp_new_mock)->info_mock)->init_times_left = repeat;\
       ((tmp_new_mock)->info_mock)->times_left = repeat;\
-      ((tmp_new_mock)->info_mock)->str_namefunc = malloc(strlen(#namefunction) + 32 + strlen("_line_"));\
-      sprintf(((tmp_new_mock)->info_mock)->str_namefunc,"%s_line_%d",#namefunction,id);\
+      ((tmp_new_mock)->info_mock)->str_namefunc = malloc(strlen(#namefunction) + 32 + strlen(#pre_id));\
+      sprintf(((tmp_new_mock)->info_mock)->str_namefunc,"%s%s%d",#namefunction,#pre_id,id);\
       ((tmp_new_mock)->info_mock)->str_conditions = malloc(strlen(#condition_on_args_expression));\
       strcpy(((tmp_new_mock)->info_mock)->str_conditions, #condition_on_args_expression);\
       ((tmp_new_mock)->info_mock)->str_caller = NULL;\
+      ((tmp_new_mock)->info_mock)->l_current_var= NULL;\
       ((tmp_new_mock)->info_mock)->next = NULL;\
       (tmp_new_mock)->next = NULL;\
       append_fmock_to_listmock(&f_mock_glist, (tmp_new_mock)->info_mock);
 
 
-#define ADD_RESPONSE(returntype, namefunction, args_prototype_with_parenthesis, condition_on_args_expression , repeat, f_expect_call, id)\
-  /*FUNC_type_ ## namefunction CONCAT(run_ ## namefunction ## _line_ , id);*/\
-  returntype CONCAT(run_ ## namefunction ## _line_ , id) args_prototype_with_parenthesis; \
+#define ADD_RESPONSE_(returntype, namefunction, args_prototype_with_parenthesis, condition_on_args_expression , repeat, f_expect_call, pre_id, id)\
+  /*FUNC_type_ ## namefunction CONCAT(run_ ## namefunction ## pre_id , id);*/\
+  returntype CONCAT(run_ ## namefunction ## pre_id , id) args_prototype_with_parenthesis; \
   int CONCAT(namefunction ## _cond_ , id) args_prototype_with_parenthesis {/*LOG("cond:%d\n",condition_on_args_expression);*/ return condition_on_args_expression;}\
   __attribute__((constructor)) void CONCAT(append_list_ ## namefunction , id)(void){\
     struct list_mock_return_ ## namefunction *tmp_mock = &list_mo_ ## namefunction;\
     if((tmp_mock->info_mock)->times_left == INITSTATE){/* init state */\
-      FILL_MOCK_INFO(tmp_mock, namefunction, condition_on_args_expression , repeat, f_expect_call, id);\
+      FILL_MOCK_INFO(tmp_mock, namefunction, condition_on_args_expression , repeat, f_expect_call, pre_id, id, true);\
       append_list_base_fmock( &g_list_base_fmock ,(tmp_mock->info_mock));\
     }\
     else{\
       while(tmp_mock->next) tmp_mock = tmp_mock->next;\
       tmp_mock->next = malloc(sizeof(list_mo_ ## namefunction));\
       (tmp_mock->next)->info_mock  = malloc(sizeof(struct func_mock_info_struct));\
-      FILL_MOCK_INFO(tmp_mock->next, namefunction, condition_on_args_expression , repeat, f_expect_call, id);\
+      FILL_MOCK_INFO(tmp_mock->next, namefunction, condition_on_args_expression , repeat, f_expect_call, pre_id, id, false);\
       /*(tmp_mock->info_mock)->next  = (tmp_mock->next)->info_mock ;*/\
     }\
   }\
-  returntype CONCAT(run_ ## namefunction ## _line_, id) args_prototype_with_parenthesis
+  returntype CONCAT(run_ ## namefunction ## pre_id, id) args_prototype_with_parenthesis
 
-
+/*
+ * have to define this below macro to rewrite the right macro identifier (PRE_ID) 
+ */ 
+      
+#define ADD_RESPONSE(returntype, namefunction, args_prototype_with_parenthesis, condition_on_args_expression , repeat, f_expect_call, pre_id, id)\
+   ADD_RESPONSE_(returntype, namefunction, args_prototype_with_parenthesis, condition_on_args_expression , repeat, f_expect_call, pre_id, id)\
 
 
 #define EXPECT_MOCK_CALL(returntype, namefunction, args_prototype_with_parenthesis, condition_on_args_expression ,repeat) \
-  ADD_RESPONSE(returntype,namefunction, args_prototype_with_parenthesis, condition_on_args_expression, repeat, 1, __LINE__)
+  ADD_RESPONSE(returntype,namefunction, args_prototype_with_parenthesis, condition_on_args_expression, repeat, 1, PRE_ID, __LINE__)
 
 
 #define WILL_MOCK_CALL(returntype, namefunction, args_prototype_with_parenthesis, condition_on_args_expression ,repeat) \
-  ADD_RESPONSE(returntype,namefunction, args_prototype_with_parenthesis, condition_on_args_expression, repeat, 0, __LINE__)
+  ADD_RESPONSE(returntype,namefunction, args_prototype_with_parenthesis, condition_on_args_expression, repeat, 0, PRE_ID, __LINE__)
   
 
 

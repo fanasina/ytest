@@ -19,8 +19,13 @@
 #define YELLOW_K "\033[0;33m"
 #define BLUE_K "\033[0;34m"
 
+
 #define COLOR_SZ 6
-extern char *colors_f[];
+
+#define Dknothing COLOR_SZ - 1
+
+#define SZ_TAB_HK 8
+
 
 #ifdef HK
   #define HK_EQ "[==========]"
@@ -58,7 +63,11 @@ extern bool unicolour;
 extern bool ordered;
 extern bool log_parallel;
 
-extern int kdefaukt, kgreen, kred, kyellow, kblue, knothing;
+extern char *colors_f[];
+extern char *tab_hk_f[];
+
+extern int kdefault, kgreen, kred, kyellow, kblue, knothing;
+extern int hk_EQ, hk_TR, hk_RN, hk_DN, hk_OK, hk_FL, hk_PS, hk_SK;
 
 #ifndef SAVE_LOG
 #define SAVE_LOG 0
@@ -324,6 +333,9 @@ void parse_options(int argc, char **argv);
 void run_all_tests();
 void execute_all(struct func *fun);
 void append_func(void (*run)(void), char *name);
+
+char* extract_func_edited_TEST_from_exec_func_name(char* func_name); /* TEST_funcname___NUM -> TEST(funcname) */
+
 /*
 void run_some_tests(size_t cnt, ... );
 void run_all_tests_exept(size_t cnt, ... );

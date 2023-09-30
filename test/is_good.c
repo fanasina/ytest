@@ -196,6 +196,14 @@ TEST(mockf1){
 
 MOCK_FUNC(int, f2_mock,(int a,int b),(a,b))
 
+STR_PRINT_CUR_VAR(f2_mock, (int a,int b),(a,b)){
+  char *ret=malloc(150);
+  //char ret[150];
+  sprintf(ret,"(int)a: %d, (int)b: %d",a,b);
+  return ret;
+}
+
+
 EXPECT_MOCK_CALL(int, f2_mock, (int a,int b), (a<b), 3){
   return a+b;
 }
