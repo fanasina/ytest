@@ -145,10 +145,17 @@ char * number_call_translate(long nb){
   return ret;
 }
 
+char * strprint_caller_(char *input){
+  if(input==NULL) { return "";}
+  char *called_in=",\t called in ";
+  char *ret = malloc(strlen(called_in)+strlen(input)+1);
+  sprintf(ret,"%s%s",called_in,input);
+  return ret;
+}
 
 #define PRINT_VAR_CUR(mockinfo)\
     do{\
-      PRINTF("\n%s list of variables when %s was called, whith condition %s:\n\t\t",HK_EQ,mockinfo->str_namefunc,mockinfo->str_conditions);\
+      PRINTF("\n%s list of variables when %s was called, with condition %s:\n\t\t",HK_EQ,mockinfo->str_namefunc,mockinfo->str_conditions);\
       size_t cal_cur=0;\
       struct list_current_variable *tmp_cur_v = mockinfo->l_current_var;\
       while(tmp_cur_v){\
@@ -217,8 +224,10 @@ __attribute__((destructor))
     while(tmp_list_fm){
       tmp_inf_mock = tmp_list_fm->info_mock;
       memset(reader,'=',w.ws_col-1);
-      char *caller = extract_func_edited_TEST_from_exec_func_name(tmp_inf_mock->str_caller);
+      char *caller="";
+      if(tmp_inf_mock->str_caller) caller = extract_func_edited_TEST_from_exec_func_name(tmp_inf_mock->str_caller);
       size_t len_caller = strlen(caller);
+
       char *nameff=extract_name_func_mock(tmp_inf_mock->str_namefunc);
       size_t len_nameff=strlen(nameff);
       char *by_=" called by ";
@@ -237,45 +246,28 @@ __attribute__((destructor))
         if(0==strncmp(tmp_inf_mock->str_namefunc,nameff, len_nameff)){
           if(tmp_inf_mock->expect_call){
             int success = !((tmp_inf_mock->init_times_left == tmp_inf_mock->times_left) || (tmp_inf_mock->failed_call));
-            // if(tmp_inf_mock->init_times_left == tmp_inf_mock->times_left || tmp_inf_mock->failed_call){}
             
             if(tmp_inf_mock->l_current_var){
-              PRINTF("%s%s%s %s\t expect %s,\t called %ld times and failed %ld times,\t called by: %s ,\t with condition: %s%s\n" , 
+              PRINTF("%s%s%s %s\t expect %s,\t called %ld times and failed %ld times %s,\t with condition: %s%s\n" , 
                 colors_f[!unicolour*(kred - success)],tab_hk_f[hk_FL-success],colors_f[knothing * success],tmp_inf_mock->str_namefunc, number_call_translate(tmp_inf_mock->init_times_left), tmp_inf_mock->call, 
-                tmp_inf_mock->failed_call, tmp_inf_mock->str_caller, tmp_inf_mock->str_conditions, DEFAULT_K);
+                tmp_inf_mock->failed_call, strprint_caller_(tmp_inf_mock->str_caller), tmp_inf_mock->str_conditions, DEFAULT_K);
               PRINT_VAR_CUR(tmp_inf_mock);
             }else{
-              PRINTF("%s%s%s %s\t expect %s,\t called %ld times and failed %ld times,\t call by: %s ,\t with condition: %s%s\n" , 
+              PRINTF("%s%s%s %s\t expect %s,\t called %ld times and failed %ld times %s,\t with condition: %s%s\n" , 
                 colors_f[!unicolour*(kred - success)],tab_hk_f[hk_FL-success],colors_f[knothing*success],tmp_inf_mock->str_namefunc, number_call_translate(tmp_inf_mock->init_times_left), tmp_inf_mock->call, 
-                tmp_inf_mock->failed_call, tmp_inf_mock->str_caller, tmp_inf_mock->str_conditions , DEFAULT_K);
-
-              /*PRINTF("%s%s %s\t expect %s,\t called %ld times and failed %ld times,\t with condition: %s,\t call by: %s %s\n" , 
-                colors_f[kgreen],HK_TR,tmp_inf_mock->str_namefunc, number_call_translate(tmp_inf_mock->init_times_left), tmp_inf_mock->call, 
-                tmp_inf_mock->failed_call, tmp_inf_mock->str_conditions , tmp_inf_mock->str_caller, DEFAULT_K);*/
+                tmp_inf_mock->failed_call, strprint_caller_(tmp_inf_mock->str_caller), tmp_inf_mock->str_conditions , DEFAULT_K);
             }
           }else{/* will expect */
             int success = !(tmp_inf_mock->failed_call);
             if(tmp_inf_mock->l_current_var){
-              PRINTF("%s%s%s %s\t  will %s,\t called %ld times and failed %ld times,\t called by: %s ,\t with condition: %s,%s\n" , 
+              PRINTF("%s%s%s %s\t  will %s,\t called %ld times and failed %ld times %s,\t with condition: %s,%s\n" , 
                 colors_f[!unicolour*(kred + success)],tab_hk_f[hk_FL-success],colors_f[knothing*success],tmp_inf_mock->str_namefunc, number_call_translate(tmp_inf_mock->init_times_left), tmp_inf_mock->call, 
-                tmp_inf_mock->failed_call, tmp_inf_mock->str_caller, tmp_inf_mock->str_conditions , DEFAULT_K);
+                tmp_inf_mock->failed_call, strprint_caller_(tmp_inf_mock->str_caller), tmp_inf_mock->str_conditions , DEFAULT_K);
               PRINT_VAR_CUR(tmp_inf_mock);
             }else{
-              PRINTF("%s%s%s %s\t will %s,\t called %ld times and failed %ld times,\t called by: %s ,\t with condition: %s %s\n" , 
+              PRINTF("%s%s%s %s\t  will %s,\t called %ld times and failed %ld times %s,\t with condition: %s %s\n" , 
                 colors_f[!unicolour*(kred + success)],tab_hk_f[hk_FL-success],colors_f[knothing*success],tmp_inf_mock->str_namefunc, number_call_translate(tmp_inf_mock->init_times_left), tmp_inf_mock->call, 
-                tmp_inf_mock->failed_call, tmp_inf_mock->str_caller, tmp_inf_mock->str_conditions , DEFAULT_K);
-
-
-            /*
-            if(tmp_inf_mock->failed_call){
-              PRINTF("%s%s%s %s\t   will %s,\t called %ld times and failed %ld times,\t with condition: %s,\t call by: %s \n" , 
-                colors_f[kred],HK_EQ,DEFAULT_K,tmp_inf_mock->str_namefunc, number_call_translate(tmp_inf_mock->init_times_left), tmp_inf_mock->call, 
-                tmp_inf_mock->failed_call, tmp_inf_mock->str_conditions , tmp_inf_mock->str_caller);
-            }else{  
-              PRINTF("%s%s %s\t   will %s,\t called %ld times and failed %ld times,\t with condition: %s,\t call by: %s %s\n" , 
-                colors_f[kyellow],HK_TR,tmp_inf_mock->str_namefunc, number_call_translate(tmp_inf_mock->init_times_left), tmp_inf_mock->call, 
-                tmp_inf_mock->failed_call, tmp_inf_mock->str_conditions , tmp_inf_mock->str_caller, DEFAULT_K);
-            }*/
+                tmp_inf_mock->failed_call, strprint_caller_(tmp_inf_mock->str_caller), tmp_inf_mock->str_conditions , DEFAULT_K);
             }
           }
         }

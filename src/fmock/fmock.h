@@ -51,6 +51,9 @@ void append_fmock_to_listmock(struct func_mock_info_struct **f_mock_list,  struc
 void append_list_base_fmock(struct list_base_fmock **l_fmock, struct func_mock_info_struct *f_mock);
 void append_variable_current(struct list_current_variable **lcurrent_var, char *current_var);
 
+// if input == functioname___line_NBLINE return functioname, else it return the input
+//char* extract_name_func_mock(char *input);
+
 extern struct func_mock_info_struct *f_mock_glist;
 extern struct list_base_fmock *g_list_base_fmock;
 
@@ -87,7 +90,7 @@ extern struct list_base_fmock *g_list_base_fmock;
     PRINT_DEBUG(">>>>>>count call of %s: %ld\n",STRFY(namefunction),++count_call_f);*/\
     struct list_mock_return_ ## namefunction *tmp_mock = &list_mo_ ## namefunction;\
     if( (tmp_mock->info_mock)->times_left == INITSTATE ){\
-        PRINT_HK_C(YELLOW_K,HK_TR," WARNING, no EXPECT or WILL CALL defined for the mock function %s.\n",#namefunction);\
+        PRINT_HK_C(YELLOW_K,HK_TR," WARNING, no EXPECT_MOCK_CALL or WILL_MOCK_CALL defined for the mock function %s.\n",#namefunction);\
         PRINT_HK_C(YELLOW_K,HK_TR," Can be defined by EXPECT_MOCK_CALL(%s,%s,%s,true,1) if call once and accept all args, the same args with WILL_MOCK_CALL \n",STRFY (returntype), STRFY(namefunction),STRFY (args_prototype_with_parenthesis) ); \
         return (returntype)0; \
     }\
@@ -100,7 +103,7 @@ extern struct list_base_fmock *g_list_base_fmock;
     if ((tmp_mock->info_mock)->times_left == 0) /*no longer response, default return */ \
       return (returntype)0;/* default return */\
     if( (tmp_mock->info_mock)->str_caller == NULL){ \
-      PRINT_HK_C(YELLOW_K,HK_TR," WARNING, MOCK need to be initialized in TEST env call by INIT_CALLER_MOCK(%s) if need to have stats\n",(tmp_mock->info_mock)->str_namefunc); \
+      /*PRINT_HK_C(YELLOW_K,HK_TR," WARNING, the caller (TEST function which call (execute) the mock function %s may be defined  in TEST function by INIT_CALLER_MOCK(%s) if need to have stats\n", #namefunction,#namefunction); \
       /*return (returntype)0;*/ \
     }\
     else{\
@@ -134,7 +137,13 @@ char* extract_name_func_mock(char *input);
  * used in mock functions to check the conditions
  */
 #define EXPECT_EQ_IN_MOCKF(var1,var2, name_f_mocked)\
-  do{ HANDLE_OP_EXPECT_NAME(EQ,TYPE_INT,var1,var2,(list_mo_ ## name_f_mocked.info_mock)->str_caller,"mock test")}while(0)
+  do{ \
+   if((list_mo_ ## name_f_mocked.info_mock)->str_caller) {\
+     HANDLE_OP_EXPECT_NAME(EQ,TYPE_INT,var1,var2,(list_mo_ ## name_f_mocked.info_mock)->str_caller,"mock test");\
+   }\
+   else\
+     HANDLE_OP_EXPECT_NAME(EQ,TYPE_INT,var1,var2,__func__,"mock test");\
+}while(0)
     
 
 /*
