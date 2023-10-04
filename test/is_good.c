@@ -14,7 +14,7 @@
 
 #include "permutation_t/permutation_t.h"
 
-#if 1
+#if 0
 
 TEST(size_permutation2){
   PRINTF("another size_permutation2 again\n");
@@ -156,8 +156,6 @@ TEST(sleep){sleep(1);}
 TEST(sleep){sleep(1);}
 TEST(sleep){sleep(1);}
 TEST(sleep){sleep(1);}
-
-TEST(sleep){sleep(1);}
 TEST(sleep){sleep(1);}
 TEST(sleep){sleep(1);}
 TEST(sleep){sleep(1);}
@@ -167,15 +165,26 @@ TEST(sleep){sleep(1);}
 TEST(sleep){sleep(1);}
 TEST(sleep){sleep(1);}
 
+
+TEST(sleep){sleep(1);}
+TEST(sleep){sleep(1);}
+TEST(sleep){sleep(1);}
+TEST(sleep){sleep(1);}
+TEST(sleep){sleep(1);}
+TEST(sleep){sleep(1);}
 TEST(sleep){sleep(1);}
 TEST(sleep){sleep(1);}
 TEST(sleep){sleep(1);}
 
 #endif
+TEST(sleep){sleep(1);}
+TEST(sleep){sleep(1);}
+TEST(sleep){sleep(1);}
+
 
 MOCK_FUNC(int, f_mock, (), ())
   
-EXPECT_MOCK_CALL(int,f_mock, (),1, 2)  {
+EXPECT_MOCK_CALL(int,f_mock, (),false, 2)  {
   EXPECT_EQ_IN_MOCKF(21,21,f_mock);
   EXPECT_EQ(1,3);
   EXPECT_EQ(4,4);
@@ -186,7 +195,7 @@ EXPECT_MOCK_CALL(int,f_mock, (),1==2||2<1, 1)  {return 18;}
 EXPECT_MOCK_CALL(int,f_mock, (),1, INFINITY)  {return -18;}
 
 TEST(mockf1){
-  //INIT_CALLER_MOCK(f_mock);
+  INIT_CALLER_MOCK(f_mock);
 
   for(int i = 0; i<8; ++i){
     
@@ -221,6 +230,7 @@ WILL_MOCK_CALL(int, f2_mock, (int a,int b), (a!=b), 6){
 EXPECT_MOCK_CALL(int, f2_mock, (int a,int b), (a==b), 1){
   return a/b;
 }
+
 
 
 MOCK_FUNC(int, f3_mock,(int a,int b),(a,b))
@@ -284,7 +294,63 @@ TEST(f3_mock_test){
 
 }
 
+MOCK_FUNC(int, f4_mock,(int a,int b),(a,b))
+STR_PRINT_CUR_VAR(f4_mock, (int a,int b),(a,b)){
+  char *ret=malloc(150);
+  //char ret[150];
+  sprintf(ret,"(int)a: %d, (int)b: %d",a,b);
+  return ret;
+}
 
+TEST(f4_mock_test){
+  //EXPECT_EQ(1,f4_mock(1,1));
+  PRINTF("f4 no excepted create ret: %d\n",f4_mock(1,1));
+  PRINTF("second call f4 : %d\n",f4_mock(2,0));
+
+}
+
+MOCK_FUNC(int, f5_mock,(int a,int b, int c),(a,b,c))
+
+TEST(f5__mock){
+  LOG("f5 ???:%d\n",f5_mock(1,2,3));
+  LOG("f5 !!!:%d\n",f5_mock(2,5,3));
+}
+
+MOCK_FUNC(int, f6_mock,(int a,int b, int c),(a,b,c))
+STR_PRINT_CUR_VAR(f6_mock,(int a,int b, int c),(a,b,c)){
+  char *ret=malloc(150);
+  sprintf(ret,"(%d,%d,%d)",a,b,c);
+  return ret;
+}
+
+EXPECT_MOCK_CALL(int, f6_mock,(int a, int b, int c),((a<b)&&(b<c)),1){
+  return a+b+c;
+}
+
+TEST(f6__mock){
+  LOG("f6 6?:%d\n",f6_mock(1,2,3));
+  LOG("f6 0?:%d\n",f6_mock(2,5,4));
+}
+
+
+MOCK_FUNC(int, f7_mock,(int a,int b),(a,b))
+STR_PRINT_CUR_VAR(f7_mock, (int a,int b),(a,b)){
+  char *ret=malloc(150);
+  //char ret[150];
+  sprintf(ret,"(int)a: %d, (int)b: %d",a,b);
+  return ret;
+}
+
+EXPECT_MOCK_CALL(int, f7_mock,(int a, int b),(a>b),2){
+  return a*b;
+}
+
+
+TEST(f4_mock_test){
+  PRINTF("f7  ret: %d\n",f7_mock(1,1));
+  PRINTF("second call f7 : %d\n",f7_mock(2,0));
+
+}
 
 
 int main(int argc, char **argv){

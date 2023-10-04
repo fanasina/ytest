@@ -62,6 +62,7 @@ extern FILE **f_ou_th;
 extern bool unicolour;
 extern bool ordered;
 extern bool log_parallel;
+extern char *savelog;
 
 extern char *colors_f[];
 extern char *tab_hk_f[];
@@ -77,6 +78,8 @@ extern int hk_EQ, hk_TR, hk_RN, hk_DN, hk_OK, hk_FL, hk_PS, hk_SK;
 #endif
 #endif
 
+/* 
+ * */
 #define BUF_SIZE 256
 
 #define INIT_STREAM_(stream,buf,len)\
@@ -103,7 +106,7 @@ extern int hk_EQ, hk_TR, hk_RN, hk_DN, hk_OK, hk_FL, hk_PS, hk_SK;
   if (stream == NULL) { fprintf(stderr," error open stream on \'tmp\' %s:%d:%s \n",__FILE__,__LINE__,__func__); exit(0); }
   
 #define BEGIN_CPY_STREAM_MEM(stream, buf)\
-  rewind(stream);\
+  ;rewind(stream);\
   while(fgets(buf, BUF_SIZE, stream)){
     
   
@@ -111,8 +114,34 @@ extern int hk_EQ, hk_TR, hk_RN, hk_DN, hk_OK, hk_FL, hk_PS, hk_SK;
   }\
   fclose(stream);\
   free(buf);\
-  remove(filename);
+  remove(filename);\
 
+#define CPY_STREAM_TO_OUT_THR(stream,msg)\
+        BEGIN_CPY_STREAM_MEM (stream, msg);\
+          fprintf(F_OUT, "%s",msg);\
+          if(id_thread >= 0){\
+            fprintf(f_ou_th[id_thread], "%s",msg);\
+          }\
+        END_CPY_STREAM_MEM (stream, msg);\
+
+
+#define INIT_STREAM_MEM_SV_(stream, buf,savelog)\
+  char *buf = malloc(BUF_SIZE);\
+  char *filename=malloc(strlen(directory_in_memory) + strlen("tmp_")+32) ;\
+  sprintf(filename,"%s/tmp_%ld",directory_in_memory,pthread_self());\
+  FILE *stream = fopen(filename,"w+");\
+  if (stream == NULL) { fprintf(stderr," error open stream on \'tmp\' %s:%d:%s \n",__FILE__,__LINE__,__func__); exit(0); }\
+  FILE *f_savelog = fopen(savelog,"w+");\
+  if (f_savelog == NULL) { fprintf(stderr," error open f_savelog on \'tmp\' %s:%d:%s \n",__FILE__,__LINE__,__func__); exit(0); }
+
+
+
+#define _CPY_STREAM_OUT_AND_SV_ (stream, f_savelog, msg)\
+      BEGIN_CPY_STREAM_MEM (stream, msg)\
+            fprintf(F_OUT,"%s",msg);\
+            fprintf(f_savelog,"%s",msg); \
+      END_CPY_STREAM_MEM (stream, msg);\
+      fclose(f_savelog);
 
 #if 1
 /*
@@ -120,20 +149,59 @@ extern int hk_EQ, hk_TR, hk_RN, hk_DN, hk_OK, hk_FL, hk_PS, hk_SK;
  *  I've tried open_memstream but it have some bugs. 
  *  so I use normal fopen a file a memory location '/dev/shm', it is remove after use!
  */
+
+#define PRINTF( ...) \
+  do{ \
+    if(is_parallel_nb){\
+      long int id_thread=id_of_thread_executed();\
+      if(log_parallel){\
+        INIT_STREAM_MEM (stream, msg);\
+        fprintf(stream,  __VA_ARGS__);\
+        CPY_STREAM_TO_OUT_THR(stream, msg);\
+        fflush(f_ou_th[id_thread]);\
+      }\
+      else{\
+        if(id_thread < 0){\
+          fprintf(F_OUT,__VA_ARGS__);\
+        }\
+        else{\
+          fprintf(f_ou_th[id_thread], __VA_ARGS__);\
+          fflush(f_ou_th[id_thread]);\
+        }\
+      }\
+    } \
+    else{\
+      if(savelog){\
+        INIT_STREAM_MEM_SV_(stream,msg,savelog);\
+        fprintf(stream, __VA_ARGS__);\
+        _CPY_STREAM_OUT_AND_SV_(stream, f_savelog, msg);\
+      }\
+      else\
+        fprintf(F_OUT, __VA_ARGS__);\
+    }\
+  }while(0)
+
+#define LOG(...) PRINTF(__VA_ARGS__)
+
+#define PRINT_LOC(fmt, ...) \
+  PRINTF( "%s:%d:%s(): " fmt, __FILE__, __LINE__, __func__, __VA_ARGS__)
+
+/*
+#define PRINT_HK_C(color,hk,...)\
+  PRINTF(color hk DEFAULT_K  __VA_ARGS__)
+*/
+
+
 #define PRINT_HK_C(color,hk,...)\
    do{ \
       if(is_parallel_nb){\
-        size_t id_thread=id_of_thread_executed();\
+        long int id_thread=id_of_thread_executed();\
         if(log_parallel){\
           INIT_STREAM_MEM(stream, msg);\
           if(!unicolour) fprintf(stream, color hk DEFAULT_K  __VA_ARGS__); \
           else fprintf(stream, hk  __VA_ARGS__); \
-          BEGIN_CPY_STREAM_MEM (stream, msg)\
-            fprintf(F_OUT,"%s",msg);\
-            if(id_thread >= 0){\
-              fprintf(f_ou_th[id_thread],"%s",msg); \
-            }\
-          END_CPY_STREAM_MEM (stream, msg);\
+          CPY_STREAM_TO_OUT_THR (stream, msg)\
+          fflush(f_ou_th[id_thread]);\
         }\
         else{\
           if(id_thread < 0){\
@@ -143,31 +211,39 @@ extern int hk_EQ, hk_TR, hk_RN, hk_DN, hk_OK, hk_FL, hk_PS, hk_SK;
           else{\
             if(!unicolour) fprintf(f_ou_th[id_thread], color hk DEFAULT_K  __VA_ARGS__); \
             else fprintf(f_ou_th[id_thread], hk  __VA_ARGS__); \
+            fflush(f_ou_th[id_thread]);\
           }\
         }\
       } \
     else{\
-       if(!unicolour) fprintf(F_OUT, color hk DEFAULT_K  __VA_ARGS__); \
-       else fprintf(F_OUT, hk  __VA_ARGS__);  \
+       if(savelog){\
+        INIT_STREAM_MEM_SV_(stream, msg, savelog);\
+        if(!unicolour) fprintf(stream, color hk DEFAULT_K  __VA_ARGS__); \
+        else fprintf(stream, hk  __VA_ARGS__);\
+        _CPY_STREAM_OUT_AND_SV_ (stream, f_savelog, msg);\
+       }\
+       else{\
+        if(!unicolour) fprintf(F_OUT, color hk DEFAULT_K  __VA_ARGS__); \
+        else fprintf(F_OUT, hk  __VA_ARGS__);  \
+       }\
     }\
   }while(0) 
 
-   
+ 
+#else
+
+  
 
 #define PRINT_LOC(fmt, ...) \
   do{ \
     /*if(ordered){*/\
       if(is_parallel_nb){\
-        size_t id_thread=id_of_thread_executed();\
+        long int id_thread=id_of_thread_executed();\
         if(log_parallel){\
           INIT_STREAM_MEM (stream, msg);\
           fprintf(stream, "%s:%d:%s(): " fmt, __FILE__, __LINE__, __func__, __VA_ARGS__);\
-          BEGIN_CPY_STREAM_MEM (stream, msg);\
-          fprintf(F_OUT, "%s",msg);\
-          if(id_thread >= 0){\
-            fprintf(f_ou_th[id_thread], "%s",msg);\
-          }\
-          END_CPY_STREAM_MEM (stream, msg);\
+          CPY_STREAM_TO_OUT_THR (stream, msg);\
+          fflush(f_ou_th[id_thread]);\
         }\
         else{\
           if(id_thread < 0){\
@@ -177,48 +253,26 @@ extern int hk_EQ, hk_TR, hk_RN, hk_DN, hk_OK, hk_FL, hk_PS, hk_SK;
           else{\
             fprintf(f_ou_th[id_thread], "%s:%d:%s(): " fmt, __FILE__, \
             __LINE__, __func__, __VA_ARGS__);\
+            fflush(f_ou_th[id_thread]);\
           }\
         }\
       } \
      else{\
-      fprintf(F_OUT, "%s:%d:%s(): " fmt, __FILE__, \
-      __LINE__, __func__, __VA_ARGS__);\
+       if(savelog){\
+         INIT_STREAM_MEM_SV_(stream, msg,savelog);\
+         fprintf(stream, "%s:%d:%s(): " fmt, __FILE__, __LINE__, __func__, __VA_ARGS__);\
+         _CPY_STREAM_OUT_AND_SV_(stream, f_savelog, msg);\
+       }\
+       else\
+        fprintf(F_OUT, "%s:%d:%s(): " fmt, __FILE__, __LINE__, __func__, __VA_ARGS__);\
     }\
   }while(0)
 
-#define PRINTF( ...) \
-  do{ \
-    if(is_parallel_nb){\
-      size_t id_thread=id_of_thread_executed();\
-      if(log_parallel){\
-        INIT_STREAM_MEM (stream, msg);\
-        fprintf(stream,  __VA_ARGS__);\
-        BEGIN_CPY_STREAM_MEM (stream, msg);\
-        fprintf(F_OUT,"%s",msg);\
-        if(id_thread >= 0){\
-          fprintf(f_ou_th[id_thread],"%s",msg);\
-        }\
-        END_CPY_STREAM_MEM(stream, msg);\
-      }\
-      else{\
-        if(id_thread < 0){\
-          fprintf(F_OUT,__VA_ARGS__);\
-        }\
-        else{\
-          fprintf(f_ou_th[id_thread], __VA_ARGS__);\
-        }\
-      }\
-    } \
-    else{\
-      fprintf(F_OUT, __VA_ARGS__);\
-    }\
-  }while(0)
+#endif
 
-#define LOG(...) PRINTF(__VA_ARGS__)
+#if 0
 
-//#endif
-#else  /* below alternative of above solution, but it execute twice functions called in print functions when log_parallel == 1 */
-//#if 1
+/* below old solution, but it execute twice functions called in print functions when log_parallel == 1 */
 
 #define PRINT_LOC(fmt, ...) \
   do{ \

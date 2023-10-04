@@ -8,6 +8,7 @@
 #define INITSTATE -1
 #define DONOTHING 0
 
+#define PRE_ID ___line_
 /*
  * list of each variable called 
  * use str_print_current_variables attibute function pointer to record variable
@@ -64,6 +65,25 @@ extern struct list_base_fmock *g_list_base_fmock;
 
 #endif
 
+#define INIT_MOCK_INFO_IF_NO__(tmp__mock, namefunction, pre_id, id) \
+      (tmp__mock)->run = NULL;\
+      (tmp__mock)->call_mock_condition = NULL;\
+      /*(tmp__mock)->str_print_current_variables = list_mo_ ## namefunction .str_print_current_variables;*/\
+      ((tmp__mock)->info_mock)->expect_call = -1;\
+      ((tmp__mock)->info_mock)->call = 0;\
+      ((tmp__mock)->info_mock)->failed_call = 0;\
+      ((tmp__mock)->info_mock)->str_namefunc = malloc(strlen(#namefunction) + 32 + strlen(#pre_id));\
+      sprintf(((tmp__mock)->info_mock)->str_namefunc,"%s%s%d",#namefunction,#pre_id,id);\
+      ((tmp__mock)->info_mock)->str_conditions = NULL;\
+      ((tmp__mock)->info_mock)->str_caller = NULL;\
+      ((tmp__mock)->info_mock)->l_current_var= NULL;\
+      ((tmp__mock)->info_mock)->next = NULL;\
+      /*(tmp__mock)->next = NULL;*/\
+      append_fmock_to_listmock(&f_mock_glist, (tmp__mock)->info_mock);\
+      append_list_base_fmock( &g_list_base_fmock ,(tmp__mock)->info_mock);
+
+#define INIT_MOCK_INFO_IF_NO_(tmp_new_mock, namefunction, pre_id) \
+    INIT_MOCK_INFO_IF_NO__(tmp_new_mock, namefunction, pre_id, __LINE__) \
 
 #define MOCK_FUNC(returntype, namefunction, args_prototype_with_parenthesis, args_call_with_parenthesis)\
   /*typedef returntype FUNC_type_ ## namefunction args_prototype_with_parenthesis ;*/\
@@ -80,33 +100,44 @@ extern struct list_base_fmock *g_list_base_fmock;
     list_mo_ ## namefunction.info_mock = malloc(sizeof(struct func_mock_info_struct));\
     (list_mo_ ## namefunction.info_mock)->times_left = INITSTATE;\
     (list_mo_ ## namefunction.info_mock)->init_times_left = INITSTATE;\
-    /*list_mo_ ## namefunction.arg_count = parse_count_args_(#args_prototype_with_parenthesis);\
-    list_mo_ ## namefunction.call_mock_condition = malloc(list_mo_ ## namefunction.arg_count * sizeof( int (*)(void*))) ;*/\
     list_mo_ ## namefunction.str_print_current_variables = NULL;\
     list_mo_ ## namefunction.next = NULL;\
   }\
   returntype namefunction args_prototype_with_parenthesis {\
-    /*static size_t count_call_f=0;\
-    PRINT_DEBUG(">>>>>>count call of %s: %ld\n",STRFY(namefunction),++count_call_f);*/\
+    static size_t count_call_f=0;\
+    ++count_call_f;\
+    PRINT_DEBUG(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>count call of %s: %ld\n",#namefunction,count_call_f);\
     struct list_mock_return_ ## namefunction *tmp_mock = &list_mo_ ## namefunction;\
     if( (tmp_mock->info_mock)->times_left == INITSTATE ){\
-        PRINT_HK_C(YELLOW_K,HK_TR," WARNING, no EXPECT_MOCK_CALL or WILL_MOCK_CALL defined for the mock function %s.\n",#namefunction);\
-        PRINT_HK_C(YELLOW_K,HK_TR," Can be defined by EXPECT_MOCK_CALL(%s,%s,%s,true,1) if call once and accept all args, the same args with WILL_MOCK_CALL \n",STRFY (returntype), STRFY(namefunction),STRFY (args_prototype_with_parenthesis) ); \
-        return (returntype)0; \
+         PRINT_HK_C(YELLOW_K, HK_TR," WARNING, %s, no EXPECT_MOCK_CALL or WILL_MOCK_CALL, but called %ld times.\n",#namefunction, count_call_f);\
+       if(count_call_f==1){\
+         PRINT_HK_C(YELLOW_K,HK_TR," For instance:\n%s EXPECT_MOCK_CALL(%s,%s,%s,true,1){\n%s\t %s ret;\n%s \t ...do something with %s;\n%s\t return ret;\n%s }\n%s if call once and accept all args, the same args with WILL_MOCK_CALL \n",\
+            HK_TR, #returntype, #namefunction,#args_prototype_with_parenthesis, HK_TR,#returntype, HK_TR, #args_call_with_parenthesis, HK_TR, HK_TR, HK_TR ); \
+        /*return (returntype)0;*/ \
+        INIT_MOCK_INFO_IF_NO_(tmp_mock,namefunction, PRE_ID);\
+      }/* to have log */\
+      if(list_mo_ ## namefunction.next ) PRINT_ERROR(" %s .next SHOULD BE NULL\n",STRFY(list_mo_ ## namefunction));\
     }\
     while(tmp_mock->next && (tmp_mock->info_mock)->times_left == 0) tmp_mock = tmp_mock->next ;\
     ++((tmp_mock->info_mock)->call);\
     if(tmp_mock->str_print_current_variables)\
       append_variable_current(&((tmp_mock->info_mock)->l_current_var), tmp_mock->str_print_current_variables args_call_with_parenthesis);\
-    /*LOG("condition_func:%d\n", tmp_mock->call_mock_condition args_call_with_parenthesis);*/ /*LOG("%s\n","failure condition");*/\
+    else if(count_call_f == 1){\
+      PRINT_HK_C(YELLOW_K,HK_TR," no printer variable defined, to define it:\n%s STR_PRINT_CUR_VAR(%s,%s,%s){\n%s\t char* ret=malloc(256);/*for instance*/;\n%s \t ...  sprintf(ret,...., %s);/*for instance*/ \n%s\t return ret;\n%s }\n%s same prototype as MOCK_FUNC whithout returntype which always char* \n",\
+            HK_TR, #namefunction,#args_prototype_with_parenthesis, #args_call_with_parenthesis, HK_TR, HK_TR, #args_call_with_parenthesis, HK_TR, HK_TR, HK_TR ); \
+    }\
+      /*LOG("condition_func:%d\n", tmp_mock->call_mock_condition args_call_with_parenthesis);*/ /*LOG("%s\n","failure condition");*/\
     /*EXPECT_EQ_TYPE_INT(1, tmp_mock->call_mock_condition args_call_with_parenthesis);*/ /*LOG("%s\n","failure condition");*/\
-    if ((tmp_mock->info_mock)->times_left == 0) /*no longer response, default return */ \
-      return (returntype)0;/* default return */\
+    /*if ((tmp_mock->info_mock)->times_left == 0)*/ /*no longer response, default return */ \
+      /*return (returntype)0;*//* default return */\
     if( (tmp_mock->info_mock)->str_caller == NULL){ \
-      /*PRINT_HK_C(YELLOW_K,HK_TR," WARNING, the caller (TEST function which call (execute) the mock function %s may be defined  in TEST function by INIT_CALLER_MOCK(%s) if need to have stats\n", #namefunction,#namefunction); \
+      if(count_call_f == 1){\
+        PRINT_HK_C(YELLOW_K,HK_TR," WARNING, no  INIT_CALLER_MOCK; you can put it like this: \n%s TEST(nametest){\n%s\t INIT_CALLER_MOCK(%s); \n%s\t %s%s; \n%s }\n%s i.e before calling %s in this TEST, to have explicit logs\n",\
+          HK_TR, HK_TR, #namefunction, HK_TR,#namefunction,#args_call_with_parenthesis,  HK_TR, HK_TR, #namefunction);\
+      } \
       /*return (returntype)0;*/ \
     }\
-    else{\
+    else if (((tmp_mock->info_mock)->times_left != 0) && ((tmp_mock->info_mock)->times_left != INITSTATE )) {\
       size_t len0 = strlen((tmp_mock->info_mock)->str_conditions);\
       size_t len1 = strlen("call   check condition: aa");\
       char *msg_call=malloc(len0 + len1);\
@@ -118,10 +149,10 @@ extern struct list_base_fmock *g_list_base_fmock;
       PRINT_LOC("Failure, arguments not expected\ncondition ( %s ) not verified\n\n", (tmp_mock->info_mock)->str_conditions);\
       PRINT_HK_C(RED_K,HK_TR," 1 argument check failed from %s \n",__func__);                                 \
     }*/\
-    PRINT_DEBUG(" %*c VALUES: mock function:%s, conditions:%s t_left:%ld, init_left:%ld| args:%s\n",8,'^',(tmp_mock->info_mock)->str_namefunc, (tmp_mock->info_mock)->str_conditions, (tmp_mock->info_mock)->times_left,(tmp_mock->info_mock)->init_times_left, STRFY(args_call_with_parenthesis));\
+    PRINT_DEBUG(" %*c VALUES: mock function:%s, conditions:%s t_left:%ld, init_left:%ld| args:%s\n",8,'^',(tmp_mock->info_mock)->str_namefunc, (tmp_mock->info_mock)->str_conditions, (tmp_mock->info_mock)->times_left,(tmp_mock->info_mock)->init_times_left, #args_call_with_parenthesis);\
     if (((tmp_mock->info_mock)->times_left <= INFINITY) || ((tmp_mock->info_mock)->times_left > 0)){\
       --((tmp_mock->info_mock)->times_left);\
-    PRINT_DEBUG(" %*c VALUES: mock function:%s, conditions:%s t_left:%ld, init_left:%ld| args:%s\n",8,'v',(tmp_mock->info_mock)->str_namefunc, (tmp_mock->info_mock)->str_conditions, (tmp_mock->info_mock)->times_left,(tmp_mock->info_mock)->init_times_left, STRFY(args_call_with_parenthesis));\
+    PRINT_DEBUG(" %*c VALUES: mock function:%s, conditions:%s t_left:%ld, init_left:%ld| args:%s\n",8,'v',(tmp_mock->info_mock)->str_namefunc, (tmp_mock->info_mock)->str_conditions, (tmp_mock->info_mock)->times_left,(tmp_mock->info_mock)->init_times_left, #args_call_with_parenthesis);\
       if(1 == tmp_mock->call_mock_condition args_call_with_parenthesis){\
         return tmp_mock->run args_call_with_parenthesis;\
       }\
@@ -174,14 +205,13 @@ __attribute__((constructor)) void create_str_print_variables ## namefunction(){\
   char* str_print_variables ## namefunction args_prototype_with_parenthesis
 
 
-#define PRE_ID ___line_
 
 
 #define FILL_MOCK_INFO(tmp_new_mock, namefunction, condition_on_args_expression , repeat, f_expect_call, pre_id, id, is_init) \
       (tmp_new_mock)->run = CONCAT(run_ ## namefunction ## pre_id, id);\
       (tmp_new_mock)->call_mock_condition = CONCAT(namefunction ## _cond_, id);\
       if(!is_init)\
-        tmp_new_mock->str_print_current_variables = list_mo_ ## namefunction .str_print_current_variables;\
+        (tmp_new_mock)->str_print_current_variables = list_mo_ ## namefunction .str_print_current_variables;\
       /*(tmp_new_mock)->info_mock  = malloc(sizeof(struct func_mock_info_struct));*/\
       ((tmp_new_mock)->info_mock)->expect_call = f_expect_call;\
       ((tmp_new_mock)->info_mock)->call = 0;\

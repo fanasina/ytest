@@ -1,60 +1,43 @@
 #include "ftest/ftest.h"
+#include <dirent.h>
 
 /*
-#define DEFAULT_K "\033[0m" //Resets the text to default color
-#define GREEN_K "\033[0;32m" 
-#define RED_K "\033[0;31m"
+ * check if dir path is empty ! 
+ * 1 == it is empty,0 it is not empty
+ */
 
+int dir_empty(const char *path)
+{
+	struct dirent *ent;
+	int ret = 1;
 
-#define HK_EQ "[==========]"
-#define HK_TR "[----------]"
-#define HK_RN "[RUN       ]"
-#define HK_DN "[      DONE]"
-#define HK_OK "[       OK ]"
-#define HK_FL "[  FAILED  ]"
-#define HK_PS "[  PASSED  ]"
+	DIR *d = opendir(path);
+	if (!d) {
+		fprintf(stderr, "%s: ", path);
+		perror("");
+		return -1;
+	}
 
-*/
+	while ((ent = readdir(d))) {
+		if (!strcmp(ent->d_name, ".") || !(strcmp(ent->d_name, "..")))
+			continue;
+		ret = 0;
+		break;
+	}
+
+	closedir(d);
+	return ret;
+}
 
 /*
  * by default display in millisecond
  */
 /*
-#ifndef SECOND
-  #define SECOND 0
-#endif
-#ifndef NANOSECOND
-  #define NANOSECOND 0
-#endif
+
 */
 
 #define NANOSECOND  (timeunit[0]=='n')
 #define SECOND  (timeunit[0]=='s')
-
-#ifndef PROGRESS
-  #define PROGRESS 0
-#endif
-
-#if 0
-#ifndef SAVE_LOG
-#define SAVE_LOG 0
-#else
-#ifndef ORDER_LOG
-  #define ORDER_LOG 1
-#endif
-#endif
-#endif
-
-#if 0
-#ifndef PARALLEL
-  #define PARALLEL 1
-  #define LOCK(mut) 
-  #define UNLOCK(mut)
-#else /*PARALLEL defined*/
-  #define LOCK(mutex_var)  pthread_mutex_lock(&mutex_var);
-  #define UNLOCK(mutex_var) pthread_mutex_unlock(&mutex_var);
-#endif
-#endif /* 0 */
 
   #define LOCK(mutex_var)  pthread_mutex_lock(&mutex_var);
   #define UNLOCK(mutex_var) pthread_mutex_unlock(&mutex_var);
@@ -241,11 +224,11 @@ void append_failed_list(struct failed_lists **fn_failed_list ,const char *name_f
  */ 
 long int id_of_thread_executed(void){
   size_t id_from_self = pthread_self();
-  for(size_t i=0; i<parallel_nb + 1; ++i){
+  for(long int i=0; i<= parallel_nb; ++i){
     if(id_thread_self[i] == id_from_self)
       return i;
   }
-  PRINT_ERROR("something wrong on %s\n",__func__);
+  PRINT_ERROR("something wrong on %s, id_from_self: %ld\n",__func__,id_from_self);
   return -1;
 }
 
@@ -304,7 +287,11 @@ void setup_variables_before_exec(){
       tmp_bp[2]='u';
       default_bar_progress=tmp_bp;
     }
-  } 
+  }
+  
+  /*if(savelog){
+    f_savelog=fopen(savelog, "w+");
+  }*/ 
 }
 
 
@@ -319,7 +306,7 @@ void usage(int argc, char **argv){
   printf("\t -u , --unicolour\n\t\tby default, the result is colored, if you choice this option, it prints with default color\n\n");
 //  printf("\t -o, --ordered\n\t\tthis option is usefull if you choose to use parallel tests,\n\t\tby default, each thread share the screen to print results,\n\t\tthis option create file to record log of each thread on file,\n\t\tand print on screen all results at the end of all tests\n\n");
   printf("\t -r , --remove\n\t\tif the option parallel is choosen the result on each thread is record in separate files,\n\t\tthis option remove the file logs of each thread after all tests.\n\n");
-  printf("\t -s <file>, --savelog <file>, -s=file, --savelog=file\n\t\tthis option save the global ordered result in 'file',\n\t\tthis option active the option -o or --ordered. \n\n");
+  printf("\t -s <file>, --savelog <file>, -s=file, --savelog=file\n\t\tthis option save the global ordered result in 'file',\n\t\t  \n\n");
 //  printf("\t -w <WID>, --width <WID>, -w=WID, --savelog=WID\n\t\tthis option change the width of the progress bar to WID, by default, WID=80,\n\t\tex: -w100, or --width=100 or -wi 100\n\n");
 
   printf("\t -n=<NUM1>,<NUM2> <NUM3>... ,--numtests=<NUM1>,<NUM2>...\n\t\tthis option allow to execute only the selected numbers of tests (in the order in file test)\n\t\tex: -n=0,6,3 8 to execute   the tests 0,3,6,8 (if the number is less than the count of all tests)\n\n"); 
@@ -1079,36 +1066,6 @@ run_all_tests()
 
 }
 
-#if 0
-/*
- * parallel run tests / div section
- */
-void execute_div_test(struct func *fun, size_t num){
-  size_t cur = 0;
-  struct timespec start_t;
-  struct func *tmp = fun;
-  while(tmp){
-    if(cur %PARALLEL == num){
-      PRINT_DEBUG("thread [%ld], cur = %ld , cur mod PARA = %ld , funcname = %s \n", num,cur, cur%PARALLEL, tmp->name);
-      begin_execute_func(tmp->name, &start_t);
-      tmp->run();
-      end_execute_func(tmp->name, start_t);
-    }
-    tmp = tmp->next;
-    ++cur;
-  }
-}
-
-void*
-run_all_div_tests(void *id)
-{
-   size_t id_th=*(size_t*)id;
-   struct timespec start_t;
-   head_run(count_tests/PARALLEL, &start_t);
-   execute_div_test(f_beging, id_th);
-   stat_end_run(count_tests/PARALLEL, start_t);
-}
-#endif
 /*
  * begin end parallel tests
  */ 
@@ -1244,15 +1201,23 @@ run_parallel_tests(void *id)
 }
 
 /*
+ *
+ */
+void final_parallel_test_();
+
+/*
  * initialisation
  */ 
 void
 init_parallel_test_()
 {
-  if(savelog) ordered =1;
+  //if(savelog) ordered =1;
 
   //progress = ordered;
-  
+
+  signal(SIGSEGV, final_parallel_test_);
+
+
   is_parallel_nb = 1;
   
   f_ou_th = malloc((parallel_nb + 1) *sizeof(FILE*));
@@ -1304,6 +1269,7 @@ init_parallel_test_()
 void
 final_parallel_test_()
 {
+
   free(count_pass_test);
   free(count_fail_test);
   free(count_pass_thread);
@@ -1355,7 +1321,13 @@ final_parallel_test_()
     }
   }
 
-
+  /* if SIGSEGV */
+  if(!dir_empty("/dev/shm")){
+    system("rm /dev/shm/*");
+    PRINT_DEBUG(" cleanup %s \n", "/dev/shm");
+  }
+  else
+    PRINT_DEBUG(" %s already empty \n", "/dev/shm");
 }
 
 void run_all_tests_parallel(size_t parallel /*, int max_col*/)
@@ -1425,6 +1397,10 @@ __attribute__((destructor))
 void
 purge_tests()
 {
+  /*if(savelog){
+    fclose(f_savelog);
+    PRINT_DEBUG("%s\n","close f_savelog done"); 
+  }*/
   struct func *tmp = f_beging;
   clear_all_func(&tmp); 
   PRINT_DEBUG("%s\n","purge done"); 

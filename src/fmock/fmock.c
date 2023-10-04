@@ -16,6 +16,7 @@ size_t count_expect_mock=0;
 pthread_mutex_t mut_count_expect_mock;
 
 struct list_base_fmock *g_list_base_fmock=NULL;
+pthread_mutex_t mut_g_list_base_fmock; 
 
 #define LOCK(mutex_var)  pthread_mutex_lock(&mutex_var);
 #define UNLOCK(mutex_var) pthread_mutex_unlock(&mutex_var);
@@ -47,19 +48,23 @@ int parse_count_args_(char *input){
  */
 void append_list_base_fmock(struct list_base_fmock **l_fmock, struct func_mock_info_struct *f_mock){
   INCREMENT_(count_f_mock);
+  LOCK(mut_g_list_base_fmock);
+  PRINT_DEBUG(" append_list_base_fmock %s",f_mock->str_namefunc);
   if(*l_fmock){
     struct list_base_fmock *tmp_l_n = *l_fmock;
     while(tmp_l_n->next) tmp_l_n = tmp_l_n->next;
     (tmp_l_n->next) = malloc(sizeof(struct list_base_fmock));
     (tmp_l_n->next)->info_mock = f_mock;
+    (tmp_l_n->next)->next = NULL;
   }
   else{
     *l_fmock = malloc(sizeof(struct list_base_fmock)); 
     (*l_fmock)->info_mock = f_mock;
   }
+  UNLOCK(mut_g_list_base_fmock);
 }
 
-struct func_mock_info_struct *f_mock_glist;
+struct func_mock_info_struct *f_mock_glist = NULL;
 pthread_mutex_t mut_f_mock_glist;
 
 void append_variable_current(struct list_current_variable **lcurrent_var, char *current_var){
@@ -75,7 +80,7 @@ void append_variable_current(struct list_current_variable **lcurrent_var, char *
     
   }
   else{
-    PRINTF("-- lcurrent_var NULL\n");
+    PRINT_DEBUG("-- lcurrent_var %s\n","NULL");
     *lcurrent_var = malloc(sizeof(struct list_current_variable));
     //(*lcurrent_var)->str_current_variables = malloc(strlen(current_var));
     //strcpy((*lcurrent_var)->str_current_variables,current_var);
@@ -90,6 +95,7 @@ void append_fmock_to_listmock(struct func_mock_info_struct **f_mock_list,  struc
     INCREMENT_(count_expect_mock);
   }
   LOCK(mut_f_mock_glist);
+  PRINT_DEBUG(" append_fmock_to_listmock %s",f_mock->str_namefunc);
   if(*f_mock_list){
     struct func_mock_info_struct *tmp_fmock_info = *f_mock_list;
     while(tmp_fmock_info->next) tmp_fmock_info = tmp_fmock_info->next;
@@ -124,6 +130,7 @@ __attribute__((constructor))
   void
   init_mock_c(){
     
+      pthread_mutex_init(&mut_g_list_base_fmock, NULL);
       pthread_mutex_init(&mut_f_mock_glist, NULL);
       pthread_mutex_init(&mut_count_f_mock_wished, NULL);
       pthread_mutex_init(&mut_count_f_mock, NULL);
@@ -140,6 +147,7 @@ char * number_call_translate(long nb){
   else if(nb == 1) sprintf(ret," to be called once");
   else if(nb == 0 ) sprintf(ret," not to be executed");
   else if(nb==INFINITY) sprintf(ret," to be called forever");
+  else if(nb==INITSTATE) sprintf(ret," not expected");
   else sprintf(ret," nothing! it's negative:%ld", nb);
 
   return ret;
@@ -171,6 +179,8 @@ char * strprint_caller_(char *input){
 __attribute__((destructor))
   void
   check_mock_excpected(){
+
+    signal(SIGSEGV, SIG_DFL);  /* restore default behaviour ,  */
 
     //int kdefault=0, kgreen=1, kred=2, kyellow=3, kblue=4, knothing;
     if(unicolour) {
@@ -244,7 +254,7 @@ __attribute__((destructor))
       PRINTF("%s%s%s\n\n",colors_f[kblue],reader,DEFAULT_K );
       while(tmp_inf_mock){
         if(0==strncmp(tmp_inf_mock->str_namefunc,nameff, len_nameff)){
-          if(tmp_inf_mock->expect_call){
+          if(tmp_inf_mock->expect_call==1){
             int success = !((tmp_inf_mock->init_times_left == tmp_inf_mock->times_left) || (tmp_inf_mock->failed_call));
             
             if(tmp_inf_mock->l_current_var){
@@ -257,7 +267,7 @@ __attribute__((destructor))
                 colors_f[!unicolour*(kred - success)],tab_hk_f[hk_FL-success],colors_f[knothing*success],tmp_inf_mock->str_namefunc, number_call_translate(tmp_inf_mock->init_times_left), tmp_inf_mock->call, 
                 tmp_inf_mock->failed_call, strprint_caller_(tmp_inf_mock->str_caller), tmp_inf_mock->str_conditions , DEFAULT_K);
             }
-          }else{/* will expect */
+          }else if(tmp_inf_mock->expect_call==0) {/* will expect */
             int success = !(tmp_inf_mock->failed_call);
             if(tmp_inf_mock->l_current_var){
               PRINTF("%s%s%s %s\t  will %s,\t called %ld times and failed %ld times %s,\t with condition: %s,%s\n" , 
@@ -270,16 +280,35 @@ __attribute__((destructor))
                 tmp_inf_mock->failed_call, strprint_caller_(tmp_inf_mock->str_caller), tmp_inf_mock->str_conditions , DEFAULT_K);
             }
           }
+          else if(tmp_inf_mock->expect_call==-1){
+             if(tmp_inf_mock->l_current_var){
+              PRINTF("%s%s%s %s\t  %s,\t called %ld times, %s\n" ,
+                colors_f[!unicolour*(kred)],tab_hk_f[hk_FL],colors_f[kdefault],tmp_inf_mock->str_namefunc, 
+                number_call_translate(tmp_inf_mock->init_times_left), tmp_inf_mock->call,
+                strprint_caller_(tmp_inf_mock->str_caller) );
+              PRINT_VAR_CUR(tmp_inf_mock);
+            }else{
+              PRINTF("%s%s%s %s\t  %s,\t called %ld times, %s\n" ,
+                colors_f[!unicolour*(kred)],tab_hk_f[hk_FL],colors_f[kdefault],tmp_inf_mock->str_namefunc, 
+                number_call_translate(tmp_inf_mock->init_times_left), tmp_inf_mock->call,
+                strprint_caller_(tmp_inf_mock->str_caller));
+            }
+
+          }
         }
         tmp_inf_mock = tmp_inf_mock->next;
       }
+      PRINT_DEBUG(" end listing info mock of %s \n", nameff);
       tmp_list_fm = tmp_list_fm->next;
     }
     
-    PRINT_DEBUG("%s\n","check mock done!");
+    PRINT_DEBUG("%s\n","info mock done!");
     
+    pthread_mutex_destroy(&mut_g_list_base_fmock);
     pthread_mutex_destroy(&mut_f_mock_glist);
     pthread_mutex_destroy(&mut_count_f_mock_wished);
     pthread_mutex_destroy(&mut_count_f_mock);
     pthread_mutex_destroy(&mut_count_expect_mock);
+    PRINT_DEBUG("%s\n","pthread_mutex_destroy done!");
+    PRINT_DEBUG("%s\n","check mock done!");
   }
