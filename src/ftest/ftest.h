@@ -106,7 +106,7 @@ extern int hk_EQ, hk_TR, hk_RN, hk_DN, hk_OK, hk_FL, hk_PS, hk_SK;
   if (stream == NULL) { fprintf(stderr," error open stream on \'tmp\' %s:%d:%s \n",__FILE__,__LINE__,__func__); exit(0); }
   
 #define BEGIN_CPY_STREAM_MEM(stream, buf)\
-  ;rewind(stream);\
+  rewind(stream);\
   while(fgets(buf, BUF_SIZE, stream)){
     
   
@@ -136,7 +136,7 @@ extern int hk_EQ, hk_TR, hk_RN, hk_DN, hk_OK, hk_FL, hk_PS, hk_SK;
 
 
 
-#define _CPY_STREAM_OUT_AND_SV_ (stream, f_savelog, msg)\
+#define _CPY_STREAM_OUT_AND_SV_(stream, f_savelog, msg)\
       BEGIN_CPY_STREAM_MEM (stream, msg)\
             fprintf(F_OUT,"%s",msg);\
             fprintf(f_savelog,"%s",msg); \
