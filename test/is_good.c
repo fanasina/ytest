@@ -14,7 +14,7 @@
 
 #include "permutation_t/permutation_t.h"
 
-#if 0
+#if 1
 
 TEST(size_permutation2){
   PRINTF("another size_permutation2 again\n");
@@ -94,7 +94,7 @@ TEST(expect){
   int b = 6;
   EXPECT_EQ(a,b);
   //SKIP();
-  SKIP("on skip eq string\n");
+  SKIP("%s\n","on skip eq string");
   EXPECT_EQ_TYPE_STRING("hello","hello");
   float f1 = 1.00019999, f2=1.00019999;
   EXPECT_EQ_TYPE_FLOAT(f1,f2);
@@ -346,9 +346,11 @@ EXPECT_MOCK_CALL(int, f7_mock,(int a, int b),(a>b),2){
 }
 
 
-TEST(f4_mock_test){
-  PRINTF("f7  ret: %d\n",f7_mock(1,1));
-  PRINTF("second call f7 : %d\n",f7_mock(2,0));
+TEST(f7_mock_test){
+  int v0=f7_mock(1,1);
+  PRINTF("f7  ret: %d\n",v0);
+  int v1=f7_mock(2,0);
+  PRINTF("second call f7 : %d\n",v1);
 
 }
 

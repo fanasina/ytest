@@ -13,12 +13,12 @@
 #include "tools_t/tools_t.h"
 #include "bar_progress/bar_progress.h"
 
-#define DEFAULT_K "\033[0m" //Resets the text to default color
+#define DEFAULT_K "\033[0m" /*Resets the text to default color*/
 #define GREEN_K "\033[0;32m" 
 #define RED_K "\033[0;31m"
 #define YELLOW_K "\033[0;33m"
 #define BLUE_K "\033[0;34m"
-
+#define NOTHING_K ""
 
 #define COLOR_SZ 6
 
@@ -67,306 +67,81 @@ extern char *savelog;
 extern char *colors_f[];
 extern char *tab_hk_f[];
 
-extern int kdefault, kgreen, kred, kyellow, kblue, knothing;
+extern int k_DEFAULT, k_GREEN, k_RED, k_YELLOW, k_BLUE, k_NOTHING;
 extern int hk_EQ, hk_TR, hk_RN, hk_DN, hk_OK, hk_FL, hk_PS, hk_SK;
-
-#ifndef SAVE_LOG
-#define SAVE_LOG 0
-#else
-#ifndef ORDER_LOG
-  #define ORDER_LOG 1
-#endif
-#endif
+extern char *varHK_EQ, *varHK_TR, *varHK_RN, *varHK_DN, *varHK_OK, *varHK_FL, *varHK_PS, *varHK_SK;
 
 /* 
  * */
-#define BUF_SIZE 256
 
-#define INIT_STREAM_(stream,buf,len)\
-  FILE *stream;\
-  char *buf;\
-  size_t len;\
-  stream = open_memstream (&buf, &len);\
-  if (stream == NULL) { fprintf(stderr," error open_memstream %s:%d:%s \n",__FILE__,__LINE__,__func__); exit(0); }
- 
-
-#define CLOSE_STREAM_(stream, buf)\
-  fclose (stream);\
-  free (buf);
-
-#define directory_in_memory "/dev/shm"
-
-#define BUILD_PATH_ID_FILE(dir,id) STRFY(dir/id)
-
-#define INIT_STREAM_MEM(stream, buf)\
-  char *buf = malloc(BUF_SIZE);\
-  char *filename=malloc(strlen(directory_in_memory) + strlen("tmp_")+32) ;\
-  sprintf(filename,"%s/tmp_%ld",directory_in_memory,pthread_self());\
-  FILE *stream = fopen(filename,"w+");\
-  if (stream == NULL) { fprintf(stderr," error open stream on \'tmp\' %s:%d:%s \n",__FILE__,__LINE__,__func__); exit(0); }
-  
-#define BEGIN_CPY_STREAM_MEM(stream, buf)\
-  rewind(stream);\
-  while(fgets(buf, BUF_SIZE, stream)){
-    
-  
-#define END_CPY_STREAM_MEM(stream, buf)\
-  }\
-  fclose(stream);\
-  free(buf);\
-  remove(filename);\
-
-#define CPY_STREAM_TO_OUT_THR(stream,msg)\
-        BEGIN_CPY_STREAM_MEM (stream, msg);\
-          fprintf(F_OUT, "%s",msg);\
-          if(id_thread >= 0){\
-            fprintf(f_ou_th[id_thread], "%s",msg);\
-          }\
-        END_CPY_STREAM_MEM (stream, msg);\
-
-
-#define INIT_STREAM_MEM_SV_(stream, buf,savelog)\
-  char *buf = malloc(BUF_SIZE);\
-  char *filename=malloc(strlen(directory_in_memory) + strlen("tmp_")+32) ;\
-  sprintf(filename,"%s/tmp_%ld",directory_in_memory,pthread_self());\
-  FILE *stream = fopen(filename,"w+");\
-  if (stream == NULL) { fprintf(stderr," error open stream on \'tmp\' %s:%d:%s \n",__FILE__,__LINE__,__func__); exit(0); }\
-  FILE *f_savelog = fopen(savelog,"w+");\
-  if (f_savelog == NULL) { fprintf(stderr," error open f_savelog on \'tmp\' %s:%d:%s \n",__FILE__,__LINE__,__func__); exit(0); }
-
-
-
-#define _CPY_STREAM_OUT_AND_SV_(stream, f_savelog, msg)\
-      BEGIN_CPY_STREAM_MEM (stream, msg)\
-            fprintf(F_OUT,"%s",msg);\
-            fprintf(f_savelog,"%s",msg); \
-      END_CPY_STREAM_MEM (stream, msg);\
-      fclose(f_savelog);
-
-#if 1
 /*
- *  to execute once in print functions in the case of log_parallel (printing on screen and recording in file), we have to copy to string before copy it, 
- *  I've tried open_memstream but it have some bugs. 
- *  so I use normal fopen a file a memory location '/dev/shm', it is remove after use!
+ *  to execute once in print functions in the case of log_parallel (printing on screen and recording in file), we have to copy to stream -> string before copy it, 
+ *  so I have tried using fopen a file in memory location '/dev/shm' and remove it after use!
+ *   /dev/shm/tmp_PTHREAD_SELF() but it prints twice sometimes, 
+ *  here a solution with open_memstream which is better 
  */
 
 #define PRINTF( ...) \
   do{ \
-    if(is_parallel_nb){\
-      long int id_thread=id_of_thread_executed();\
-      if(log_parallel){\
-        INIT_STREAM_MEM (stream, msg);\
-        fprintf(stream,  __VA_ARGS__);\
-        CPY_STREAM_TO_OUT_THR(stream, msg);\
-        fflush(f_ou_th[id_thread]);\
-      }\
-      else{\
-        if(id_thread < 0){\
-          fprintf(F_OUT,__VA_ARGS__);\
+      FILE *stream ;\
+      size_t len;\
+      char *buf ;\
+      stream = open_memstream (&buf, &len);\
+        if (stream == NULL) { fprintf(stderr," error open_memstream %s:%d:%s \n",__FILE__,__LINE__,__func__); exit(0); }\
+      fprintf(stream,  __VA_ARGS__); \
+      fflush(stream);\
+      rewind(stream);\
+      if(is_parallel_nb){\
+        long int id_thread=id_of_thread_executed();\
+        if(log_parallel){\
+            fprintf(F_OUT, "%s",buf);\
+            if(id_thread >= 0){\
+              fprintf(f_ou_th[id_thread], "%s",buf);\
+              fflush(f_ou_th[id_thread]);\
+            }\
         }\
         else{\
-          fprintf(f_ou_th[id_thread], __VA_ARGS__);\
-          fflush(f_ou_th[id_thread]);\
+            if(id_thread >= 0){\
+              fprintf(f_ou_th[id_thread], "%s",buf);\
+              fflush(f_ou_th[id_thread]);\
+            }\
+            else {\
+              fprintf(F_OUT, "%s",buf);\
+            }\
         }\
+      } \
+      else{\
+         if(savelog){\
+            FILE *f_savelog = fopen(savelog,"w+");\
+            fprintf(f_savelog, "%s",buf);\
+            fclose(f_savelog);\
+         }\
+         else{\
+            fprintf(F_OUT, "%s",buf);\
+         }\
       }\
-    } \
-    else{\
-      if(savelog){\
-        INIT_STREAM_MEM_SV_(stream,msg,savelog);\
-        fprintf(stream, __VA_ARGS__);\
-        _CPY_STREAM_OUT_AND_SV_(stream, f_savelog, msg);\
-      }\
-      else\
-        fprintf(F_OUT, __VA_ARGS__);\
-    }\
+      fclose(stream);\
+      free(buf);\
   }while(0)
+
 
 #define LOG(...) PRINTF(__VA_ARGS__)
 
 #define PRINT_LOC(fmt, ...) \
   PRINTF( "%s:%d:%s(): " fmt, __FILE__, __LINE__, __func__, __VA_ARGS__)
 
-/*
-#define PRINT_HK_C(color,hk,...)\
-  PRINTF(color hk DEFAULT_K  __VA_ARGS__)
-*/
 
-
-#define PRINT_HK_C(color,hk,...)\
-   do{ \
-      if(is_parallel_nb){\
-        long int id_thread=id_of_thread_executed();\
-        if(log_parallel){\
-          INIT_STREAM_MEM(stream, msg);\
-          if(!unicolour) fprintf(stream, color hk DEFAULT_K  __VA_ARGS__); \
-          else fprintf(stream, hk  __VA_ARGS__); \
-          CPY_STREAM_TO_OUT_THR (stream, msg)\
-          fflush(f_ou_th[id_thread]);\
-        }\
-        else{\
-          if(id_thread < 0){\
-            if(!unicolour) fprintf(F_OUT, color hk DEFAULT_K  __VA_ARGS__); \
-            else fprintf(F_OUT, hk  __VA_ARGS__); \
-          }\
-          else{\
-            if(!unicolour) fprintf(f_ou_th[id_thread], color hk DEFAULT_K  __VA_ARGS__); \
-            else fprintf(f_ou_th[id_thread], hk  __VA_ARGS__); \
-            fflush(f_ou_th[id_thread]);\
-          }\
-        }\
-      } \
-    else{\
-       if(savelog){\
-        INIT_STREAM_MEM_SV_(stream, msg, savelog);\
-        if(!unicolour) fprintf(stream, color hk DEFAULT_K  __VA_ARGS__); \
-        else fprintf(stream, hk  __VA_ARGS__);\
-        _CPY_STREAM_OUT_AND_SV_ (stream, f_savelog, msg);\
-       }\
-       else{\
-        if(!unicolour) fprintf(F_OUT, color hk DEFAULT_K  __VA_ARGS__); \
-        else fprintf(F_OUT, hk  __VA_ARGS__);  \
-       }\
-    }\
-  }while(0) 
+#define PRINT_HK_C(color,hk,fmt,...)\
+ PRINTF("%s%s%s" fmt, color,hk,colors_f[k_DEFAULT],__VA_ARGS__)
 
  
-#else
 
-  
-
-#define PRINT_LOC(fmt, ...) \
-  do{ \
-    /*if(ordered){*/\
-      if(is_parallel_nb){\
-        long int id_thread=id_of_thread_executed();\
-        if(log_parallel){\
-          INIT_STREAM_MEM (stream, msg);\
-          fprintf(stream, "%s:%d:%s(): " fmt, __FILE__, __LINE__, __func__, __VA_ARGS__);\
-          CPY_STREAM_TO_OUT_THR (stream, msg);\
-          fflush(f_ou_th[id_thread]);\
-        }\
-        else{\
-          if(id_thread < 0){\
-            fprintf(F_OUT, "%s:%d:%s(): " fmt, __FILE__, \
-            __LINE__, __func__, __VA_ARGS__);\
-          }\
-          else{\
-            fprintf(f_ou_th[id_thread], "%s:%d:%s(): " fmt, __FILE__, \
-            __LINE__, __func__, __VA_ARGS__);\
-            fflush(f_ou_th[id_thread]);\
-          }\
-        }\
-      } \
-     else{\
-       if(savelog){\
-         INIT_STREAM_MEM_SV_(stream, msg,savelog);\
-         fprintf(stream, "%s:%d:%s(): " fmt, __FILE__, __LINE__, __func__, __VA_ARGS__);\
-         _CPY_STREAM_OUT_AND_SV_(stream, f_savelog, msg);\
-       }\
-       else\
-        fprintf(F_OUT, "%s:%d:%s(): " fmt, __FILE__, __LINE__, __func__, __VA_ARGS__);\
-    }\
-  }while(0)
-
-#endif
-
-#if 0
-
-/* below old solution, but it execute twice functions called in print functions when log_parallel == 1 */
-
-#define PRINT_LOC(fmt, ...) \
-  do{ \
-    /*if(ordered){*/\
-      if(is_parallel_nb){\
-        size_t id_thread=id_of_thread_executed();\
-        if(id_thread < 0){\
-          fprintf(F_OUT, "%s:%d:%s(): " fmt, __FILE__, \
-          __LINE__, __func__, __VA_ARGS__);\
-        }\
-        else{\
-          fprintf(f_ou_th[id_thread], "%s:%d:%s(): " fmt, __FILE__, \
-          __LINE__, __func__, __VA_ARGS__);\
-        }\
-      } \
-      /*else{\
-        fprintf(F_OUT, "%s:%d:%s(): " fmt, __FILE__, \
-          __LINE__, __func__, __VA_ARGS__);\
-      }\
-    }\
-    else{*/if(log_parallel || !is_parallel_nb){\
-      fprintf(F_OUT, "%s:%d:%s(): " fmt, __FILE__, \
-      __LINE__, __func__, __VA_ARGS__);\
-    }\
-  }while(0)
-
-#define PRINTF( ...) \
-  do{ \
-    printf("\n\n sizeof VARGS:%ld \n\n",sizeof(__VA_ARGS__));\
-    /*if(ordered){*/\
-      if(is_parallel_nb){\
-        size_t id_thread=id_of_thread_executed();\
-        if(id_thread < 0){\
-          fprintf(F_OUT,__VA_ARGS__);\
-        }\
-        else{\
-          fprintf(f_ou_th[id_thread], __VA_ARGS__);\
-        }\
-      } \
-      /*else{\
-         fprintf(F_OUT, __VA_ARGS__);\
-      }\
-    }\
-    else{*/if(log_parallel || !is_parallel_nb){\
-      fprintf(F_OUT, __VA_ARGS__);\
-    }\
-  }while(0)
-
-#define LOG(...) PRINTF(__VA_ARGS__)
-
-#define PRINT_HK_C(color,hk,...)\
-  do{ \
-    /*if(ordered){*/\
-      if(is_parallel_nb){\
-        size_t id_thread=id_of_thread_executed();\
-        if(id_thread < 0){\
-          if(!unicolour) fprintf(F_OUT, color hk DEFAULT_K  __VA_ARGS__); \
-          else fprintf(F_OUT, hk  __VA_ARGS__); \
-        }\
-        else{\
-          if(!unicolour) fprintf(f_ou_th[id_thread], color hk DEFAULT_K  __VA_ARGS__); \
-          else fprintf(f_ou_th[id_thread], hk  __VA_ARGS__); \
-        }\
-      } \
-      /*else{\
-        if(!unicolour) fprintf(F_OUT, color hk DEFAULT_K  __VA_ARGS__); \
-        else fprintf(F_OUT, hk  __VA_ARGS__); \
-      }*/\
-    /*}*/\
-    /*else{*/if(log_parallel || !is_parallel_nb){\
-       if(!unicolour) fprintf(F_OUT, color hk DEFAULT_K  __VA_ARGS__); \
-       else fprintf(F_OUT, hk  __VA_ARGS__);  \
-    }\
-  }while(0) 
-
-#endif    
-
-
-#if 0
-
-/*
- * print [ HK_NAME ] with color
- */
-#define PRINT_HK_C(color,hk,format,...)\
-  do{ if(!unicolour) fprintf(F_OUT, color hk DEFAULT_K format, __VA_ARGS__); \
-      else fprintf(F_OUT, hk format, __VA_ARGS__); } while(0) \
-
-#endif /* 0 */
-      
+     
 /*
  * to skip the bloc test function
  */
-#define SKIP(...)\
-  PRINT_HK_C(GREEN_K, HK_SK __VA_ARGS__);\
+#define SKIP(fmt,...)\
+  PRINT_HK_C(colors_f[k_GREEN], HK_SK, fmt, ## __VA_ARGS__);\
   PRINT_LOC("%s\n\n" DEFAULT_K," Skiped "); return;
 
 
@@ -535,26 +310,26 @@ GEN_EXPECTED_OP_TYPE_FUNC(NE, TYPE_STRING)
 do{      \
    if(is_parallel_nb == 0){\
       if(expected_##OP##_##type(var1, var2)){                                                                       \
-        PRINT_HK_C(GREEN_K,HK_TR," 1 %s passed from %s \n\n",name_f,msg_call);                                       \
+        PRINT_HK_C(colors_f[k_GREEN],HK_TR," 1 %s passed from %s \n\n",name_f,msg_call);                                       \
       }                                                                                                         \
       else{                                                                                                     \
         /*PRINT_LOC("Failure\nExpected %s of these values:\n   %s\n\tWhich is:  %s\n %s\n\tWhich is: %s\n\n"\
           ,DESCRIPTION_##OP,#var1, type##_TO_STR(var1),  #var2, type##_TO_STR(var2));  */                                          \
         PRINT_LOC("Failure\nExpected: (%s) %s (%s) :\n Value of %s: %s \n Value of %s: %s\n\n"\
           ,#var1,STRFY(OP),#var2,#var1, type##_TO_STR(var1),  #var2, type##_TO_STR(var2));                                            \
-        PRINT_HK_C(RED_K,HK_TR," 1 %s failed from %s \n",name_f,msg_call);                                           \
+        PRINT_HK_C(colors_f[k_RED],HK_TR," 1 %s failed from %s \n",name_f,msg_call);                                           \
       }                                                                                                         \
    }else {                                                                                                         \
       if(expected_##OP##_name_##type(var1, var2, name_f)){                                                                       \
-        PRINT_HK_C(GREEN_K,HK_TR," 1 %s passed from %s \n\n",name_f,msg_call);                                       \
-        /*PRINT_HK_C(GREEN_K,HK_TR," 1 test passed from %s \n\n",name_f);*/                                       \
+        PRINT_HK_C(colors_f[k_GREEN],HK_TR," 1 %s passed from %s \n\n",name_f,msg_call);                                       \
+        /*PRINT_HK_C(colors_f[k_GREEN],HK_TR," 1 test passed from %s \n\n",name_f);*/                                       \
       }                                                                                                         \
       else{                                                                                                     \
         /*PRINT_LOC("Failure\nExpected %s of these values:\n   %s\n\tWhich is:  %s\n %s\n\tWhich is: %s\n\n"\
          ,DESCRIPTION_##OP ,#var1, type##_TO_STR(var1),  #var2, type##_TO_STR(var2));*/                                            \
         PRINT_LOC("Failure\nExpected: (%s) %s (%s) :\n Value of %s: %s \n Value of %s: %s\n\n"\
           ,#var1,STRFY(OP),#var2,#var1, type##_TO_STR(var1),  #var2, type##_TO_STR(var2));                                            \
-        PRINT_HK_C(RED_K,HK_TR," 1 %s failed from %s \n",name_f,msg_call);                                           \
+        PRINT_HK_C(colors_f[k_RED],HK_TR," 1 %s failed from %s \n",name_f,msg_call);                                           \
       }                                                                                                         \
     }\
 }while(0);
@@ -569,26 +344,26 @@ do{      \
 do{      \
    if(is_parallel_nb == 0){\
       if(expected_##OP##_##type(var1, var2)){                                                                       \
-        PRINT_HK_C(GREEN_K,HK_TR," 1 test passed from %s \n\n",__func__);                                       \
+        PRINT_HK_C(colors_f[k_GREEN],HK_TR," 1 test passed from %s \n\n",__func__);                                       \
       }                                                                                                         \
       else{                                                                                                     \
         /*PRINT_LOC("Failure\nExpected %s of these values:\n   %s\n\tWhich is:  %s\n %s\n\tWhich is: %s\n\n"\
           ,DESCRIPTION_##OP,#var1, type##_TO_STR(var1),  #var2, type##_TO_STR(var2));  */                                          \
         PRINT_LOC("Failure\nExpected: (%s) %s (%s) :\n Value of %s: %s \n Value of %s: %s\n\n"\
           ,#var1,STRFY(OP),#var2,#var1, type##_TO_STR(var1),  #var2, type##_TO_STR(var2));                                            \
-        PRINT_HK_C(RED_K,HK_TR," 1 test failed from %s \n",__func__);                                           \
+        PRINT_HK_C(colors_f[k_RED],HK_TR," 1 test failed from %s \n",__func__);                                           \
         if(is_assert) return;                                                                                   \
       }                                                                                                         \
    }else {                                                                                                         \
       if(expected_##OP##_name_##type(var1, var2, __func__)){                                                                       \
-        PRINT_HK_C(GREEN_K,HK_TR," 1 test passed from %s \n\n",__func__);                                       \
+        PRINT_HK_C(colors_f[k_GREEN],HK_TR," 1 test passed from %s \n\n",__func__);                                       \
       }                                                                                                         \
       else{                                                                                                     \
         /*PRINT_LOC("Failure\nExpected %s of these values:\n   %s\n\tWhich is:  %s\n %s\n\tWhich is: %s\n\n"\
          ,DESCRIPTION_##OP ,#var1, type##_TO_STR(var1),  #var2, type##_TO_STR(var2));*/                                            \
         PRINT_LOC("Failure\nExpected: (%s) %s (%s) :\n Value of %s: %s \n Value of %s: %s\n\n"\
           ,#var1,STRFY(OP),#var2,#var1, type##_TO_STR(var1),  #var2, type##_TO_STR(var2));                                            \
-        PRINT_HK_C(RED_K,HK_TR," 1 test failed from %s \n",__func__);                                           \
+        PRINT_HK_C(colors_f[k_RED],HK_TR," 1 test failed from %s \n",__func__);                                           \
         if(is_assert) return;                                                                                   \
       }                                                                                                         \
     }\
@@ -603,25 +378,25 @@ do{      \
 do{      \
    if(is_parallel_nb == 0){\
       if(expected_##OP##_##type(var1, var2)){                                                                       \
-        PRINT_HK_C(GREEN_K,HK_TR," 1 test passed from %s \n\n",__func__);                                       \
+        PRINT_HK_C(colors_f[k_GREEN],HK_TR," 1 test passed from %s \n\n",__func__);                                       \
       }                                                                                                         \
       else{                                                                                                     \
         /*PRINT_LOC("Failure\nExpected %s of these values:\n   %s\n\tWhich is:  %s\n %s\n\tWhich is: %s\n\n"\
           ,DESCRIPTION_##OP,#var1, type##_TO_STR(var1),  #var2, type##_TO_STR(var2));  */                                          \
         PRINT_LOC("Failure\nExpected: (%s) %s (%s) :\n Value of %s: %s \n Value of %s: %s\n\n"\
           ,#var1,STRFY(OP),#var2,#var1, type##_TO_STR(var1),  #var2, type##_TO_STR(var2));                                            \
-        PRINT_HK_C(RED_K,HK_TR," 1 test failed from %s \n",__func__);                                           \
+        PRINT_HK_C(colors_f[k_RED],HK_TR," 1 test failed from %s \n",__func__);                                           \
       }                                                                                                         \
    }else {                                                                                                         \
       if(expected_##OP##_name_##type(var1, var2, __func__)){                                                                       \
-        PRINT_HK_C(GREEN_K,HK_TR," 1 test passed from %s \n\n",__func__);                                       \
+        PRINT_HK_C(colors_f[k_GREEN],HK_TR," 1 test passed from %s \n\n",__func__);                                       \
       }                                                                                                         \
       else{                                                                                                     \
         /*PRINT_LOC("Failure\nExpected %s of these values:\n   %s\n\tWhich is:  %s\n %s\n\tWhich is: %s\n\n"\
          ,DESCRIPTION_##OP ,#var1, type##_TO_STR(var1),  #var2, type##_TO_STR(var2));*/                                            \
         PRINT_LOC("Failure\nExpected: (%s) %s (%s) :\n Value of %s: %s \n Value of %s: %s\n\n"\
           ,#var1,STRFY(OP),#var2,#var1, type##_TO_STR(var1),  #var2, type##_TO_STR(var2));                                            \
-        PRINT_HK_C(RED_K,HK_TR," 1 test failed from %s \n",__func__);                                           \
+        PRINT_HK_C(colors_f[k_RED],HK_TR," 1 test failed from %s \n",__func__);                                           \
       }                                                                                                         \
     }\
 }while(0);
@@ -630,26 +405,26 @@ do{      \
 do{      \
    if(is_parallel_nb == 0){\
       if(expected_##OP##_##type(var1, var2)){                                                                       \
-        PRINT_HK_C(GREEN_K,HK_TR," 1 test passed from %s \n\n",__func__);                                       \
+        PRINT_HK_C(colors_f[k_GREEN],HK_TR," 1 test passed from %s \n\n",__func__);                                       \
       }                                                                                                         \
       else{                                                                                                     \
         /*PRINT_LOC("Failure\nExpected %s of these values:\n   %s\n\tWhich is:  %s\n %s\n\tWhich is: %s\n\n"\
           ,DESCRIPTION_##OP,#var1, type##_TO_STR(var1),  #var2, type##_TO_STR(var2));  */                                          \
         PRINT_LOC("Failure\nExpected: (%s) %s (%s) :\n Value of %s: %s \n Value of %s: %s\n\n"\
           ,#var1,STRFY(OP),#var2,#var1, type##_TO_STR(var1),  #var2, type##_TO_STR(var2));                                            \
-        PRINT_HK_C(RED_K,HK_TR," 1 test failed from %s \n",__func__);                                           \
+        PRINT_HK_C(colors_f[k_RED],HK_TR," 1 test failed from %s \n",__func__);                                           \
         return;                                                                                   \
       }                                                                                                         \
    }else {                                                                                                         \
       if(expected_##OP##_name_##type(var1, var2, __func__)){                                                                       \
-        PRINT_HK_C(GREEN_K,HK_TR," 1 test passed from %s \n\n",__func__);                                       \
+        PRINT_HK_C(colors_f[k_GREEN],HK_TR," 1 test passed from %s \n\n",__func__);                                       \
       }                                                                                                         \
       else{                                                                                                     \
         /*PRINT_LOC("Failure\nExpected %s of these values:\n   %s\n\tWhich is:  %s\n %s\n\tWhich is: %s\n\n"\
          ,DESCRIPTION_##OP ,#var1, type##_TO_STR(var1),  #var2, type##_TO_STR(var2));*/                                            \
         PRINT_LOC("Failure\nExpected: (%s) %s (%s) :\n Value of %s: %s \n Value of %s: %s\n\n"\
           ,#var1,STRFY(OP),#var2,#var1, type##_TO_STR(var1),  #var2, type##_TO_STR(var2));                                            \
-        PRINT_HK_C(RED_K,HK_TR," 1 test failed from %s \n",__func__);                                           \
+        PRINT_HK_C(colors_f[k_RED],HK_TR," 1 test failed from %s \n",__func__);                                           \
         return;                                                                                   \
       }                                                                                                         \
     }\
@@ -895,21 +670,21 @@ do{      \
 do{                                                                                               \
    if(is_parallel_nb==0){\
       if(expected_##expect##_f(var1)){                                                                \
-        PRINT_HK_C(GREEN_K,HK_TR," 1 test passed from %s \n\n",__func__);                             \
+        PRINT_HK_C(colors_f[k_GREEN],HK_TR," 1 test passed from %s \n\n",__func__);                             \
       }                                                                                               \
       else{                                                                                           \
         PRINT_LOC("Failure\nValue of: %s\nActual: %s\nExpected: %s\n\n", #var1, #not_expect, #expect);\
-        PRINT_HK_C(RED_K,HK_TR," 1 test failed from %s \n",__func__);                                 \
+        PRINT_HK_C(colors_f[k_RED],HK_TR," 1 test failed from %s \n",__func__);                                 \
         if(is_assert) return;                                                                         \
       }                                                                                               \
   }\
   else{\
       if(expected_##expect##_f_name(var1, __func__)){                                                                \
-        PRINT_HK_C(GREEN_K,HK_TR," 1 test passed from %s \n\n",__func__);                             \
+        PRINT_HK_C(colors_f[k_GREEN],HK_TR," 1 test passed from %s \n\n",__func__);                             \
       }                                                                                               \
       else{                                                                                           \
         PRINT_LOC("Failure\nValue of: %s\nActual: %s\nExpected: %s\n\n", #var1, #not_expect, #expect);\
-        PRINT_HK_C(RED_K,HK_TR," 1 test failed from %s \n",__func__);                                 \
+        PRINT_HK_C(colors_f[k_RED],HK_TR," 1 test failed from %s \n",__func__);                                 \
         if(is_assert) return;                                                                         \
       }                                                                                               \
   }\
@@ -923,21 +698,21 @@ do{                                                                             
 do{                                                                                                   \
    if(is_parallel_nb==0){                                                                             \
       if(expected_##expect##_f(var1)){                                                                \
-        PRINT_HK_C(GREEN_K,HK_TR," 1 test passed from %s \n\n",__func__);                             \
+        PRINT_HK_C(colors_f[k_GREEN],HK_TR," 1 test passed from %s \n\n",__func__);                             \
       }                                                                                               \
       else{                                                                                           \
         PRINT_LOC("Failure\nValue of: %s\nActual: %s\nExpected: %s\n", #var1, #not_expect, #expect);  \
-        PRINT_HK_C(RED_K,HK_TR," 1 test failed from %s \n\n",__func__);                               \
+        PRINT_HK_C(colors_f[k_RED],HK_TR," 1 test failed from %s \n\n",__func__);                               \
       }                                                                                               \
   }                                                                                                   \
   else{                                                                                               \
     size_t id_thread=id_of_thread_executed();                                                         \
       if(expected_##expect##_f_name(var1, __func__)){                                                 \
-        PRINT_HK_C(GREEN_K,HK_TR," 1 test passed from %s, on thread[%ld]\n\n",__func__,id_thread);    \
+        PRINT_HK_C(colors_f[k_GREEN],HK_TR," 1 test passed from %s, on thread[%ld]\n\n",__func__,id_thread);    \
       }                                                                                               \
       else{                                                                                           \
         PRINT_LOC("Failure\nValue of: %s\nActual: %s\nExpected: %s\n", #var1, #not_expect, #expect);  \
-        PRINT_HK_C(RED_K,HK_TR," 1 test failed from %s, on thread[%ld]\n\n",__func__,id_thread);      \
+        PRINT_HK_C(colors_f[k_RED],HK_TR," 1 test failed from %s, on thread[%ld]\n\n",__func__,id_thread);      \
       }                                                                                               \
   }                                                                                                   \
 }while(0);
@@ -947,22 +722,22 @@ do{                                                                             
 do{                                                                                                   \
    if(is_parallel_nb==0){                                                                             \
       if(expected_##expect##_f(var1)){                                                                \
-        PRINT_HK_C(GREEN_K,HK_TR," 1 test passed from %s \n\n",__func__);                             \
+        PRINT_HK_C(colors_f[k_GREEN],HK_TR," 1 test passed from %s \n\n",__func__);                             \
       }                                                                                               \
       else{                                                                                           \
         PRINT_LOC("Failure\nValue of: %s\nActual: %s\nExpected: %s\n", #var1, #not_expect, #expect);  \
-        PRINT_HK_C(RED_K,HK_TR," 1 test failed from %s \n\n",__func__);                               \
+        PRINT_HK_C(colors_f[k_RED],HK_TR," 1 test failed from %s \n\n",__func__);                               \
         return;                                                                                       \
       }                                                                                               \
   }\
   else{\
     size_t id_thread=id_of_thread_executed();                                                         \
       if(expected_##expect##_f_name(var1, __func__)){                                                 \
-        PRINT_HK_C(GREEN_K,HK_TR," 1 test passed from %s, on thread[%ld]\n\n",__func__,id_thread);    \
+        PRINT_HK_C(colors_f[k_GREEN],HK_TR," 1 test passed from %s, on thread[%ld]\n\n",__func__,id_thread);    \
       }                                                                                               \
       else{                                                                                           \
         PRINT_LOC("Failure\nValue of: %s\nActual: %s\nExpected: %s\n\n", #var1, #not_expect, #expect);\
-        PRINT_HK_C(RED_K,HK_TR," 1 test failed from %s, on thread[%ld]\n\n",__func__, id_thread);     \
+        PRINT_HK_C(colors_f[k_RED],HK_TR," 1 test failed from %s, on thread[%ld]\n\n",__func__, id_thread);     \
         return;                                                                                       \
       }                                                                                               \
   }\
