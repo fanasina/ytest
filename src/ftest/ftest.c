@@ -1225,7 +1225,7 @@ init_parallel_test_()
 
   //progress = ordered;
 
-  signal(SIGSEGV, final_parallel_test_);
+  signal(SIGSEGV, final_parallel_test_); /* to clear logs files!  */
 
 
   is_parallel_nb = 1;
@@ -1331,13 +1331,13 @@ final_parallel_test_()
     }
   }
 
-  /* if SIGSEGV */
+  /* if SIGSEGV , added for PRINTF, but no longer use!! 
   if(!dir_empty("/dev/shm")){
     system("rm /dev/shm/*");
     PRINT_DEBUG(" cleanup %s \n", "/dev/shm");
   }
   else
-    PRINT_DEBUG(" %s already empty \n", "/dev/shm");
+    PRINT_DEBUG(" %s already empty \n", "/dev/shm");*/
 }
 
 void run_all_tests_parallel(size_t parallel /*, int max_col*/)

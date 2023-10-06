@@ -12,14 +12,16 @@ OBJ=$(SRC:.c=.o)
 TEST_DIR=$(ROOT_DIR)/test
 EXECSRC=$(TEST_DIR)/$(NAME_TEST).c
 EXEC=$(ROOT_DIR)/launch_$(NAME_TEST)_m
-PERMSRC=$(wildcard */**perm*.c)
+PERMSRC=src/permutation_t/permutation_t.c
 PERMSRC_O=$(PERMSRC:.c=.o)
-SETTSRC=$(wildcard */**set*.c)
+SETTSRC=src/set_theoric_t/set_theoric_t.c
 SETTSRC_O=$(SETTSRC:.c=.o)
-TOOLSRC=$(wildcard */**tool*.c)
+TOOLSRC=src/tools_t/tools_t.c
 TOOLSRC_O=$(TOOLSRC:.c=.o)
-TESTSRC=$(wildcard */**test*.c)
-TESTSRC_O=$(TESTSRC:.c=.o)
+FTESTSRC=src/ftest/ftest.c
+FTESTSRC_O=$(FTESTSRC:.c=.o)
+FMOCKSRC=src/fmock/fmock.c
+FMOCKSRC_O=$(FMOCKSRC:.c=.o)
 
 
 all: $(EXEC)
@@ -27,8 +29,10 @@ all: $(EXEC)
 $(EXEC):	$(EXECSRC) $(OBJ)
 	$(CC) -o $@ $^ -I$(INCLUDE_DIR) $(LDFLAGS)
 
+$(FMOCKSRC_O): $(FMOCKSRC) $(FTESTSRC_O) 
+	$(CC) -o $@ -c $< $(CFLAGS)
 
-$(TESTSRC_O): $(TESTSRC) $(TOOLSRC_O) 
+$(FTESTSRC_O): $(FTESTSRC) $(TOOLSRC_O) 
 	$(CC) -o $@ -c $< $(CFLAGS)
 
 $(PERMSRC_O): $(PERMSRC) $(SETTSRC_O)
