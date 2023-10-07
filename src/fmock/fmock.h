@@ -156,9 +156,9 @@ extern struct list_base_fmock *g_list_base_fmock;
     }\
     else if (((tmp_mock->info_mock)->times_left != 0) && ((tmp_mock->info_mock)->times_left != INITSTATE )) {\
       size_t len0 = strlen((tmp_mock->info_mock)->str_conditions);\
-      size_t len1 = strlen("call   check condition: aa");\
-      char *msg_call=malloc(len0 + len1);\
-      sprintf(msg_call,"call check condition: %s",(tmp_mock->info_mock)->str_conditions);\
+      size_t len1 = strlen("when checking condition call: aa");\
+      char *msg_call=malloc(len0 + len1 + strlen(__func__));\
+      sprintf(msg_call,"when checking %s condition call: %s",__func__,(tmp_mock->info_mock)->str_conditions);\
       HANDLE_OP_EXPECT_NAME(EQ,TYPE_INT,1, tmp_mock->call_mock_condition args_call_with_parenthesis, (tmp_mock->info_mock)->str_caller, msg_call); /*LOG("%s\n","failure condition");*/\
       free(msg_call);\
     }\

@@ -22,7 +22,8 @@ FTESTSRC=src/ftest/ftest.c
 FTESTSRC_O=$(FTESTSRC:.c=.o)
 FMOCKSRC=src/fmock/fmock.c
 FMOCKSRC_O=$(FMOCKSRC:.c=.o)
-
+BPROGRESSRC=src/bar_progress/bar_progress.c
+BPROGRESSRC_0=$(BPROGRESSRC:.c=.o)
 
 all: $(EXEC)
 
@@ -44,6 +45,9 @@ $(SETTSRC_O) : $(SETTSRC) $(TOOLSRC_O)
 $(TOOLSRC_O): $(TOOLSRC) 
 	$(CC) -o $@ -c $< $(CFLAGS)
 
+$(BPROGRESSRC_0): $(BPROGRESSRC) 
+	$(CC) -o $@ -c $< $(CFLAGS)
+
 .PHONY: clean mrproper
 
 clean:
@@ -53,4 +57,4 @@ mrproper: clean
 	rm -f $(EXEC)
 
 run: $(EXEC)
-	$(EXEC) -p
+	$(EXEC) -h

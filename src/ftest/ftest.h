@@ -310,26 +310,26 @@ GEN_EXPECTED_OP_TYPE_FUNC(NE, TYPE_STRING)
 do{      \
    if(is_parallel_nb == 0){\
       if(expected_##OP##_##type(var1, var2)){                                                                       \
-        PRINT_HK_C(colors_f[k_GREEN],HK_TR," 1 %s passed from %s \n\n",name_f,msg_call);                                       \
+        PRINT_HK_C(colors_f[k_GREEN],HK_TR," 1 %s passed %s \n\n",name_f,msg_call);                                       \
       }                                                                                                         \
       else{                                                                                                     \
         /*PRINT_LOC("Failure\nExpected %s of these values:\n   %s\n\tWhich is:  %s\n %s\n\tWhich is: %s\n\n"\
           ,DESCRIPTION_##OP,#var1, type##_TO_STR(var1),  #var2, type##_TO_STR(var2));  */                                          \
         PRINT_LOC("Failure\nExpected: (%s) %s (%s) :\n Value of %s: %s \n Value of %s: %s\n\n"\
           ,#var1,STRFY(OP),#var2,#var1, type##_TO_STR(var1),  #var2, type##_TO_STR(var2));                                            \
-        PRINT_HK_C(colors_f[k_RED],HK_TR," 1 %s failed from %s \n",name_f,msg_call);                                           \
+        PRINT_HK_C(colors_f[k_RED],HK_TR," 1 %s failed %s \n",name_f,msg_call);                                           \
       }                                                                                                         \
    }else {                                                                                                         \
       if(expected_##OP##_name_##type(var1, var2, name_f)){                                                                       \
-        PRINT_HK_C(colors_f[k_GREEN],HK_TR," 1 %s passed from %s \n\n",name_f,msg_call);                                       \
-        /*PRINT_HK_C(colors_f[k_GREEN],HK_TR," 1 test passed from %s \n\n",name_f);*/                                       \
+        PRINT_HK_C(colors_f[k_GREEN],HK_TR," 1 %s passed %s \n\n",name_f,msg_call);                                       \
+        /*PRINT_HK_C(colors_f[k_GREEN],HK_TR," 1 test passed %s \n\n",name_f);*/                                       \
       }                                                                                                         \
       else{                                                                                                     \
         /*PRINT_LOC("Failure\nExpected %s of these values:\n   %s\n\tWhich is:  %s\n %s\n\tWhich is: %s\n\n"\
          ,DESCRIPTION_##OP ,#var1, type##_TO_STR(var1),  #var2, type##_TO_STR(var2));*/                                            \
         PRINT_LOC("Failure\nExpected: (%s) %s (%s) :\n Value of %s: %s \n Value of %s: %s\n\n"\
           ,#var1,STRFY(OP),#var2,#var1, type##_TO_STR(var1),  #var2, type##_TO_STR(var2));                                            \
-        PRINT_HK_C(colors_f[k_RED],HK_TR," 1 %s failed from %s \n",name_f,msg_call);                                           \
+        PRINT_HK_C(colors_f[k_RED],HK_TR," 1 %s failed %s \n",name_f,msg_call);                                           \
       }                                                                                                         \
     }\
 }while(0);
