@@ -1,5 +1,5 @@
 #include "ftest/ftest.h"
-#include <dirent.h>
+//#include <dirent.h>
 
 /*
  * by default display in millisecond
@@ -1220,7 +1220,7 @@ final_parallel_test_()
 
   if(savelog){
     FILE *f_savelog;
-    f_savelog=fopen(savelog, "w+");
+    f_savelog=fopen(savelog, "a");
     for(size_t id_thrd =0 ; id_thrd <= parallel_nb; ++id_thrd){
       rewind(f_ou_th[id_thrd]); // put the file pointer to the begin of file;
       while(fgets(reader, 255,f_ou_th[id_thrd] )){

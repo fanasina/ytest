@@ -90,7 +90,7 @@ extern char *varHK_EQ, *varHK_TR, *varHK_RN, *varHK_DN, *varHK_OK, *varHK_FL, *v
         if (stream == NULL) { fprintf(stderr," error open_memstream %s:%d:%s \n",__FILE__,__LINE__,__func__); exit(0); }\
       fprintf(stream,  __VA_ARGS__); \
       fflush(stream);\
-      rewind(stream);\
+      /*rewind(stream);*/\
       if(is_parallel_nb){\
         long int id_thread=id_of_thread_executed();\
         if(log_parallel){\
@@ -112,13 +112,13 @@ extern char *varHK_EQ, *varHK_TR, *varHK_RN, *varHK_DN, *varHK_OK, *varHK_FL, *v
       } \
       else{\
          if(savelog){\
-            FILE *f_savelog = fopen(savelog,"w+");\
+            FILE *f_savelog = fopen(savelog,"a");\
             fprintf(f_savelog, "%s",buf);\
             fclose(f_savelog);\
          }\
-         else{\
+         /*else{*/\
             fprintf(F_OUT, "%s",buf);\
-         }\
+         /*}*/\
       }\
       fclose(stream);\
       free(buf);\
