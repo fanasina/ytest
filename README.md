@@ -29,7 +29,7 @@ chmod +x compile.sh
 We can combine these options, for example: `./compile "-D DEBUG=1 -D HK -g"`
 
 ## launch options if using run_all_tests_args(argc, argv);
-By default `./launch_is_good_{c,m}` is on 1 thread but we can add some options to run tests in parallel, or chanche colors, to disable progress bar, ..., to print help
+By default `./launch_is_good_{c,m}` is on 1 thread but we can add some options to run tests in parallel, or change colors, to disable progress bar, ..., to print help
 
 ### help
 `./launch_is_good_c -h`
@@ -127,7 +127,11 @@ int main(){
 
 # FMOCK 
 ## How to create fmock
-outside all function:
+
+```
+#include "fmock/fmock.h"
+```
+outside all functions:
 ```
 MOCK_FUNC(returnType, name_function_mock,(prototype of the function with paranthesis),(args when call the funct with parathesis))
 /* use (returnType) in parathesis if the returType has more than 1 words for example (long int) or (struct someStruct) */
@@ -139,6 +143,13 @@ int f_mock(int a,int b);
 we use
 ```
 MOCK_FUNC(int, f_mock,(int a,int b),(a,b))
+```
+args:
+```
+returnType: 		 						int,
+name_function_mock:	 						f_mock,
+args prototype with paranthesis:					(int a,int b),
+args variable names with parathesis (same variable names as prototype):	(a,b)
 ```
 ## print variables 
 We may define a function to print variables of the mock function, it is usefull in logs, the macro has almost the same args as MOCK_FUNC, without returnType wich is alway `char*`.
@@ -158,16 +169,16 @@ EXPECT_MOCK_CALL(int, f_mock, (int a,int b), (a<b), 3){
 ```
 args:
 ```
-returnType: 		 						int,
-name_function_mock:	 						f_mock,
-arg prototype of the function with paranthesis:				(int a,int b),
-arg when we call the function (same variable names as prototype):	(a<b)
-number of repetition response (number of call times):			3  
+returnType: 		 							int,
+name_function_mock:	 							f_mock,
+arg prototype of the function with paranthesis:					(int a,int b),
+conditions to check on args before calling the function:(bool expression):	(a<b)
+number of repetition response (number of call times):				3	  
 ```
 ## define will call
 ```
-WILL_MOCK_CALL(int, f_mock, (int a,int b), (a<b), 3){
-  return a+b;
+WILL_MOCK_CALL(int, f_mock, (int a,int b), (a==b), 1){
+  return a*b;
 }
 ```
 same args as EXPECT_MOCK_CALL, the difference is, the EXPECT_MOCK_CALL have to be call by the test earlier, but not  WILL_MOCK_CALL.
@@ -175,7 +186,8 @@ same args as EXPECT_MOCK_CALL, the difference is, the EXPECT_MOCK_CALL have to b
 ## init call and call
 in TEST environement, we may use macro `INIT_CALLER_MOCK(f_mock);` before calling `f_mock` to have explicit logs again!
 
-Call function mock is the same as other normal function!
+Call function mock is the same as other normal functions.
+
 Example:
 ```
 TEST(f_mock_test){
@@ -186,7 +198,8 @@ TEST(f_mock_test){
 ```
 # PRINTF
 We may use standard printf function, but I provide a macro PRINTF to allow us record logs in files and also ordered logs when we use parallel tests.
-args is the same as printf.
+
+args are the same as `printf` stdio.h function.
 example:
 ```
 PRINTF("hello\n");
