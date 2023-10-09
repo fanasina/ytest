@@ -233,7 +233,7 @@ __attribute__((destructor))
     /* list each fmock an each calls */
     while(tmp_list_fm){
       tmp_inf_mock = tmp_list_fm->info_mock;
-      memset(reader,'=',w.ws_col-2);
+      memset(reader,'=',w.ws_col);
       char *caller="";
       if(tmp_inf_mock->str_caller) caller = extract_func_edited_TEST_from_exec_func_name(tmp_inf_mock->str_caller);
       size_t len_caller = strlen(caller);
@@ -242,15 +242,20 @@ __attribute__((destructor))
       size_t len_nameff=strlen(nameff);
       char *by_=" called by ";
       size_t len_by_=strlen(by_);
-      size_t bg_rd=(w.ws_col - len_nameff - len_caller - len_by_)/2;
+      size_t bg_rd=(w.ws_col -1 - len_nameff - len_caller - len_by_)/2;
+      reader[bg_rd++]=' ';
       for(size_t i=0; i<len_nameff; ++i) 
         reader[bg_rd+i]=nameff[i];
-      for(size_t i=0;i<len_by_;++i)
-        reader[bg_rd+len_nameff+i]=by_[i];
-      for(size_t i=0;i<len_caller;++i)
-        reader[bg_rd+len_nameff+len_by_+i]=caller[i];
-
-
+      if(len_caller){
+        for(size_t i=0;i<len_by_;++i)
+          reader[bg_rd+len_nameff+i]=by_[i];
+        for(size_t i=0;i<len_caller;++i)
+          reader[bg_rd+len_nameff+len_by_+i]=caller[i];
+        reader[bg_rd+len_nameff+len_by_+len_caller]=' ';
+      }
+      else{
+        reader[bg_rd+len_nameff]=' ';
+      }
       PRINTF("%s%s%s\n\n",colors_f[k_BLUE],reader,DEFAULT_K );
       while(tmp_inf_mock){
         if(0==strncmp(tmp_inf_mock->str_namefunc,nameff, len_nameff)){
