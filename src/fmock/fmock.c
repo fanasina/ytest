@@ -233,7 +233,7 @@ __attribute__((destructor))
     /* list each fmock an each calls */
     while(tmp_list_fm){
       tmp_inf_mock = tmp_list_fm->info_mock;
-      memset(reader,'=',w.ws_col-1);
+      memset(reader,'=',w.ws_col-2);
       char *caller="";
       if(tmp_inf_mock->str_caller) caller = extract_func_edited_TEST_from_exec_func_name(tmp_inf_mock->str_caller);
       size_t len_caller = strlen(caller);
