@@ -82,11 +82,11 @@ OPTIONS
 		other option: -z=log_parallel (to avoid logs not ordered when parallel tests which is loged by default)
 ```
 
-for example:
+For example, to launch tests (`test/is_good.c`) on 4 threads, using unicolor(black&white), and remove logs when all tests are done:
 ```
 ./launch_is_good_c -p 4 -r -u
 ```
-launch the tests on 4 threads, using unicolor(black&white), and remove logs when all tests are done.
+
 
 
 
