@@ -2,34 +2,6 @@
 #include <dirent.h>
 
 /*
- * check if dir path is empty ! 
- * 1 == it is empty,0 it is not empty
- */
-
-int dir_empty(const char *path)
-{
-	struct dirent *ent;
-	int ret = 1;
-
-	DIR *d = opendir(path);
-	if (!d) {
-		fprintf(stderr, "%s: ", path);
-		perror("");
-		return -1;
-	}
-
-	while ((ent = readdir(d))) {
-		if (!strcmp(ent->d_name, ".") || !(strcmp(ent->d_name, "..")))
-			continue;
-		ret = 0;
-		break;
-	}
-
-	closedir(d);
-	return ret;
-}
-
-/*
  * by default display in millisecond
  */
 /*
@@ -783,64 +755,7 @@ unsigned nnsleep(long long x) {
   return 0; 
 }
 
-#if 0
 
-void progress_test_(){
-  struct func *tmp;
-  size_t num_test=0;
-  int  cur = 0, len;
-  //get_cursor_position(&col, &row);
-  int width;
-  long int chg=0; 
-
-  char prgss[]="\\|/-";
-  struct winsize w;
-  //ioctl(1,TIOCGWINSZ, &w); // 1 =STDOUT_FILENO 
-  //printf ("lines %d\n", w.ws_row);
-  //width = w.ws_col - 50;
-  //printf ("columns %d vs width.choice: %d\n", w.ws_col, width);
-
-  len=strlen(prgss);
-  
-  do{
-    ioctl(1,TIOCGWINSZ, &w); // 1 =STDOUT_FILENO 
-    width = w.ws_col - 50;
-    //LOCK(mut_current_test);
-    tmp = current_fn;
-    //UNLOCK(mut_current_test);
-    if(tmp)
-      num_test = extract_num__f(tmp->name);
-    //gotoxy(13,0);
-    printf("\r(%c)[",prgss[cur]);
-    
-    for(int i=0; i< width; ++i) {
-      if(i<=(num_test+1)*width/count_tests){
-          //usleep(20000);
-          printf("#");
-      }
-      else printf(".");
-    }
-      printf("|%3ld%%, test N° %ld/%ld]",(num_test+1)*100/count_tests,num_test,count_tests-1);
-      fflush(stdout);
-    
-    
-    //printf("%c",prgss[cur]);
-    //printf("\33[2K\r");  // remove current line and go to begin of the current line 
-    //if(chg==40000){
-      chg=0;
-      if(cur<len-1) ++cur;
-      else cur=0;
-    //}else ++chg;
-    //printf("\n");
-    //sleep(1);
-    //usleep(500000);
-    nnsleep(200000000);// 200 milliseconds
-  }while(tmp);
-
-  printf("\n");
-}
-
-#endif
 
 void bar_progress_test_(){
   bar_progress_start();
@@ -1407,10 +1322,6 @@ __attribute__((destructor))
 void
 purge_tests()
 {
-  /*if(savelog){
-    fclose(f_savelog);
-    PRINT_DEBUG("%s\n","close f_savelog done"); 
-  }*/
   struct func *tmp = f_beging;
   clear_all_func(&tmp); 
   PRINT_DEBUG("%s\n","purge done");

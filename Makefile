@@ -1,12 +1,13 @@
 
 NAME_TEST=is_good
 CC=gcc
-LDFLAGS=-lpthread -D DEBUG=1
+LDFLAGS=-lpthread #-D DEBUG=1
 ROOT_DIR=$(shell pwd)
 INCLUDE_DIR=$(ROOT_DIR)/src
 CFLAGS=-I$(INCLUDE_DIR)
 SRC_DIR=$(ROOT_DIR)/src
-SRC=$(wildcard */*/*.c) 
+#SRC=$(wildcard */*/*.c) 
+SRC=$(wildcard **/**/*.c) 
 OBJ=$(SRC:.c=.o)
 #HEADS=$(OBJS:.o=.h)
 TEST_DIR=$(ROOT_DIR)/test
@@ -51,7 +52,9 @@ $(BPROGRESSRC_0): $(BPROGRESSRC)
 .PHONY: clean mrproper
 
 clean:
-	rm -f $(OBJS)
+	echo "all src : $(SRC)"
+	echo "all obj : $(OBJ)"
+	rm -f $(OBJ)
 
 mrproper: clean
 	rm -f $(EXEC)
