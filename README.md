@@ -22,11 +22,11 @@ chmod +x compile.sh
 ### if need debug print
 `./compile "-D DEBUG=1"`
 ### if need gdb
-`./compile "-g"
+`./compile "-g"`
 ### if need prompt googletest like
 `./compile "-D HK"`
 
-We can combine these option, for example `./compile "-D DEBUG=1 -D HK -g"`
+We can combine these options, for example: `./compile "-D DEBUG=1 -D HK -g"`
 
 ## launch options if using run_all_tests_args(argc, argv);
 By default `./launch_is_good_{c,m}` is on 1 thread but we can add some options to run tests in parallel, or chanche colors, to disable progress bar, ..., to print help
