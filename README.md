@@ -88,5 +88,110 @@ For example, to launch tests (`test/is_good.c`) on 4 threads, using unicolor(bla
 ```
 
 
+# How to create test
+```
+#include "ftest/ftest.h"
+
+TEST(nametest){ 
+	EXPECT_EQ(1,1);
+}
+/* allow empty nametest, e.g*/
+TEST(){}
+/* allow duplicate name test, to have suit test */
+TEST(){
+	EXPECT_TRUE(true);
+}
+```
+## in main func
+### if using options:
+```
+int main(int arc, char** argv){
+	run_all_tests_args(argc, argv);
+	return 0;
+}
+```
+### if only use sequential tests
+```
+int main(){
+	run_all_tests();
+	return 0;
+}
+```
+### if use only parrallel tests
+```
+int main(){
+	run_all_tests_parallel(4); /* to use 4 threads */
+	return 0;
+}
+```
+
+# FMOCK 
+## How to create fmock
+outside all function:
+```
+MOCK_FUNC(returnType, name_function_mock,(prototype of the function with paranthesis),(args when call the funct with parathesis))
+/* use (returnType) in parathesis if the returType has more than 1 words for example (long int) or (struct someStruct) */
+```
+For example, to create a function mock as signature:
+```
+int f_mock(int a,int b);
+```
+we use
+```
+MOCK_FUNC(int, f_mock,(int a,int b),(a,b))
+```
+## print variables 
+We may define a function to print variables of the mock function, it is usefull in logs, the macro has almost the same args as MOCK_FUNC, without returnType wich is alway `char*`.
+For example with `f_mock` we define:
+```
+STR_PRINT_CUR_VAR(f_mock, (int a,int b),(a,b)){
+  char *ret=malloc(150);
+  sprintf(ret,"(int)a: %d, (int)b: %d",a,b);
+  return ret;
+}
+```
+## define expect call
+```
+EXPECT_MOCK_CALL(int, f_mock, (int a,int b), (a<b), 3){
+  return a+b;
+}
+```
+args:
+```
+returnType: 		 						int,
+name_function_mock:	 						f_mock,
+arg prototype of the function with paranthesis:				(int a,int b),
+arg when we call the function (same variable names as prototype):	(a<b)
+number of repetition response (number of call times):			3  
+```
+## define will call
+```
+WILL_MOCK_CALL(int, f_mock, (int a,int b), (a<b), 3){
+  return a+b;
+}
+```
+same args as EXPECT_MOCK_CALL, the difference is, the EXPECT_MOCK_CALL have to be call by the test earlier, but not  WILL_MOCK_CALL.
+
+## init call and call
+in TEST environement, we may use macro `INIT_CALLER_MOCK(f_mock);` before calling `f_mock` to have explicit logs again!
+
+Call function mock is the same as other normal function!
+Example:
+```
+TEST(f_mock_test){
+	INIT_CALLER_MOCK(f_mock);
+	PRINTF(" first call: %d\n",f_mock(2,3)); 
+ 	PRINTF(" second call: %d\n",f_mock(3,3));
+}
+```
+# PRINTF
+We may use standard printf function, but I provide a macro PRINTF to allow us record logs in files and also ordered logs when we use parallel tests.
+args is the same as printf.
+example:
+```
+PRINTF("hello\n");
+```
+I introduce also an alias `LOG` for `PRINTF`
+
 
 
