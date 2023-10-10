@@ -43,8 +43,8 @@ struct failed_lists{
 
 
 /*
- * global variables not exported
- * only exist in test_t.c
+ * global variables 
+ * if not exported, it only exists in ftest.c
  */
 /*
  * begin variable option
@@ -1136,9 +1136,6 @@ void final_parallel_test_();
 void
 init_parallel_test_()
 {
-  //if(savelog) ordered =1;
-
-  //progress = ordered;
 
   signal(SIGSEGV, final_parallel_test_); /* to clear logs files!  */
 
@@ -1246,13 +1243,6 @@ final_parallel_test_()
     }
   }
 
-  /* if SIGSEGV , added for PRINTF, but no longer use!! 
-  if(!dir_empty("/dev/shm")){
-    system("rm /dev/shm/*");
-    PRINT_DEBUG(" cleanup %s \n", "/dev/shm");
-  }
-  else
-    PRINT_DEBUG(" %s already empty \n", "/dev/shm");*/
 }
 
 void run_all_tests_parallel(size_t parallel /*, int max_col*/)
