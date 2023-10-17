@@ -15,6 +15,17 @@ or
 ./kreate_library_ytest.sh
 ```
 ### install in local machine
+We have 2 options: setup env, or install
+#### set env
+```
+./set_env ~/.bashrc
+```
+or 
+```
+./set_env /path/file/local/env/shell
+```
+
+###  install by copying files and directory
 This creates a permanent copy of `libytest.so` and the file headers of `ytest` in local machine
 ```
 sudo make install
