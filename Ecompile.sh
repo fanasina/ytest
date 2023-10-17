@@ -1,5 +1,8 @@
 #!/bin/bash
-gcc test/is_good.c src/ftest/ftest.c src/fmock/fmock.c \
-  src/tools_t/tools_t.c src/bar_progress/bar_progress.c \
-  src/permutation_t/permutation_t.c src/set_theoric_t/set_theoric_t.c \
-  -I./src $1 -E > eEcomp 
+
+
+gcc -c -Wall -Werror -fpic  yftest/src/ftest/ftest.c yfmock/src/fmock/fmock.c \
+  ytools_t/src/tools_t/tools_t.c ybar_progress/src/bar_progress/bar_progress.c \
+  -I./include_ytest/include $1 -lpthread -E > eEcomp
+
+
