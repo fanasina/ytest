@@ -251,7 +251,7 @@ args prototype with paranthesis:					(int a,int b),
 args variable names with parathesis (same variable names as prototype):	(a,b)
 ```
 ## print variables 
-We may define a function to print variables of the mock function, it is usefull in logs, the macro has almost the same args as MOCK_FUNC, without returnType wich is alway `char*`.
+We may define a function to print variables of the mock function, it is usefull in logs, the macro has almost the same args as MOCK_FUNC, without returnType wich is always `char*`.
 For example with `f_mock` we define:
 ```
 STR_PRINT_CUR_VAR(f_mock, (int a,int b),(a,b)){
