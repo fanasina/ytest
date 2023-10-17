@@ -1,10 +1,11 @@
-# FTEST_C
+# ytest 
 C library like `gtest / gmock`  like, but works mainly with functions 
 
 ## env
 linux
 
 ## install
+to create `libytest.so`
 ```
 make
 ```
@@ -18,18 +19,6 @@ or
 make update_headers
 ```
 it copy all headers of `ytest` in `include_ytest/include/`
-
-## compile
-if the code is in `test/is_good.c` we compile in the main directory by:
-```
-gcc -o launch_ex test/is_good.c -I./include_ytest -L. -lytest \
-  src/permutation/permutation.c src/set_theoric/set_theoric.c -I./src # this line is the library we need to test!
-```
-if we change the directory, we need to notice the /Path_to_dir_ytest, then change the option compile by
-```
-gcc -o launch_ex path_to_file/is_good.c -I/Path_to_dir_ytest/include_ytest -L/Path_to_dir_ytest -lytest \
-  /Path_tolib/src/permutation/permutation.c /Path_tolib/src/set_theoric/set_theoric.c -I./Path_tolib # this line is the library we need to test!
-```
 
 ## install lib ytest
 
@@ -70,13 +59,13 @@ chmod +x compile.sh
 ```
 ## some compile options
 ### if need debug print
-`./compile "s_good.c"  "-D DEBUG=1"`
+`./compile "is_good.c"  "-D DEBUG=1"`
 ### if need gdb
-`./compile "test/is_good.c"  "-g"`
+`./compile "is_good.c"  "-g"`
 ### if need prompt googletest like
-`./compile "test/is_good.c"  "-D HK"`
+`./compile "is_good.c"  "-D HK"`
 
-We can combine these options, for example: `./compile "test/is_good.c"  "-D DEBUG=1 -D HK -g"`
+We can combine these options, for example: `./compile "is_good.c"  "-D DEBUG=1 -D HK -g"`
 
 ## launch options if using run_all_tests_args(argc, argv);
 By default `./launch_is_good_{c,m}` is on 1 thread but we can add some options to run tests in parallel, or change colors, to disable progress bar, ..., to print help
