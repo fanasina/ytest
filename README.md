@@ -119,14 +119,23 @@ it is th same if `./launch_is_good_c` does not find `libytest.so`
 
 
 ## some compile options
-### if need debug print
-`./compile "is_good.c"  "-D DEBUG=1"`
-### if need gdb
-`./compile "is_good.c"  "-g"`
-### if need prompt googletest like
-`./compile "is_good.c"  "-D HK"`
+### if need to print debug with PRINT_DEBUG_
+`PRINT_DEBUG` is the macro to print debug in this ytest lib, but in `tools_t.h` we define `PRINT_DEBUG_` to print debug beut it need to activate DEBUG macro by `-D DEBUG=1`option so, if we need to print debug in tools_t we have to:
+```
+./kreate_library_ytest "-D DEBUG=1"
+cd test
+./compile "is_good.c"  "-D DEBUG=1"
+```
 
-We can combine these options, for example: `./compile "is_good.c"  "-D DEBUG=1 -D HK -g"`
+
+### if need gdb
+```
+./kreate_library_ytest "-g"
+cd test
+./compile "is_good.c"  "-g"
+```
+
+so we need to use `./launch_is_good_c` to active these options
 
 ## launch options if using run_all_tests_args(argc, argv);
 By default `./launch_is_good_{c,m}` is on 1 thread but we can add some options to run tests in parallel, or change colors, to disable progress bar, ..., to print help
@@ -141,6 +150,12 @@ usage: ./launch_is_good_c [OPTIONS] [<ARGS>]
 OPTIONS
 	 -h, --help 
 		print help, options variables
+
+	 -d, --debug 
+		to print debug by using PRINT_DEBUG, by default PRINT_DEBUG is off
+
+	 -g, --gtestlike 
+		to have gtest hook like!
 
 	 -p <NB>, --parallel <NB>, -p=<NB>, --parallel=<NB>
 		by default the program ran in sequantial all test, 
@@ -180,6 +195,7 @@ OPTIONS
 		this option is to set option=0,
 		for example, -z=progress is to not load progress bar, it is need if we want to redirect (pipe) the result to file.
 		other option: -z=log_parallel (to avoid logs not ordered when parallel tests which is loged by default)
+
 ```
 
 For example, to launch tests (`test/is_good.c`) on 4 threads, using unicolor(black&white), and remove logs when all tests are done:
