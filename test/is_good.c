@@ -12,9 +12,10 @@
 #include "ftest/ftest.h"
 #include "fmock/fmock.h"
 
+#if 1
+
 #include "permutation_t/permutation_t.h"
 
-#if 1
 
 TEST(size_permutation2){
   PRINTF("another size_permutation2 again\n");
@@ -29,6 +30,8 @@ TEST(size_permutation)
   EXPECT_EQ(p->size, 3);
   PRINTF("test size_permutation2\n");
 }
+
+#endif
 
 TEST(size_permutation2){
   PRINTF("another size_permutation2 again false\n");
@@ -77,6 +80,7 @@ TEST(){
   ASSERT_TRUE(true);
   ASSERT_TRUE(true);
 }
+
 
 TEST(){
   sleep(3);
@@ -176,7 +180,6 @@ TEST(sleep){sleep(1);}
 TEST(sleep){sleep(1);}
 TEST(sleep){sleep(1);}
 
-#endif
 TEST(sleep){sleep(1);}
 TEST(sleep){sleep(1);}
 TEST(sleep){sleep(1);}

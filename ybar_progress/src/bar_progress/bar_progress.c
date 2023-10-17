@@ -72,7 +72,7 @@ void bar_progress_step_msg(int step_progress, int all_progress, char *msg, char 
 	}
   int size_char_log= strlen(msg) + strlen("(-) Progress: [100a] [aaaa/bbbb] a");
 	int width = (w.ws_col - size_char_log);
-  int j;
+  //int j;
   /*
   for(int j=0; j< width ; ++j)
     if (j<(int)(width * (step_progress / 100))) bar[j]='=';

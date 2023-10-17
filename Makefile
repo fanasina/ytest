@@ -1,63 +1,49 @@
-
-NAME_TEST=is_good
+# lib: -lytest
+PROJECT_LIB=libytest.so
 CC=gcc
-LDFLAGS=-lpthread #-D DEBUG=1
-ROOT_DIR=$(shell pwd)
-INCLUDE_DIR=$(ROOT_DIR)/src
-CFLAGS=-I$(INCLUDE_DIR)
-SRC_DIR=$(ROOT_DIR)/src
-#SRC=$(wildcard */*/*.c) 
-SRC=$(wildcard **/**/*.c) 
+#LDFLAGS=
+INCLUDE_DIRS=$(PWD) 
+#$(wildcard $(PWD)/**/include)
+INCLUDE=-I$(PWD)/yftest/include  -I$(PWD)/yfmock/include -I$(PWD)/ytools_t/include -I$(PWD)/ybar_progress/include
+CFLAGS=-lpthread -Wall -Werror -fpic $(INCLUDE) 
+
+TOPTARGETS := all clean #update_headers
+
+#SRC=$(wildcard y*/src/**/**/*.c) 
+SRC=$(wildcard y*/*/*/*.c) 
 OBJ=$(SRC:.c=.o)
-#HEADS=$(OBJS:.o=.h)
-TEST_DIR=$(ROOT_DIR)/test
-EXECSRC=$(TEST_DIR)/$(NAME_TEST).c
-EXEC=$(ROOT_DIR)/launch_$(NAME_TEST)_m
-PERMSRC=src/permutation_t/permutation_t.c
-PERMSRC_O=$(PERMSRC:.c=.o)
-SETTSRC=src/set_theoric_t/set_theoric_t.c
-SETTSRC_O=$(SETTSRC:.c=.o)
-TOOLSRC=src/tools_t/tools_t.c
-TOOLSRC_O=$(TOOLSRC:.c=.o)
-FTESTSRC=src/ftest/ftest.c
-FTESTSRC_O=$(FTESTSRC:.c=.o)
-FMOCKSRC=src/fmock/fmock.c
-FMOCKSRC_O=$(FMOCKSRC:.c=.o)
-BPROGRESSRC=src/bar_progress/bar_progress.c
-BPROGRESSRC_0=$(BPROGRESSRC:.c=.o)
 
-all: $(EXEC)
+SUBDIRS :=$(wildcard y*)
 
-$(EXEC):	$(EXECSRC) $(OBJ)
-	$(CC) -o $@ $^ -I$(INCLUDE_DIR) $(LDFLAGS)
+export
 
-$(FMOCKSRC_O): $(FMOCKSRC) $(FTESTSRC_O) 
-	$(CC) -o $@ -c $< $(CFLAGS)
 
-$(FTESTSRC_O): $(FTESTSRC) $(TOOLSRC_O) 
-	$(CC) -o $@ -c $< $(CFLAGS)
+$(TOPTARGETS): $(SUBDIRS)
 
-$(PERMSRC_O): $(PERMSRC) $(SETTSRC_O)
-	$(CC) -o $@ -c $< $(CFLAGS)
+all: $(PROJECT_LIB) 
 
-$(SETTSRC_O) : $(SETTSRC) $(TOOLSRC_O)
-	$(CC) -o $@ -c $< $(CFLAGS)
 
-$(TOOLSRC_O): $(TOOLSRC) 
-	$(CC) -o $@ -c $< $(CFLAGS)
+$(PROJECT_LIB): $(OBJ)
+	echo $(OBJ)
+	#$(CC) -shared -o $@ $^ $(INCLUDE) $(LDFLAGS)
+	$(CC) -shared -o $@ $^ $(LDFLAGS)
 
-$(BPROGRESSRC_0): $(BPROGRESSRC) 
-	$(CC) -o $@ -c $< $(CFLAGS)
 
-.PHONY: clean mrproper
+$(SUBDIRS):
+		$(MAKE) -C $@ $(MAKECMDGOALS)
+
+update_headers: $(PROJECT_LIB)
+	for file_h in $(SUBDIRS); do cp -r "$$file_h/include" include_ytest/;	done	
+
+.PHONY: $(TOPTARGETS) $(SUBDIRS)
 
 clean:
-	echo "all src : $(SRC)"
-	echo "all obj : $(OBJ)"
-	rm -f $(OBJ)
+	rm -f $(PROJECT_LIB)
 
-mrproper: clean
-	rm -f $(EXEC)
+remove_headers:
+	rm -r include_ytest/*
 
-run: $(EXEC)
-	$(EXEC) -h
+#SRC_test=test/is_good.c
+
+#compile: $(SRC_test) $(PROJECT_LIB) 
+#	$(CC) -o launch_is_good_m $< -L. test/src/permutation_t/permutation_t.o test/src/set_theoric_t/set_theoric_t.o -lytest -I./test/src -I./include_ytest

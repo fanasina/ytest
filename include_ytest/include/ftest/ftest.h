@@ -782,8 +782,9 @@ do{                                                                             
   void CONCAT(TEST_##name_f##____,count)(void)
 
 
-//#define TEST(name_f)\
+/*#define TEST(name_f)\
   FTEST_(__COUNTER__,name_f)
+*/
 
 #define TEST(name_f)                                            \
   FTEST__(__COUNTER__,name_f)

@@ -198,14 +198,14 @@ __attribute__((destructor))
 
 
     is_parallel_nb = 0; /* no longer parallel here */
-    struct func_mock_info_struct *tmock = f_mock_glist, *tfree;
+    struct func_mock_info_struct *tmock = f_mock_glist; //, *tfree;
 
     /* global order of fmock , order of expect and will */
     while(tmock){
       PRINT_DEBUG("check mock function: %s\n",tmock->str_namefunc);
-      tfree=tmock;
+      //tfree=tmock;
  PRINT_DEBUG("**** STAT mock function:%s, conditions:%s t_left:%ld, init_left:%ld, failed_call:%ld\n",tmock->str_namefunc, tmock->str_conditions, tmock->times_left,tmock->init_times_left, tmock->failed_call);
-      if((tmock->expect_call) && (tmock->init_times_left == tmock->times_left) || (tmock->failed_call)){
+      if(((tmock->expect_call) && (tmock->init_times_left == tmock->times_left)) || (tmock->failed_call)){
         if(tmock->l_current_var){
           PRINTF("%s%s %s%s %s: expect %s, it was called %ld times and failed %ld times, with condition %s\n",colors_f[k_RED],HK_FL,colors_f[k_YELLOW],tmock->str_namefunc,DEFAULT_K, 
             number_call_translate(tmock->init_times_left),

@@ -783,9 +783,10 @@ void bar_progress_test_(){
 void*
 run_progress_tests(void *max_d)
 {
-   int max_col = 80; //*(int*)max_d;
+   /*int max_col = 80;*/ //*(int*)max_d;
    //progress_test_(max_col);
    bar_progress_test_();
+   return (void*)0;
 }
 
 
@@ -1123,6 +1124,7 @@ run_parallel_tests(void *id)
    head_parallel_run(&start_t, id_th);
    execute_test_parallel(id_th);
    stat_end_parallel_run(count_fail_thread[id_th]+count_pass_thread[id_th], start_t, id_th);
+   return (void*)0;
 }
 
 /*
