@@ -93,7 +93,7 @@ if we have  /* if the library is not installed */
 ./launch_is_good_m
 ./launch_is_good_m: error while loading shared libraries: libytest.so: cannot open shared object file: No such file or directory
 ```` 
-we need to add LD_LIBRARY_PATH env permanantly or 
+we need to add LD_LIBRARY_PATH env permanently or 
 ```
 LD_LIBRARY_PATH=.. ./launch_is_good_m 
 ```
