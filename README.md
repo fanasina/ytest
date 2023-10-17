@@ -26,7 +26,11 @@ cp -r include_ytest/include/* ~/.local/include/
 ```
 if `/usr/include` or `~/.local/include` is in `CPATH`
 or
-execute ```export CPATH=/Path_to_dir_ytest/include_ytest/include:$CPATH``` or add the precedent line  in `~/.bashrc`.
+execute 
+```
+export CPATH=/Path_to_dir_ytest/include_ytest/include:$CPATH
+``` 
+or add the precedent line  in `~/.bashrc`.
  
 We can avoid these copy or export to CPATH env by adding `-I/Path_to_dir_ytest/include_ytest/include` when compiling our test.
 
@@ -37,7 +41,7 @@ add ```export LD_LIBRARY_PATH=/path_to/lib_ytest:$LD_LIBRARY_PATH```  in `~/.bas
 
 
 ## test examples
-`test/is_good.c`
+`test/is_good.c` and `permutation_test/is_good.c`
 
 ## compile and run the example
 ```
