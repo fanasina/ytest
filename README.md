@@ -1,4 +1,4 @@
-![](https://github.com/fanasina/DOc/blob/master/screen.gif)
+![](https://github.com/fanasina/DOc/blob/master/new_screen.gif)
 
 # ytest 
 C library like `gtest / gmock`  like, but works mainly with functions 
