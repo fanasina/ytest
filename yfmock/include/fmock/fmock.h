@@ -108,16 +108,16 @@ extern struct list_base_fmock *g_list_base_fmock;
     PRINT_DEBUG(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>count call of %s: %ld\n",#namefunction,count_call_f);\
     struct list_mock_return_ ## namefunction *tmp_mock = &list_mo_ ## namefunction;\
     if( (tmp_mock->info_mock)->times_left == INITSTATE ){\
-         PRINT_HK_C(colors_f[k_YELLOW],HK_TR," WARNING, %s, no EXPECT_MOCK_CALL or WILL_MOCK_CALL, but called %ld times.\n",#namefunction, count_call_f);\
+         PRINT_HK_C(colors_f[k_YELLOW],tab_hk_f[hk_TR]," WARNING, %s, no EXPECT_MOCK_CALL or WILL_MOCK_CALL, but called %ld times.\n",#namefunction, count_call_f);\
        if(count_call_f==1){\
-         PRINT_HK_C(colors_f[k_YELLOW],HK_TR," For instance:\n"\
+         PRINT_HK_C(colors_f[k_YELLOW],tab_hk_f[hk_TR]," For instance:\n"\
              "%s EXPECT_MOCK_CALL(%s,%s,%s,true,1){\n"\
              "%s\t %s ret;\n%s \t ...do something with %s;\n"\
              "%s\t return ret;\n"\
              "%s }\n"\
              "%s if call once and accept all args, the same args with WILL_MOCK_CALL \n\n",\
-            HK_TR, #returntype, #namefunction,#args_prototype_with_parenthesis, HK_TR,#returntype, \
-            HK_TR, #args_call_with_parenthesis, HK_TR, HK_TR, HK_TR ); \
+            tab_hk_f[hk_TR], #returntype, #namefunction,#args_prototype_with_parenthesis, tab_hk_f[hk_TR],#returntype, \
+            tab_hk_f[hk_TR], #args_call_with_parenthesis, tab_hk_f[hk_TR], tab_hk_f[hk_TR], tab_hk_f[hk_TR] ); \
         /*return (returntype)0;*/ \
         INIT_MOCK_INFO_IF_NO_(tmp_mock,namefunction, PRE_ID);\
       }/* to have log */\
@@ -129,15 +129,15 @@ extern struct list_base_fmock *g_list_base_fmock;
       append_variable_current(&((tmp_mock->info_mock)->l_current_var), tmp_mock->str_print_current_variables args_call_with_parenthesis);\
     }\
     else if(count_call_f == 1){\
-      PRINT_HK_C(colors_f[k_YELLOW],HK_TR," no printer variable function defined, to define it:\n"\
+      PRINT_HK_C(colors_f[k_YELLOW],tab_hk_f[hk_TR]," no printer variable function defined, to define it:\n"\
           "%s STR_PRINT_CUR_VAR(%s,%s,%s){\n"\
           "%s\t char* ret=malloc(256);/*for instance*/;\n"\
           "%s\t ...  sprintf(ret,...., %s);/*for instance*/ \n"\
           "%s\t return ret;\n"\
           "%s }\n"\
           "%s same prototype as MOCK_FUNC whithout returntype which always char* i\n\n",\
-            HK_TR, #namefunction,#args_prototype_with_parenthesis, #args_call_with_parenthesis, \
-            HK_TR, HK_TR, #args_call_with_parenthesis, HK_TR, HK_TR, HK_TR ); \
+            tab_hk_f[hk_TR], #namefunction,#args_prototype_with_parenthesis, #args_call_with_parenthesis, \
+            tab_hk_f[hk_TR], tab_hk_f[hk_TR], #args_call_with_parenthesis, tab_hk_f[hk_TR], tab_hk_f[hk_TR], tab_hk_f[hk_TR] ); \
     }\
       /*LOG("condition_func:%d\n", tmp_mock->call_mock_condition args_call_with_parenthesis);*/ /*LOG("%s\n","failure condition");*/\
     /*EXPECT_EQ_TYPE_INT(1, tmp_mock->call_mock_condition args_call_with_parenthesis);*/ /*LOG("%s\n","failure condition");*/\
@@ -145,13 +145,13 @@ extern struct list_base_fmock *g_list_base_fmock;
       /*return (returntype)0;*//* default return */\
     if( (tmp_mock->info_mock)->str_caller == NULL){ \
       if(count_call_f == 1){\
-        PRINT_HK_C(colors_f[k_YELLOW],HK_TR," WARNING, no  INIT_CALLER_MOCK; you can put it like this: \n"\
+        PRINT_HK_C(colors_f[k_YELLOW],tab_hk_f[hk_TR]," WARNING, no  INIT_CALLER_MOCK; you can put it like this: \n"\
             "%s TEST(nametest){\n"\
             "%s\t INIT_CALLER_MOCK(%s); \n"\
             "%s\t %s%s; \n"\
             "%s }\n"\
             "%s i.e before calling %s in this TEST, to have explicit logs\n",\
-          HK_TR, HK_TR, #namefunction, HK_TR,#namefunction,#args_call_with_parenthesis,  HK_TR, HK_TR, #namefunction);} \
+          tab_hk_f[hk_TR], tab_hk_f[hk_TR], #namefunction, tab_hk_f[hk_TR],#namefunction,#args_call_with_parenthesis,  tab_hk_f[hk_TR], tab_hk_f[hk_TR], #namefunction);} \
       /*return (returntype)0;*/ \
     }\
     else if (((tmp_mock->info_mock)->times_left != 0) && ((tmp_mock->info_mock)->times_left != INITSTATE )) {\
@@ -164,7 +164,7 @@ extern struct list_base_fmock *g_list_base_fmock;
     }\
     /*if(0 == tmp_mock->call_mock_condition args_call_with_parenthesis){\
       PRINT_LOC("Failure, arguments not expected\ncondition ( %s ) not verified\n\n", (tmp_mock->info_mock)->str_conditions);\
-      PRINT_HK_C(RED_K,HK_TR," 1 argument check failed from %s \n",__func__);                                 \
+      PRINT_HK_C(RED_K,tab_hk_f[hk_TR]," 1 argument check failed from %s \n",__func__);                                 \
     }*/\
     PRINT_DEBUG(" %*c VALUES: mock function:%s, conditions:%s t_left:%ld, init_left:%ld| args:%s\n",8,'^',(tmp_mock->info_mock)->str_namefunc, (tmp_mock->info_mock)->str_conditions, (tmp_mock->info_mock)->times_left,(tmp_mock->info_mock)->init_times_left, #args_call_with_parenthesis);\
     if (((tmp_mock->info_mock)->times_left <= INFINITY) || ((tmp_mock->info_mock)->times_left > 0)){\

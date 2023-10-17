@@ -89,7 +89,7 @@ TYPE_STRING TYPE_STRING_TO_STR(TYPE_STRING var){
 #define GENERATE_FUNCTION_NUMERIC(type)\
   int COMPARE_N_##type(const void *a, const  void *b){              \
     type diff = (*(type*)a - *(type*)b)*PRECISION_##type;           \
-    PRINT_DEBUG(" diff = %s a=%s b=%s \n",type##_TO_STR(diff),type##_TO_STR(*(type*)a), type##_TO_STR(*(type*)b));\
+    PRINT_DEBUG_(" diff = %s a=%s b=%s \n",type##_TO_STR(diff),type##_TO_STR(*(type*)a), type##_TO_STR(*(type*)b));\
     if ((diff < 1) && (diff > -1) ) return 0;                       \
     return diff;                                                    \
   }                                                                 \
@@ -102,7 +102,7 @@ TYPE_STRING TYPE_STRING_TO_STR(TYPE_STRING var){
 int 
 COMPARE_N_TYPE_STRING(const void *a,const  void* b)
 {
-  PRINT_DEBUG("a=%s, b=%s\n",(char*)a, (char*)b);
+  PRINT_DEBUG_("a=%s, b=%s\n",(char*)a, (char*)b);
   return strcmp(( char*)a,( char*)b);
 }
 
@@ -172,17 +172,17 @@ GENERATE_FUNCTION_ALL(TYPE_STRING)
  */
 
 double diff_timespec_seconds(struct timespec time_stop, struct timespec time_start){
-  //PRINT_DEBUG("\n\nstop.sec:%ld, start.sec:%ld, stop.nsec:%ld, start.nsec:%ld\n\n",  time_stop.tv_sec , time_start.tv_sec, time_stop.tv_nsec , time_start.tv_nsec);
+  //PRINT_DEBUG_("\n\nstop.sec:%ld, start.sec:%ld, stop.nsec:%ld, start.nsec:%ld\n\n",  time_stop.tv_sec , time_start.tv_sec, time_stop.tv_nsec , time_start.tv_nsec);
   return (time_stop.tv_sec - time_start.tv_sec) + 1.0e-9 * (time_stop.tv_nsec - time_start.tv_nsec);
 }
 
 double diff_timespec_milliseconds(struct timespec time_stop, struct timespec time_start){
-  //PRINT_DEBUG("\n\nstop.sec:%ld, start.sec:%ld, stop.nsec:%ld, start.nsec:%ld\n\n",  time_stop.tv_sec , time_start.tv_sec, time_stop.tv_nsec , time_start.tv_nsec);
+  //PRINT_DEBUG_("\n\nstop.sec:%ld, start.sec:%ld, stop.nsec:%ld, start.nsec:%ld\n\n",  time_stop.tv_sec , time_start.tv_sec, time_stop.tv_nsec , time_start.tv_nsec);
   return 1.0e3 * (time_stop.tv_sec - time_start.tv_sec) + 1.0e-6 * (time_stop.tv_nsec - time_start.tv_nsec);
 }
 
 long diff_timespec_nanoseconds(struct timespec time_stop, struct timespec time_start){
-  //PRINT_DEBUG("\n\nstop.sec:%ld, start.sec:%ld, stop.nsec:%ld, start.nsec:%ld\n\n",  time_stop.tv_sec , time_start.tv_sec, time_stop.tv_nsec , time_start.tv_nsec);
+  //PRINT_DEBUG_("\n\nstop.sec:%ld, start.sec:%ld, stop.nsec:%ld, start.nsec:%ld\n\n",  time_stop.tv_sec , time_start.tv_sec, time_stop.tv_nsec , time_start.tv_nsec);
   return 1.0e9 * (time_stop.tv_sec - time_start.tv_sec) + (time_stop.tv_nsec - time_start.tv_nsec);
 }
 

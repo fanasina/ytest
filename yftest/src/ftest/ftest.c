@@ -55,6 +55,8 @@ bool some_thing_wrong = 0;
 bool help=0;
 bool only_usage=0;
 bool ordered= 0;
+bool gtestlike=0;
+bool debug=0;
 bool unicolour = 0;
 bool removelog = 0;
 char *timeunit="ms";
@@ -69,9 +71,10 @@ char *colors_f[]={DEFAULT_K, GREEN_K, RED_K, YELLOW_K, BLUE_K, ""};
 int k_DEFAULT=0, k_GREEN=1, k_RED=2, k_YELLOW=3, k_BLUE=4, k_NOTHING=Dknothing;
 
 char *tab_hk_f[]={ HK_EQ, HK_TR, HK_RN, HK_DN, HK_OK, HK_FL, HK_PS, HK_SK };
+char *g_tab_hk_f[]={ gHK_EQ, gHK_TR, gHK_RN, gHK_DN, gHK_OK, gHK_FL, gHK_PS, gHK_SK };
 int hk_EQ=0, hk_TR=1, hk_RN=2, hk_DN=3, hk_OK=4, hk_FL=5, hk_PS=6, hk_SK=7 ;
 
-char *varHK_EQ=HK_EQ, *varHK_TR=HK_TR, *varHK_RN=HK_RN, *varHK_DN=HK_DN, *varHK_OK=HK_OK, *varHK_FL=HK_FL, *varHK_PS=HK_PS, *varHK_SK=HK_SK;
+//char *varHK_EQ=HK_EQ, *varHK_TR=HK_TR, *varHK_RN=HK_RN, *varHK_DN=HK_DN, *varHK_OK=HK_OK, *varHK_FL=HK_FL, *varHK_PS=HK_PS, *varHK_SK=HK_SK;
 
 bool some_tests_selected=0; 
 
@@ -270,6 +273,11 @@ void setup_variables_before_exec(){
       default_bar_progress=tmp_bp;
     }
   }
+
+  if(gtestlike){
+    for(int i=0; i<=hk_SK; ++i)
+      tab_hk_f[i]=g_tab_hk_f[i]; 
+  }
   
   /*if(savelog){
     f_savelog=fopen(savelog, "w+");
@@ -283,6 +291,8 @@ void usage(int argc, char **argv){
   printf("usage: %s [OPTIONS] [<ARGS>] \n\n  or : %s [OPTIONS]=[<ARGS>]\n\n",argv[0],argv[0]);
   printf("OPTIONS\n");
   printf("\t -h, --help \n\t\tprint help, options variables\n\n");
+  printf("\t -d, --debug \n\t\tto print debug by using PRINT_DEBUG, by default PRINT_DEBUG is off\n\n");
+  printf("\t -g, --gtestlike \n\t\tto have gtest hook like!\n\n");
   printf("\t -p <NB>, --parallel <NB>, -p=<NB>, --parallel=<NB>\n\t\tby default the program ran in sequantial all test, \n\t\tif this option is set, the program run tests on NB threads.\n\t\tEach thread pull up one test out the list of all test not yet executed,\n\t\tand execute it, until the list is empty \n\n");
   printf("\t -t <unit>, --time <unit>, -t=<unit>, --time=<unit>  \n\t\tby default unit is millisecons ms, the other of unit are choices are second (or s), and nanosecond (or ns)\n\t\tex: -t ns or -t=nanosecond or --time=n to set nanosecond unit\n\n");
   printf("\t -u , --unicolour\n\t\tby default, the result is colored, if you choice this option, it prints with default color\n\n");
@@ -557,6 +567,8 @@ void parse_options(int argc, char **argv){
   for(int i=1; i<argc; ++i){
     PRINT_DEBUG("argc=%d, argv[%d]=%s\n",argc,i,argv[i]);
     IF_OPTION_NO_ARG(help)
+    IF_OPTION_NO_ARG(debug)
+    IF_OPTION_NO_ARG(gtestlike)
     IF_OPTION_WITH_ARG_NUM(parallel_nb)
     //IF_OPTION_WITH_ARG_NUM(width)
     IF_OPTION_WITH_ARG_STR(savelog)
@@ -583,7 +595,7 @@ void parse_options(int argc, char **argv){
 
 #define LISTE_ALL_FAILED_TEST_IN_F_OUT\
   while(failed_lst){\
-      PRINT_HK_C(colors_f[k_RED], HK_FL," %s\n",failed_lst->name);\
+      PRINT_HK_C(colors_f[k_RED], tab_hk_f[hk_FL]," %s\n",failed_lst->name);\
       failed_lst = failed_lst->next;\
     }
 
@@ -596,7 +608,7 @@ void list_failed_test(struct failed_lists *test_failed){
       LISTE_ALL_FAILED_TEST_IN_F_OUT
     }else{
       while(failed_lst){
-        PRINT_HK_C(colors_f[k_RED], HK_FL," %s, on thread[%ld]\n",failed_lst->name,id_thrd);
+        PRINT_HK_C(colors_f[k_RED], tab_hk_f[hk_FL]," %s, on thread[%ld]\n",failed_lst->name,id_thrd);
         failed_lst = failed_lst->next;
       }
     }
@@ -604,7 +616,7 @@ void list_failed_test(struct failed_lists *test_failed){
   else{
     LISTE_ALL_FAILED_TEST_IN_F_OUT
   }
-  PRINT_HK_C(colors_f[k_DEFAULT], HK_EQ,"%s\n","");
+  PRINT_HK_C(colors_f[k_DEFAULT], tab_hk_f[hk_EQ],"%s\n","");
 }
 
 
@@ -820,22 +832,22 @@ append_func(void (*run)(void), char *name){
 
 void begin_execute_func(char *fun_ame, struct timespec *start_t){
   clock_gettime(CLOCK_REALTIME, start_t);
-  PRINT_HK_C(colors_f[k_GREEN],HK_RN," %s\n", fun_ame); 
+  PRINT_HK_C(colors_f[k_GREEN],tab_hk_f[hk_RN]," %s\n", fun_ame); 
   count_pass_local = 0;
   count_fail_local = 0;
 }
 
 #define PRINT_TIMESTAMP_STAT(color)\
-    if(SECOND) PRINT_HK_C(color,HK_DN," %lu tests passed from %s (%lf s)\n\n",count_pass_local,fun_ame, diff_timespec_seconds(end_t, start_t));\
-    else if(NANOSECOND) PRINT_HK_C(color,HK_DN," %lu tests passed from %s (%ld ns)\n\n",count_pass_local,fun_ame, diff_timespec_nanoseconds(end_t, start_t));\
-    else PRINT_HK_C(color,HK_DN," %lu tests passed from %s (%lf ms)\n\n",count_pass_local,fun_ame, diff_timespec_milliseconds(end_t, start_t));
+    if(SECOND) PRINT_HK_C(color,tab_hk_f[hk_DN]," %lu tests passed from %s (%lf s)\n\n",count_pass_local,fun_ame, diff_timespec_seconds(end_t, start_t));\
+    else if(NANOSECOND) PRINT_HK_C(color,tab_hk_f[hk_DN]," %lu tests passed from %s (%ld ns)\n\n",count_pass_local,fun_ame, diff_timespec_nanoseconds(end_t, start_t));\
+    else PRINT_HK_C(color,tab_hk_f[hk_DN]," %lu tests passed from %s (%lf ms)\n\n",count_pass_local,fun_ame, diff_timespec_milliseconds(end_t, start_t));
 
 void end_execute_func(char *fun_ame, struct timespec start_t){
   struct timespec end_t; clock_gettime(CLOCK_REALTIME, &end_t);
   if(count_fail_local){
     INCREMENT(count_fail_global); /*++count_fail_global*/
     append_failed_list(&failed_l, fun_ame); 
-    PRINT_HK_C(colors_f[k_RED], HK_FL, " %lu tests failed from %s\n",count_fail_local,fun_ame);
+    PRINT_HK_C(colors_f[k_RED], tab_hk_f[hk_FL], " %lu tests failed from %s\n",count_fail_local,fun_ame);
     PRINT_TIMESTAMP_STAT(colors_f[k_RED]);
   }
   else 
@@ -849,8 +861,8 @@ void end_execute_func(char *fun_ame, struct timespec start_t){
  */ 
 void head_run(size_t nbtest, struct timespec *start_t){
   clock_gettime(CLOCK_REALTIME, start_t);
-  if(cur_array_TYPE_SIZE_T || cur_array_TYPE_STRING) PRINT_HK_C(colors_f[k_GREEN], HK_EQ,"%s"," Running tests.\n");
-  else PRINT_HK_C(colors_f[k_GREEN], HK_EQ," Running %lu tests.\n",nbtest);
+  if(cur_array_TYPE_SIZE_T || cur_array_TYPE_STRING) PRINT_HK_C(colors_f[k_GREEN], tab_hk_f[hk_EQ],"%s"," Running tests.\n");
+  else PRINT_HK_C(colors_f[k_GREEN], tab_hk_f[hk_EQ]," Running %lu tests.\n",nbtest);
 }
 
 /*
@@ -860,13 +872,13 @@ void
 stat_end_run(size_t ntst, struct timespec start_t){
   struct timespec end_t; clock_gettime(CLOCK_REALTIME, &end_t);
   
-  if(SECOND) PRINT_HK_C(colors_f[k_GREEN], HK_EQ," %lu tests ran. (%lf s total)\n",ntst, diff_timespec_seconds(end_t, start_t));
-  else if(NANOSECOND) PRINT_HK_C(colors_f[k_GREEN], HK_EQ," %lu tests ran. (%ld ns total)\n",ntst, diff_timespec_nanoseconds(end_t, start_t));
-  else PRINT_HK_C(colors_f[k_GREEN], HK_EQ," %lu tests ran. (%lf ms total)\n",ntst, diff_timespec_milliseconds(end_t, start_t));
+  if(SECOND) PRINT_HK_C(colors_f[k_GREEN], tab_hk_f[hk_EQ]," %lu tests ran. (%lf s total)\n",ntst, diff_timespec_seconds(end_t, start_t));
+  else if(NANOSECOND) PRINT_HK_C(colors_f[k_GREEN], tab_hk_f[hk_EQ]," %lu tests ran. (%ld ns total)\n",ntst, diff_timespec_nanoseconds(end_t, start_t));
+  else PRINT_HK_C(colors_f[k_GREEN], tab_hk_f[hk_EQ]," %lu tests ran. (%lf ms total)\n",ntst, diff_timespec_milliseconds(end_t, start_t));
   
-  PRINT_HK_C(colors_f[k_GREEN], HK_PS," %lu tests\n", count_pass_global);
+  PRINT_HK_C(colors_f[k_GREEN], tab_hk_f[hk_PS]," %lu tests\n", count_pass_global);
   if(failed_l != NULL){
-    PRINT_HK_C(colors_f[k_RED], HK_FL," %lu tests, listed below:\n",count_fail_global); 
+    PRINT_HK_C(colors_f[k_RED], tab_hk_f[hk_FL]," %lu tests, listed below:\n",count_fail_global); 
     list_failed_test(failed_l);
     PRINT_HK_C("","","\n%ld FAILED TESTS \n",count_fail_global);
   }
@@ -957,7 +969,7 @@ void execute_all(struct func *fun){
   size_t num_f;
   char *name_test=NULL;
   bool exec_test=0;
-  //PRINT_HK_C(colors_f[k_GREEN], HK_EQ," Running %lu tests.\n",count_tests);
+  //PRINT_HK_C(colors_f[k_GREEN], tab_hk_f[hk_EQ]," Running %lu tests.\n",count_tests);
   while(tmp){
     current_fn = tmp;
     CHECK_IF_SELECTED_TEST(tmp->name)
@@ -1000,8 +1012,8 @@ run_all_tests()
  */
 void head_all_parallel_run(struct timespec *start_t){
   clock_gettime(CLOCK_REALTIME, start_t);
-  if (cur_array_TYPE_SIZE_T || cur_array_TYPE_STRING) PRINT_HK_C(colors_f[k_GREEN], HK_EQ," Running tests on %ld threads\n", parallel_nb);
-  else  PRINT_HK_C(colors_f[k_GREEN], HK_EQ," Running %ld tests on %ld threads\n",count_tests, parallel_nb);
+  if (cur_array_TYPE_SIZE_T || cur_array_TYPE_STRING) PRINT_HK_C(colors_f[k_GREEN], tab_hk_f[hk_EQ]," Running tests on %ld threads\n", parallel_nb);
+  else  PRINT_HK_C(colors_f[k_GREEN], tab_hk_f[hk_EQ]," Running %ld tests on %ld threads\n",count_tests, parallel_nb);
 }
 
 /*
@@ -1011,7 +1023,7 @@ void head_parallel_run(struct timespec *start_t, size_t id_thrd){
   sprintf(log_name_file_thrd[id_thrd],"log_thread_%ld_id_%ld",id_thrd,pthread_self());
   f_ou_th[id_thrd] = fopen(log_name_file_thrd[id_thrd], "w+"); 
   clock_gettime(CLOCK_REALTIME, start_t);
-  PRINT_HK_C(colors_f[k_GREEN], HK_EQ," Running tests on thread[%ld] ========== ==threadID== %ld \n", id_thrd,pthread_self());
+  PRINT_HK_C(colors_f[k_GREEN], tab_hk_f[hk_EQ]," Running tests on thread[%ld] ========== ==threadID== %ld \n", id_thrd,pthread_self());
 }
 
 /*
@@ -1021,13 +1033,13 @@ void
 stat_end_parallel_run(size_t ntst, struct timespec start_t, size_t id_thrd){
   struct timespec end_t; clock_gettime(CLOCK_REALTIME, &end_t);
   
-  if(SECOND) PRINT_HK_C(colors_f[k_GREEN], HK_EQ," %lu tests ran on thread[%ld]. (%lf s total) \n",ntst, id_thrd, diff_timespec_seconds(end_t, start_t));
-  else if(NANOSECOND) PRINT_HK_C(colors_f[k_GREEN], HK_EQ," %lu tests ran on thread[%ld]. (%ld ns total)\n",ntst, id_thrd, diff_timespec_nanoseconds(end_t, start_t));
-  else PRINT_HK_C(colors_f[k_GREEN], HK_EQ," %lu tests ran on thread[%ld]. (%lf ms total)\n",ntst, id_thrd, diff_timespec_milliseconds(end_t, start_t));
+  if(SECOND) PRINT_HK_C(colors_f[k_GREEN], tab_hk_f[hk_EQ]," %lu tests ran on thread[%ld]. (%lf s total) \n",ntst, id_thrd, diff_timespec_seconds(end_t, start_t));
+  else if(NANOSECOND) PRINT_HK_C(colors_f[k_GREEN], tab_hk_f[hk_EQ]," %lu tests ran on thread[%ld]. (%ld ns total)\n",ntst, id_thrd, diff_timespec_nanoseconds(end_t, start_t));
+  else PRINT_HK_C(colors_f[k_GREEN], tab_hk_f[hk_EQ]," %lu tests ran on thread[%ld]. (%lf ms total)\n",ntst, id_thrd, diff_timespec_milliseconds(end_t, start_t));
   
-  PRINT_HK_C(colors_f[k_GREEN], HK_PS," %lu tests passed on thread[%ld]\n", count_pass_thread[id_thrd], id_thrd);
+  PRINT_HK_C(colors_f[k_GREEN], tab_hk_f[hk_PS]," %lu tests passed on thread[%ld]\n", count_pass_thread[id_thrd], id_thrd);
   if(thread_test_failed_l[id_thrd] != NULL){
-    PRINT_HK_C(colors_f[k_RED], HK_FL," %lu tests failed on thread[%ld], listed below:\n",count_fail_thread[id_thrd],id_thrd); 
+    PRINT_HK_C(colors_f[k_RED], tab_hk_f[hk_FL]," %lu tests failed on thread[%ld], listed below:\n",count_fail_thread[id_thrd],id_thrd); 
     list_failed_test(thread_test_failed_l[id_thrd]);
   }
 }
@@ -1039,15 +1051,15 @@ void
 stat_end_all_parallel_run(size_t ntst, struct timespec start_t){
   struct timespec end_t; clock_gettime(CLOCK_REALTIME, &end_t);
 
-  //PRINT_HK_C(colors_f[k_DEFAULT], HK_EQ," %s: all parallel tests done\n\n",__FILE__);
+  //PRINT_HK_C(colors_f[k_DEFAULT], tab_hk_f[hk_EQ]," %s: all parallel tests done\n\n",__FILE__);
   
-  if(SECOND) PRINT_HK_C(colors_f[k_GREEN], HK_EQ," %lu tests ran on %ld threads. (%lf s total) \n",ntst, parallel_nb, diff_timespec_seconds(end_t, start_t));
-  else if(NANOSECOND) PRINT_HK_C(colors_f[k_GREEN], HK_EQ," %lu tests ran on %ld threads. (%ld ns total)\n",ntst, parallel_nb, diff_timespec_nanoseconds(end_t, start_t));
-  else PRINT_HK_C(colors_f[k_GREEN], HK_EQ," %lu tests ran on %ld threads. (%lf ms total)\n",ntst, parallel_nb, diff_timespec_milliseconds(end_t, start_t));
+  if(SECOND) PRINT_HK_C(colors_f[k_GREEN], tab_hk_f[hk_EQ]," %lu tests ran on %ld threads. (%lf s total) \n",ntst, parallel_nb, diff_timespec_seconds(end_t, start_t));
+  else if(NANOSECOND) PRINT_HK_C(colors_f[k_GREEN], tab_hk_f[hk_EQ]," %lu tests ran on %ld threads. (%ld ns total)\n",ntst, parallel_nb, diff_timespec_nanoseconds(end_t, start_t));
+  else PRINT_HK_C(colors_f[k_GREEN], tab_hk_f[hk_EQ]," %lu tests ran on %ld threads. (%lf ms total)\n",ntst, parallel_nb, diff_timespec_milliseconds(end_t, start_t));
   
-  PRINT_HK_C(colors_f[k_GREEN], HK_PS," %lu tests\n", count_pass_global);
+  PRINT_HK_C(colors_f[k_GREEN], tab_hk_f[hk_PS]," %lu tests\n", count_pass_global);
   if(failed_l != NULL){
-    PRINT_HK_C(colors_f[k_RED], HK_FL," %lu tests, listed below:\n",count_fail_global); 
+    PRINT_HK_C(colors_f[k_RED], tab_hk_f[hk_FL]," %lu tests, listed below:\n",count_fail_global); 
     list_failed_test(failed_l);
     PRINT_HK_C("","","\n%ld FAILED TESTS \n",count_fail_global);
   }
@@ -1057,13 +1069,13 @@ stat_end_all_parallel_run(size_t ntst, struct timespec start_t){
 
 void begin_execute_func_parallel(char *fun_ame, struct timespec *start_t, size_t id_thrd){
   clock_gettime(CLOCK_REALTIME, start_t);
-  PRINT_HK_C(colors_f[k_GREEN],HK_RN," %s on thread[%ld]\n", fun_ame, id_thrd); 
+  PRINT_HK_C(colors_f[k_GREEN],tab_hk_f[hk_RN]," %s on thread[%ld]\n", fun_ame, id_thrd); 
 }
 
 #define PRINT_TIMESTAMP_STAT_PARALLEL(color)\
-    if(SECOND) PRINT_HK_C(color,HK_DN," %lu tests passed from %s (%lf s), on thread[%ld]\n\n",count_pass_test[num_test],fun_ame, diff_timespec_seconds(end_t, start_t),id_thrd);\
-    else if(NANOSECOND) PRINT_HK_C(color,HK_DN," %lu tests passed from %s (%ld ns), on thread[%ld]\n\n",count_pass_test[num_test],fun_ame, diff_timespec_nanoseconds(end_t, start_t),id_thrd);\
-    else PRINT_HK_C(color,HK_DN," %lu tests passed from %s (%lf ms), on thread[%ld]\n\n",count_pass_test[num_test],fun_ame, diff_timespec_milliseconds(end_t, start_t),id_thrd);
+    if(SECOND) PRINT_HK_C(color,tab_hk_f[hk_DN]," %lu tests passed from %s (%lf s), on thread[%ld]\n\n",count_pass_test[num_test],fun_ame, diff_timespec_seconds(end_t, start_t),id_thrd);\
+    else if(NANOSECOND) PRINT_HK_C(color,tab_hk_f[hk_DN]," %lu tests passed from %s (%ld ns), on thread[%ld]\n\n",count_pass_test[num_test],fun_ame, diff_timespec_nanoseconds(end_t, start_t),id_thrd);\
+    else PRINT_HK_C(color,tab_hk_f[hk_DN]," %lu tests passed from %s (%lf ms), on thread[%ld]\n\n",count_pass_test[num_test],fun_ame, diff_timespec_milliseconds(end_t, start_t),id_thrd);
 
 void end_execute_func_parallel(char *fun_ame, struct timespec start_t, size_t id_thrd){
   struct timespec end_t; clock_gettime(CLOCK_REALTIME, &end_t);
@@ -1076,7 +1088,7 @@ void end_execute_func_parallel(char *fun_ame, struct timespec start_t, size_t id
     LOCK(mut_global_list_fail);
     append_failed_list(&failed_l, fun_ame); 
     UNLOCK(mut_global_list_fail);
-    PRINT_HK_C(colors_f[k_RED], HK_FL, " %lu tests failed from %s on thread[%ld], %ld tests failed on thread[%ld]\n",count_fail_test[num_test],fun_ame, id_thrd,count_fail_thread[id_thrd],id_thrd);
+    PRINT_HK_C(colors_f[k_RED], tab_hk_f[hk_FL], " %lu tests failed from %s on thread[%ld], %ld tests failed on thread[%ld]\n",count_fail_test[num_test],fun_ame, id_thrd,count_fail_thread[id_thrd],id_thrd);
     PRINT_TIMESTAMP_STAT_PARALLEL(colors_f[k_RED]);
   }
   else 
@@ -1193,6 +1205,7 @@ init_parallel_test_()
 void
 final_parallel_test_()
 {
+  is_parallel_nb = 0; /* to avoid issue when print debug afer removing log_ of each thread if removelog is active */
 
   free(count_pass_test);
   free(count_fail_test);

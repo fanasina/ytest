@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <time.h>
 
+
 // to define DEBUG in gcc cli do: gcc -D DEBUG=1 or 0 if need!
 #ifndef DEBUG
   #define DEBUG 0
@@ -45,7 +46,7 @@ void gotoxy(int x, int y);
   do { if (DEBUG) fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__, \
       __LINE__, __func__, __VA_ARGS__); } while (0)
 
-#define PRINT_DEBUG(fmt, ...) \
+#define PRINT_DEBUG_(fmt, ...) \
   do { if (DEBUG) fprintf(F_ERR, "%s:%d:%s(): " fmt, __FILE__, \
       __LINE__, __func__, __VA_ARGS__); } while (0)
 

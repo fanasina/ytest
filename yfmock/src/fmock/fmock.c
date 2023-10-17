@@ -163,7 +163,7 @@ char * strprint_caller_(char *input){
 
 #define PRINT_VAR_CUR(mockinfo)\
     do{\
-      PRINTF("\n%s list of variables when %s was called, with condition %s:\n\t\t",HK_EQ,mockinfo->str_namefunc,mockinfo->str_conditions);\
+      PRINTF("\n%s list of variables when %s was called, with condition %s:\n\t\t",tab_hk_f[hk_EQ],mockinfo->str_namefunc,mockinfo->str_conditions);\
       size_t cal_cur=0;\
       struct list_current_variable *tmp_cur_v = mockinfo->l_current_var;\
       while(tmp_cur_v){\
@@ -187,7 +187,7 @@ __attribute__((destructor))
       //k_GREEN=k_NOTHING; k_RED=k_NOTHING; k_YELLOW=k_NOTHING; k_BLUE=k_NOTHING;
       //for(int i=0; i< Dk_NOTHING;++i) strcpy(colors_f[i]," ");
     //}
-
+  if(only_usage) return; /* do nothing */
     struct winsize w;
     ioctl(1, TIOCGWINSZ, &w);
     
@@ -207,7 +207,7 @@ __attribute__((destructor))
  PRINT_DEBUG("**** STAT mock function:%s, conditions:%s t_left:%ld, init_left:%ld, failed_call:%ld\n",tmock->str_namefunc, tmock->str_conditions, tmock->times_left,tmock->init_times_left, tmock->failed_call);
       if(((tmock->expect_call) && (tmock->init_times_left == tmock->times_left)) || (tmock->failed_call)){
         if(tmock->l_current_var){
-          PRINTF("%s%s %s%s %s: expect %s, it was called %ld times and failed %ld times, with condition %s\n",colors_f[k_RED],HK_FL,colors_f[k_YELLOW],tmock->str_namefunc,DEFAULT_K, 
+          PRINTF("%s%s %s%s %s: expect %s, it was called %ld times and failed %ld times, with condition %s\n",colors_f[k_RED],tab_hk_f[hk_FL],colors_f[k_YELLOW],tmock->str_namefunc,DEFAULT_K, 
             number_call_translate(tmock->init_times_left),
             tmock->call/*tmock->failed_call + (tmock->init_times_left - tmock->times_left)*/, 
             tmock->failed_call,
@@ -216,7 +216,7 @@ __attribute__((destructor))
           PRINT_VAR_CUR(tmock);
         }
         else 
-          PRINTF("%s%s %s%s %s: expect %s, it was called %ld times and failed %ld times, with condition %s \n",colors_f[k_RED],HK_FL,colors_f[k_YELLOW],tmock->str_namefunc,DEFAULT_K, 
+          PRINTF("%s%s %s%s %s: expect %s, it was called %ld times and failed %ld times, with condition %s \n",colors_f[k_RED],tab_hk_f[hk_FL],colors_f[k_YELLOW],tmock->str_namefunc,DEFAULT_K, 
             number_call_translate(tmock->init_times_left),
             tmock->call/*tmock->failed_call + (tmock->init_times_left - tmock->times_left)*/, 
             tmock->failed_call, 
@@ -227,7 +227,7 @@ __attribute__((destructor))
       //free(tfree);
     }
     
-    PRINTF("\n%s%s STAT MOCK : there  are %ld mock functions, %ld wished responses, %ld expected responses, which are:\n\n",colors_f[k_GREEN],HK_EQ,count_f_mock, count_f_mock_wished, count_expect_mock);
+    PRINTF("\n%s%s STAT MOCK : there  are %ld mock functions, %ld wished responses, %ld expected responses, which are:\n\n",colors_f[k_GREEN],tab_hk_f[hk_EQ],count_f_mock, count_f_mock_wished, count_expect_mock);
     struct list_base_fmock *tmp_list_fm = g_list_base_fmock;
     struct func_mock_info_struct *tmp_inf_mock;
     /* list each fmock an each calls */
