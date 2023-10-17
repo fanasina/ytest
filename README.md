@@ -101,7 +101,7 @@ i.e
 ```
 LD_LIBRARY_PATH=/path_to/lib_ytest ./launch_is_good_m 
 ```
-it is th same if `./launch_is_good_c` do not find `libytest.so` 
+it is th same if `./launch_is_good_c` does not find `libytest.so` 
 
 
 
