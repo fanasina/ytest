@@ -14,29 +14,25 @@ or
 ./kreate_library_ytest.sh
 ```
 
-### make options
-```
-make update_headers
-```
-it copy all headers of `ytest` in `include_ytest/include/`
-
 ## install lib ytest
 
-copy the headers in `include_ytest` to include directory, for example
+copy the headers in `include_ytest/include` to include directory, for example
 ```
-cp include_ytest/include/* /usr/include/
+cp -r include_ytest/include/* /usr/include/
 ```
 or
 ```
-cp include_ytest/include/* ~/.local/include/
+cp -r include_ytest/include/* ~/.local/include/
 ```
 if `/usr/include` or `~/.local/include` is in `CPATH`
 or
-add ```export CPATH=/Path_to_dir_ytest/include_ytest/include:$CPATH```  in `~/.bashrc`.
+execute ```export CPATH=/Path_to_dir_ytest/include_ytest/include:$CPATH``` or add the precedent line  in `~/.bashrc`.
  
-So, we do not need to add `-I/Path_to_dir_ytest/include_ytest/include` when compiling,
+We can avoid these copy or export to CPATH env by adding `-I/Path_to_dir_ytest/include_ytest/include` when compiling our test.
 
-To avoid `-L/Path_to_dir_ytest` when compiling, we can copy `libytest.so` in a directory in `/usr/lib/` or copy `libytest.so` in `/path_to/lib_ytest/` and then 
+We need to add `-L/Path_to_dir_ytest`  when compiling our test, this `/Path_to_dir_ytest` contain `libytest.so`.
+
+We can copy `libytest.so` in a directory in `/usr/lib/` or copy `libytest.so` in `/path_to/lib_ytest/` and then 
 add ```export LD_LIBRARY_PATH=/path_to/lib_ytest:$LD_LIBRARY_PATH```  in `~/.bashrc`.
 
 
@@ -232,7 +228,7 @@ WILL_MOCK_CALL(int, f_mock, (int a,int b), (a==b), 1){
   return a*b;
 }
 ```
-same args as EXPECT_MOCK_CALL, the difference is, the EXPECT_MOCK_CALL have to be call by the test earlier, but not  WILL_MOCK_CALL.
+same args as EXPECT_MOCK_CALL, the difference is, the EXPECT_MOCK_CALL has to be called by the test earlier, but not  WILL_MOCK_CALL.
 
 ## init call and call
 in TEST environement, we may use macro `INIT_CALLER_MOCK(f_mock);` before calling `f_mock` to have explicit logs again!

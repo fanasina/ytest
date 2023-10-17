@@ -20,7 +20,7 @@ export
 
 $(TOPTARGETS): $(SUBDIRS)
 
-all: $(PROJECT_LIB) 
+all: $(PROJECT_LIB) update_headers
 
 
 $(PROJECT_LIB): $(OBJ)
