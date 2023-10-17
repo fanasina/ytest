@@ -21,17 +21,17 @@ sudo make install
 ```
 or
 ```
-sudo ./install
+sudo ./install.sh
 ```
 
 ### uninstall
-this remove all files and directory copied in `make install` or `./install`
+this remove all files and directory copied in `make install` or `./install.sh`
 ```
 sudo make uninstall
 ```
 or
 ```
-sudo ./uninstall
+sudo ./uninstall.sh
 ```
 
 ## using lib ytest
