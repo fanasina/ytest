@@ -36,8 +36,6 @@ We can copy `libytest.so` in a directory in `/usr/lib/` or copy `libytest.so` in
 add ```export LD_LIBRARY_PATH=/path_to/lib_ytest:$LD_LIBRARY_PATH```  in `~/.bashrc`.
 
 
-
-
 ## test examples
 `test/is_good.c`
 
@@ -53,6 +51,20 @@ chmod +x compile.sh
 ./compile.sh "is_good.c" 
 ./launch_is_good_c
 ```
+## error
+if we have 
+```
+./launch_is_good_m
+./launch_is_good_m: error while loading shared libraries: libytest.so: cannot open shared object file: No such file or directory
+```` 
+we need to add LD_LIBRARY_PATH env permanantly or 
+```
+LD_LIBRARY_PATH=/path_to/lib_ytest ./launch_is_good_m 
+```
+it is th same if `./launch_is_good_c` do not find `libytest.so` 
+
+
+
 ## some compile options
 ### if need debug print
 `./compile "is_good.c"  "-D DEBUG=1"`

@@ -13,7 +13,7 @@ fi
 
 
 
-gcc -o launch_is_good_c $1 -L$PWD/../ $2 -lytest -I../include_ytest/include  
+gcc -o launch_is_good_c $1 -L$PWD/../ $2 -lytest -I../include_ytest/include src/permutation_t/permutation_t.o src/set_theoric_t/set_theoric_t.o -I./src 
 #gcc -o launch_is_good_c $1 $2 -lytest -I../include_ytest src/permutation_t/permutation_t.o src/set_theoric_t/set_theoric_t.o -I./src 
 
 export LD_LIBRARY_PATH=$PWD/../:LD_LIBRARY_PATH

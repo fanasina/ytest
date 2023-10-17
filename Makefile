@@ -1,11 +1,11 @@
 # lib: -lytest
 PROJECT_LIB=libytest.so
 CC=gcc
-#LDFLAGS=
 INCLUDE_DIRS=$(PWD) 
 #$(wildcard $(PWD)/**/include)
 INCLUDE=-I$(PWD)/yftest/include  -I$(PWD)/yfmock/include -I$(PWD)/ytools_t/include -I$(PWD)/ybar_progress/include
 CFLAGS=-lpthread -Wall -Werror -fpic $(INCLUDE) 
+#LDFLAGS=
 
 TOPTARGETS := all clean #update_headers
 
@@ -26,7 +26,8 @@ all: $(PROJECT_LIB) update_headers
 $(PROJECT_LIB): $(OBJ)
 	echo $(OBJ)
 	#$(CC) -shared -o $@ $^ $(INCLUDE) $(LDFLAGS)
-	$(CC) -shared -o $@ $^ $(LDFLAGS)
+	#$(CC) -shared -o $@ $^ $(LDFLAGS)
+	$(CC) -shared -o $@ $^ $(CFLAGS)
 
 
 $(SUBDIRS):

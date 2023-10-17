@@ -12,20 +12,47 @@
 #include "ftest/ftest.h"
 #include "fmock/fmock.h"
 
-TEST(true__){
-  PRINTF("another test again false\n");
+#if 1
+
+#include "permutation_t/permutation_t.h"
+
+
+TEST(size_permutation2){
+  PRINTF("another size_permutation2 again\n");
+  ASSERT_TRUE(false);
+}
+
+TEST(size_permutation)
+{
+  PERMUTATION_TYPE_CHAR *p = CREATE_PERMUTATION_TYPE_CHAR(3);
+  
+  PRINTF(" size = %lu \n",p->size);
+  EXPECT_EQ(p->size, 3);
+  PRINTF("test size_permutation2\n");
+}
+
+#endif
+
+TEST(size_permutation2){
+  PRINTF("another size_permutation2 again false\n");
   bool val_bool = false;
   ASSERT_TRUE(val_bool);
 }
-TEST(test)
+TEST(size_permutation2)
 {
-  PRINTF("test test\n");
+  PRINTF("test size_permutation2\n");
   bool val_bool = true;
   ASSERT_FALSE(val_bool);
-
+/*
+  PERMUTATION_TYPE_CHAR *p = CREATE_PERMUTATION_TYPE_CHAR(3);
+  
+  PRINTF(" size = %u \n",p->size);
+  if(p->size == 3) print_OK_with_msg_endl(" FF yeah GOOD test size passed ");
+  else  print_KO_with_msg_endl("NOT GOOD test size not passed ");
+*/
 }
 TEST(float_equal){
-  PRINTF("another test float\n");
+  PRINTF("another size_permutation2 float\n");
   ASSERT_TRUE(true);
   float a = 1.00001f;
   float b = 1.00001f;
@@ -35,7 +62,7 @@ TEST(float_equal){
   ASSERT_EQ_TYPE_FLOAT(1.0000102f,b);
 }
 TEST(double_equal){
-  PRINTF("another test double\n");
+  PRINTF("another size_permutation2 double\n");
   ASSERT_TRUE(true);
   double a = 1.00000001;
   double b = 1.00000001;
@@ -48,7 +75,7 @@ TEST(double_equal){
 TEST(){
   unsigned char c = 'a';
 
-  debug_print("another test, a = %c\n",c);
+  debug_print("another size_permutation2, a = %c\n",c);
   ASSERT_FALSE(true);
   ASSERT_TRUE(true);
   ASSERT_TRUE(true);
@@ -90,6 +117,22 @@ TEST(){
   PRINTF("no test, only print\n");
 }
 
+
+TEST(){
+
+  PERMUTATION_TYPE_CHAR *p_char = CREATE_PERMUTATION_TYPE_CHAR(6);
+  p_char->perm[0]='B';
+  p_char->perm[1]='A';
+  p_char->perm[2]='Y';
+  p_char->perm[3]='C';
+  p_char->perm[4]='D';
+  p_char->perm[5]='Z';
+  
+  PERMUTATION_TYPE_SIZE_T *tr_p_char = TRANSLATE_TO_SET_THEORIC_SIZE_T_TYPE_CHAR(p_char);
+
+  for(int i = 0; i < tr_p_char->size; ++i) PRINTF(" [%d ]%ld ,",i,tr_p_char->perm[i]);
+  PRINTF("p_char == %s\n",p_char->perm);
+}
 
 TEST(lessThan){
   long int a=1,b=2;
