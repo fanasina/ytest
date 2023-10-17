@@ -5,6 +5,7 @@ C library like `gtest / gmock`  like, but works mainly with functions
 linux
 
 ## install
+### generate the library
 to create `libytest.so`
 ```
 make
@@ -13,8 +14,27 @@ or
 ```
 ./kreate_library_ytest.sh
 ```
+### install in local machine
+this copy permenatly le library `libytest.so` and the headers of `ytest` in local machine
+```
+sudo make install
+```
+or
+```
+sudo ./install
+```
 
-## install lib ytest
+### uninstall
+this remove all files and directory copied in `make install` or `./install`
+```
+sudo make uninstall
+```
+or
+```
+sudo ./uninstall
+```
+
+## using lib ytest
 
 ### include
 copy the headers in `include_ytest/include` to include directory, for example
@@ -74,6 +94,10 @@ if we have
 ./launch_is_good_m: error while loading shared libraries: libytest.so: cannot open shared object file: No such file or directory
 ```` 
 we need to add LD_LIBRARY_PATH env permanantly or 
+```
+LD_LIBRARY_PATH=.. ./launch_is_good_m 
+```
+i.e
 ```
 LD_LIBRARY_PATH=/path_to/lib_ytest ./launch_is_good_m 
 ```
