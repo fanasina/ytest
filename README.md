@@ -16,6 +16,7 @@ or
 
 ## install lib ytest
 
+### include
 copy the headers in `include_ytest/include` to include directory, for example
 ```
 cp -r include_ytest/include/* /usr/include/
@@ -32,11 +33,18 @@ export CPATH=/Path_to_dir_ytest/include_ytest/include:$CPATH
 ``` 
 or add the precedent line  in `~/.bashrc`.
  
-We can avoid these copy or export to CPATH env by adding `-I/Path_to_dir_ytest/include_ytest/include` when compiling our test.
-
-We need to add `-L/Path_to_dir_ytest`  when compiling our test, this `/Path_to_dir_ytest` contain `libytest.so`.
-
-We can copy `libytest.so` in a directory in `/usr/lib/` or copy `libytest.so` in `/path_to/lib_ytest/` and then 
+We can avoid these copy or export to CPATH env by adding 
+```
+-I/Path_to_dir_ytest/include_ytest/include
+``` 
+when compiling our test.
+### library
+Also, we need to add `-L/Path_to_dir_ytest`  when compiling our test, this `/Path_to_dir_ytest` contain `libytest.so`. 
+Or we can copy `libytest.so` in a directory in `/usr/lib/` or other directory in 
+```
+echo $LD_LIBRARY_PATH
+```
+Or, copy `libytest.so` in `/path_to/lib_ytest/` and then 
 add ```export LD_LIBRARY_PATH=/path_to/lib_ytest:$LD_LIBRARY_PATH```  in `~/.bashrc`.
 
 
