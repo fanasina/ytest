@@ -45,7 +45,11 @@ Or we can copy `libytest.so` in a directory in `/usr/lib/` or other directory in
 echo $LD_LIBRARY_PATH
 ```
 Or, copy `libytest.so` in `/path_to/lib_ytest/` and then 
-add ```export LD_LIBRARY_PATH=/path_to/lib_ytest:$LD_LIBRARY_PATH```  in `~/.bashrc`.
+add 
+```
+export LD_LIBRARY_PATH=/path_to/lib_ytest:$LD_LIBRARY_PATH
+```  
+in `~/.bashrc`.
 
 
 ## test examples
