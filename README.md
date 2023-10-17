@@ -15,7 +15,7 @@ or
 ./kreate_library_ytest.sh
 ```
 ### install in local machine
-this copy permenatly le library `libytest.so` and the headers of `ytest` in local machine
+This creates a permanent copy of `libytest.so` and the file headers of `ytest` in local machine
 ```
 sudo make install
 ```
@@ -25,7 +25,7 @@ sudo ./install.sh
 ```
 
 ### uninstall
-this remove all files and directory copied in `make install` or `./install.sh`
+this remove from loacl machine env all files and directory copied in `make install` or `./install.sh`
 ```
 sudo make uninstall
 ```
@@ -35,7 +35,7 @@ sudo ./uninstall.sh
 ```
 
 ## using lib ytest
-
+if you do not install the library:
 ### include
 copy the headers in `include_ytest/include` to include directory, for example
 ```
@@ -88,7 +88,7 @@ chmod +x compile.sh
 ./launch_is_good_c
 ```
 ## error
-if we have 
+if we have  /* if the library is not installed */
 ```
 ./launch_is_good_m
 ./launch_is_good_m: error while loading shared libraries: libytest.so: cannot open shared object file: No such file or directory
