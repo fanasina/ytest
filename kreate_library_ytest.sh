@@ -7,7 +7,7 @@ done
 
 if [ "$#" -le 0 ] ; then
   echo "Usage: $0" >&2
-  echo "we can add more option for example '-D DEBUG=1' to have debug print,  or '-g' to gbd" >&2
+  echo "we can add more option for example '-D DEBUG=1' to have debug print of PRINT_DEBUG_ (tools_t macro), notice that PRINT_DEBUG is provide by ytest and can be activate with --debug option on runtime.\n The other compile option is '-g' to have gbd", and so on..>&2
   echo "for example: $0 \"-D DEBUG=1 -g\""
 fi
 
