@@ -27,8 +27,10 @@ or
 ./set_env /path/file/local/env/shell
 ```
 
-###  install by copying files and directory
-This creates a permanent copy of `libytest.so` and the file headers of `ytest` in local machine
+
+
+####  install by copying files and directory
+This creates a permanent copy of `libytest.so` and the file headers of `ytest: include_ytest/include/*` in local machine
 ```
 sudo make install
 ```
@@ -38,7 +40,21 @@ sudo ./install.sh
 ```
 
 ### uninstall
-this remove from loacl machine env all files and directory copied in `make install` or `./install.sh`
+like install, there are 2 methods: unset env, or uninstall
+#### unset env
+this remove the setup exported in set_env script, need to have the same arg as set_env 
+```
+./unset_env ~/.bashrc
+```
+or 
+```
+./unset_env /path/file/local/env/shell
+```
+
+
+
+#### uninstall script remove:
+this remove from locale machine env all files and directory copied in `make install` or `./install.sh`
 ```
 sudo make uninstall
 ```
