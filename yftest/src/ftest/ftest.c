@@ -471,6 +471,7 @@ long int extract_num_after_equal_symbole_in_string(char * in_str){
 void extract_to_array_TYPE_SIZE_T(char * in_str){
   size_t len=strlen(in_str);
   long int val=0, p=10;
+  int added=0;/* if the number is 0, without this var , the precedent algo did not work */
   for(long i=0; i<len; ++i){
     PRINT_DEBUG("(%s)[%ld]=%c\n",in_str,i,in_str[i]);
     if(in_str[i]=='-'){/*we don't need the option name */
@@ -480,16 +481,18 @@ void extract_to_array_TYPE_SIZE_T(char * in_str){
     }
     else if(in_str[i] >= '0' && in_str[i] <= '9' ){
       val = (p * val) + (in_str[i]-'0');
+      added=1;
     }
     else{
       /* rec val in array */
       PRINT_DEBUG("val=(%ld) \n",val);
       array_TYPE_SIZE_T[cur_array_TYPE_SIZE_T++]=val;
       val=0;  
+      added=0;
     }
   }
       PRINT_DEBUG("end val=(%ld) \n",val);
-  if(val)
+  if(added)
       array_TYPE_SIZE_T[cur_array_TYPE_SIZE_T++]=val;
  
 }
