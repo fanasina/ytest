@@ -351,4 +351,5 @@ PRINTF("hello\n");
 I introduce also an alias `LOG` for `PRINTF`
 
 
+![](https://github.com/fanasina/DOc/blob/master/example_ftest.gif)
 
