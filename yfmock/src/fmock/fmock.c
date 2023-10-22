@@ -188,6 +188,7 @@ __attribute__((destructor))
       //for(int i=0; i< Dk_NOTHING;++i) strcpy(colors_f[i]," ");
     //}
   if(only_usage) return; /* do nothing */
+  if(g_list_base_fmock == NULL) return; /* do nothing because no mock functions */
     struct winsize w;
     ioctl(1, TIOCGWINSZ, &w);
     
