@@ -288,26 +288,47 @@ void setup_variables_before_exec(){
 // ===================================== begin options handle =======================================================
 
 void usage(int argc, char **argv){
-  printf("usage: %s [OPTIONS] [<ARGS>] \n\n  or : %s [OPTIONS]=[<ARGS>]\n\n",argv[0],argv[0]);
+  printf("usage: %s [OPTIONS] [<ARGS>] \n\n"
+         "  or : %s [OPTIONS]=[<ARGS>]\n\n",argv[0],argv[0]);
   printf("OPTIONS\n");
-  printf("\t -h, --help \n\t\tprint help, options variables\n\n");
-  printf("\t -d, --debug \n\t\tto print debug by using PRINT_DEBUG, by default PRINT_DEBUG is off\n\n");
-  printf("\t -g, --gtestlike \n\t\tto have gtest hook like!\n\n");
-  printf("\t -p <NB>, --parallel <NB>, -p=<NB>, --parallel=<NB>\n\t\tby default the program ran in sequantial all test, \n\t\tif this option is set, the program run tests on NB threads.\n\t\tEach thread pull up one test out the list of all test not yet executed,\n\t\tand execute it, until the list is empty \n\n");
-  printf("\t -t <unit>, --time <unit>, -t=<unit>, --time=<unit>  \n\t\tby default unit is millisecons ms, the other of unit are choices are second (or s), and nanosecond (or ns)\n\t\tex: -t ns or -t=nanosecond or --time=n to set nanosecond unit\n\n");
-  printf("\t -u , --unicolour\n\t\tby default, the result is colored, if you choice this option, it prints with default color\n\n");
-//  printf("\t -o, --ordered\n\t\tthis option is usefull if you choose to use parallel tests,\n\t\tby default, each thread share the screen to print results,\n\t\tthis option create file to record log of each thread on file,\n\t\tand print on screen all results at the end of all tests\n\n");
-  printf("\t -r , --remove\n\t\tif the option parallel is choosen the result on each thread is record in separate files,\n\t\tthis option remove the file logs of each thread after all tests.\n\n");
-  printf("\t -s <file>, --savelog <file>, -s=file, --savelog=file\n\t\tthis option save the global ordered result in 'file',\n\t\t  \n\n");
-//  printf("\t -w <WID>, --width <WID>, -w=WID, --savelog=WID\n\t\tthis option change the width of the progress bar to WID, by default, WID=80,\n\t\tex: -w100, or --width=100 or -wi 100\n\n");
+  printf( "\t -h, --help \n"
+            "\t\tprint help, options variables\n\n");
+  printf( "\t -g, --gtestlike \n"
+            "\t\tto have gtest hook like!\n\n");
+  printf( "\t -p <NB>, --parallel <NB>, -p=<NB>, --parallel=<NB>\n"
+            "\t\tby default the program ran in sequantial all test, \n"
+            "\t\tif this option is set, the program run tests on NB threads.\n"
+            "\t\tEach thread pull up one test out the list of all test not yet executed,\n"
+            "\t\tand execute it, until the list is empty \n\n");
+  printf( "\t -t <unit>, --time <unit>, -t=<unit>, --time=<unit>  \n"
+            "\t\tby default unit is millisecons ms, the other of unit are choices are second (or s), and nanosecond (or ns)\n"
+            "\t\tex: -t ns or -t=nanosecond or --time=n to set nanosecond unit\n\n");
+  printf( "\t -u , --unicolour\n"
+            "\t\tby default, the result is colored, if you choice this option, it prints with default color\n\n");
+  printf( "\t -r , --remove\n"
+            "\t\tif the option parallel is choosen the result on each thread is record in separate files,\n"
+            "\t\tthis option remove the file logs of each thread after all tests.\n\n");
+  printf( "\t -s <file>, --savelog <file>, -s=file, --savelog=file\n"
+            "\t\tthis option save the global ordered result in 'file',\n"
+            "\t\t  \n\n");
 
-  printf("\t -n=<NUM1>,<NUM2> <NUM3>... ,--numtests=<NUM1>,<NUM2>...\n\t\tthis option allow to execute only the selected numbers of tests (in the order in file test)\n\t\tex: -n=0,6,3 8 to execute   the tests 0,3,6,8 (if the number is less than the count of all tests)\n\n"); 
-  printf("\t -l=<NAME1>,<NAME2> <NAME3>... ,--listests=<NAME1>,<NAME2>...<NAMEn>\n\t\tthis option allow to execute only the selected name of tests. It allows empty name by using '-l=,'\n\t\tex:  -l=name0,,name2 : execute only (if they exist): TEST(name0),TEST(),TEST(name2)\n\n"); 
-
-  printf("\t -b <BPRGSS>, --bar_progress <BPRGSS>, -b=BPRGSS, --bar_progress=BPRGSS. Example: -b=\"#_c\"\n\t\tthis option change progression bar if it is active. The first character (\'#\') fills the bar\n\t\tthe second char (\'_\') fills the other part of bar. the bar is colored if the 3rd char is \'c\' and not if different.\n\t\tby default the progress bar is active and the option is -b=\"  c\", if need not colored, we can put -b=\"  n\" option.\n\n");
-  printf("\t -z=<option> \n\t\tthis option is to set option=0,\n\t\tfor example, -z=progress is to not load progress bar, it is need if we want to redirect (pipe) the result to file.\n\t\tother option: -z=log_parallel (to avoid logs not ordered when parallel tests which is loged by default)\n\n");
-  //printf(" log_parallel ={%d}\n\n",log_parallel);
-  //printf(" progress ={%d}\n\n",progress);
+  printf( "\t -n=<NUM1>,<NUM2> <NUM3>... ,--numtests=<NUM1>,<NUM2>...\n"
+            "\t\tthis option allow to execute only the selected numbers of tests (in the order in file test)\n"
+            "\t\tex: -n=0,6,3 8 to execute   the tests 0,3,6,8 (if the number is less than the count of all tests)\n\n"); 
+  printf( "\t -l=<NAME1>,<NAME2> <NAME3>... ,--listests=<NAME1>,<NAME2>...<NAMEn>\n"
+            "\t\tthis option allow to execute only the selected name of tests. It allows empty name by using '-l=,'\n"
+            "\t\tex:  -l=name0,,name2 : execute only (if they exist): TEST(name0),TEST(),TEST(name2)\n\n"); 
+  printf( "\t -b <BPRGSS>, --bar_progress <BPRGSS>, -b=BPRGSS, --bar_progress=BPRGSS. Example: -b=\"#_c\"\n"
+            "\t\tthis option change progression bar if it is active. The first character (\'#\') fills the bar\n"
+            "\t\tthe second char (\'_\') fills the other part of bar. the bar is colored if the 3rd char is \'c\' and not if different.\n"
+            "\t\tby default the progress bar is active and the option is -b=\"  c\", if need not colored, we can put -b=\"  n\" option.\n\n");
+  printf( "\t -z=<option> \n"
+            "\t\tthis option is to set option=0,\n"
+            "\t\tfor example, -z=progress is to not load progress bar, it is need if we want to redirect (pipe) the result to file.\n"
+            "\t\tother option: -z=log_parallel (to avoid logs not ordered when parallel tests which is loged by default)\n\n");
+  printf( "\t -d, --debug \n"
+            "\t\tto print debug by using PRINT_DEBUG, by default PRINT_DEBUG is off\n"
+            "\t\t-d need to be set at the end of all options if -p is use, to avoid sigfault because the parallel env is not yet set for debug print parallel\n\n");
 
   if(array_TYPE_SIZE_T){
     for(int i=0; i< cur_array_TYPE_SIZE_T; ++i){
