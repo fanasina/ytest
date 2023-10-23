@@ -332,7 +332,7 @@ void usage(int argc, char **argv){
             "\t\tfor example, -z=progress is to not load progress bar, it is need if we want to redirect (pipe) the result to file.\n"
             "\t\tother option: -z=log_parallel (to avoid logs not ordered when parallel tests which is loged by default)\n\n");
   printf( "\t -d, --debug \n"
-            "\t\tto print debug by using PRINT_DEBUG, by default PRINT_DEBUG is off\n"
+            "\t\tto print debug by using PRINT_DEBUG, by default PRINT_DEBUG is not print unless -d is set\n"
             /*"\t\t-d need to be set at the end of all options if -p is use, to avoid sigfault because the parallel env is not yet set for debug print parallel\n\n"*/
             );
 
