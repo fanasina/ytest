@@ -1255,7 +1255,7 @@ final_parallel_test_()
   pthread_mutex_destroy(&mut_count_fail_local);
 
 
-  char reader[256]="here the ordered results on each threads"; 
+  char reader[256]="Here are the ordered results for each thread"; 
  
   struct winsize w;
   ioctl(1, TIOCGWINSZ, &w);
