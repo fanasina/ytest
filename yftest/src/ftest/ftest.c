@@ -38,8 +38,8 @@ struct failed_lists{
 #define default_ordered 0
 #define default_unicolour 0
 #define default_removelog  0
-#define default_parallel_nb 1
-//#define default_width 1
+//#define default_parallel_nb 1
+#define default_parallel_nb_opt 1
 
 
 /*
@@ -88,12 +88,14 @@ size_t cur_array_TYPE_STRING=0;
  * number of threads
  */ 
 size_t parallel_nb = 0;
+size_t parallel_nb_opt = 0; /* to solve debug option */
 
 /*
  * end variable option
  */ 
 
 bool is_parallel_nb = 0;
+bool is_parallel_nb_opt = 0;
 bool log_parallel = true;
 bool progress = true; // false;
 
@@ -278,6 +280,9 @@ void setup_variables_before_exec(){
     for(int i=0; i<=hk_SK; ++i)
       tab_hk_f[i]=g_tab_hk_f[i]; 
   }
+
+  parallel_nb = parallel_nb_opt;
+  is_parallel_nb = is_parallel_nb_opt;
   
   /*if(savelog){
     f_savelog=fopen(savelog, "w+");
@@ -328,7 +333,8 @@ void usage(int argc, char **argv){
             "\t\tother option: -z=log_parallel (to avoid logs not ordered when parallel tests which is loged by default)\n\n");
   printf( "\t -d, --debug \n"
             "\t\tto print debug by using PRINT_DEBUG, by default PRINT_DEBUG is off\n"
-            "\t\t-d need to be set at the end of all options if -p is use, to avoid sigfault because the parallel env is not yet set for debug print parallel\n\n");
+            /*"\t\t-d need to be set at the end of all options if -p is use, to avoid sigfault because the parallel env is not yet set for debug print parallel\n\n"*/
+            );
 
   if(array_TYPE_SIZE_T){
     for(int i=0; i< cur_array_TYPE_SIZE_T; ++i){
@@ -362,15 +368,17 @@ const char* extract_string_after_equal_symbole_in_string(const char * in_str){
 long int extract_num_after_equal_symbole_in_string(char * in_str){
   size_t len=strlen(in_str);
   long int val=0, p=1;
+  int added=0;
   for(long i=len-1; i>=0; --i){
     PRINT_DEBUG("(%s)[%ld]=%c\n",in_str,i,in_str[i]);
     if(in_str[i]=='=') return val;
     if(in_str[i] >= '0' && in_str[i] <= '9' ){
       val += p * (in_str[i]-'0');
       p *= 10;
+      added=1;
     }
   }
-  if(val) return val;
+  if(added) return val;
   return -1;
 } 
 
@@ -593,8 +601,8 @@ void parse_options(int argc, char **argv){
     IF_OPTION_NO_ARG(help)
     IF_OPTION_NO_ARG(debug)
     IF_OPTION_NO_ARG(gtestlike)
-    IF_OPTION_WITH_ARG_NUM(parallel_nb)
-    //IF_OPTION_WITH_ARG_NUM(width)
+    //IF_OPTION_WITH_ARG_NUM(parallel_nb)
+    IF_OPTION_WITH_ARG_NUM(parallel_nb_opt)
     IF_OPTION_WITH_ARG_STR(savelog)
     IF_OPTION_WITH_ARG_STR(timeunit)
     IF_OPTION_WITH_ARG_STR(bar_progress)
