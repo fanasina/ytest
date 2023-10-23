@@ -20,11 +20,19 @@ or
 We have 2 options: setup env, or install
 #### set env
 ```
-./set_env ~/.bashrc
+chmod +x set_env.sh
+```
+to set local env: (only in the active terminal)
+```
+. set_env.sh 
+```
+If you want permanent variable env:
+```
+./set_env.sh ~/.bashrc
 ```
 or 
 ```
-./set_env /path/file/local/env/shell
+./set_env.sh /path/file/local/env/shell
 ```
 
 
@@ -42,13 +50,20 @@ sudo ./install.sh
 ### uninstall
 like install, there are 2 methods: unset env, or uninstall
 #### unset env
-this remove the setup exported in set_env script, need to have the same arg as set_env 
 ```
-./unset_env ~/.bashrc
+chmod +x unset_env.sh
+```
+to unset variables env in local terminal:
+```
+. unset_env.sh
+```
+to unset variable permanantly:  need to have the same arg as `set_env.sh` 
+```
+./unset_env.sh ~/.bashrc
 ```
 or 
 ```
-./unset_env /path/file/local/env/shell
+./unset_env.sh /path/file/local/env/shell
 ```
 
 
