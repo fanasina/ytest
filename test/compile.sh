@@ -8,15 +8,14 @@ fi
 
 if [ "$#" -le 1 ] ; then
   echo "Usage: $0 $1" >&2
-  echo "we can add more option for example '-D DEBUG=1' to have debug print of PRINT_DEBUG_ (tools_t macro), notice that PRINT_DEBUG is provide by ytest and can be activate with --debug option on runtime.\n The other compile option is '-g' to have gbd", and so on..>&2
+  echo "we can add more option for example '-D DEBUG=1' to have debug print of PRINT_DEBUG_ (tools_t macro), notice that PRINT_DEBUG is provide by ytest and can be activate with --debug option on runtime." 
+  echo "The other compile option is '-g' to have gbd, and so on..."
   echo "for example: $0 $1 \"-D DEBUG=1 -g\""
 fi
 
 
 gcc -o launch_is_good_c $1 -L$PWD/../ $2 -lytest -I../include_ytest/include  
-#gcc -o launch_is_good_c $1 $2 -lytest -I../include_ytest src/permutation_t/permutation_t.o src/set_theoric_t/set_theoric_t.o -I./src 
 
 export LD_LIBRARY_PATH=$PWD/../:LD_LIBRARY_PATH
 
 
-#gcc $1 src/ftest/ftest.c src/fmock/fmock.c src/tools_t/tools_t.c src/bar_progress/bar_progress.c src/permutation_t/permutation_t.c src/set_theoric_t/set_theoric_t.c -I./include $2 -o launch_is_good_c -lpthread 
