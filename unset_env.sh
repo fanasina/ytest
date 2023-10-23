@@ -1,17 +1,11 @@
 #!/bin/bash
-file_env=tempFILE
-if [ -e  "$file_env" ] ; then
-  rm "$file_env"
-fi
 if [ "$#" -le 0 ] ; then
-  echo "Usage: $0 file_name" >&2
+  LD_LIBRARY_PATH=$(echo $LD_LIBRARY_PATH | sed "s@$PWD:@@g")
+  CPATH=$(echo $CPATH | sed "s@$PWD/include_ytest/include:@@g")
+  echo "If need permanent unset env "
+  echo "Usage: $0 file_name"
   echo "for example: $0 ~/.bashrc" >&2
-  echo "or remove these lines in bash profile (for example: ~/.bashrc) th file you have set whith set_env.sh"
-  echo "export CPATH=$PWD/include_ytest/include:\$CPATH" >> $file_env
-  echo "export LD_LIBRARY_PATH=$PWD:\$LD_LIBRARY_PATH" >> $file_env
-
-  cat $file_env
-  rm $file_env
+  echo "or other bash profile ( here : \"~/.bashrc\" for example), the same file you have set whith set_env.sh"
 fi
 
 
