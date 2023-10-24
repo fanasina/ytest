@@ -18,6 +18,7 @@
 
 
 TEST(size_permutation2){
+  sleep(4);
   PRINTF("another size_permutation2 again\n");
   ASSERT_TRUE(false);
 }

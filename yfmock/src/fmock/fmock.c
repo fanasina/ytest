@@ -143,10 +143,10 @@ extern bool is_parallel_nb;
 
 char * number_call_translate(long nb){
   char *ret=malloc(250);
-  if(nb>1) sprintf(ret," to be called %ld times",nb);
-  else if(nb == 1) sprintf(ret," to be called once");
+  if(nb>1) sprintf(ret," be called %ld times",nb);
+  else if(nb == 1) sprintf(ret," be called once");
   else if(nb == 0 ) sprintf(ret," not to be executed");
-  else if(nb==INFINITY) sprintf(ret," to be called forever");
+  else if(nb==INFINITY) sprintf(ret," be called forever");
   else if(nb==INITSTATE) sprintf(ret," not expected");
   else sprintf(ret," nothing! it's negative:%ld", nb);
 
@@ -265,24 +265,24 @@ __attribute__((destructor))
             int success = !((tmp_inf_mock->init_times_left == tmp_inf_mock->times_left) || (tmp_inf_mock->failed_call));
             
             if(tmp_inf_mock->l_current_var){
-              PRINTF("%s%s%s %s\t expect %s,\t called %ld times and failed %ld times %s,\t with condition: %s%s\n" , 
+              PRINTF("%s%s%s %s\t expect to%s,\t called %ld times and failed %ld times %s,\t with condition: %s%s\n" , 
                 colors_f[!unicolour*(k_RED - success)],tab_hk_f[hk_FL-success],colors_f[k_NOTHING * success],tmp_inf_mock->str_namefunc, number_call_translate(tmp_inf_mock->init_times_left), tmp_inf_mock->call, 
                 tmp_inf_mock->failed_call, strprint_caller_(tmp_inf_mock->str_caller), tmp_inf_mock->str_conditions, DEFAULT_K);
               PRINT_VAR_CUR(tmp_inf_mock);
             }else{
-              PRINTF("%s%s%s %s\t expect %s,\t called %ld times and failed %ld times %s,\t with condition: %s%s\n" , 
+              PRINTF("%s%s%s %s\t expect to%s,\t called %ld times and failed %ld times %s,\t with condition: %s%s\n" , 
                 colors_f[!unicolour*(k_RED - success)],tab_hk_f[hk_FL-success],colors_f[k_NOTHING*success],tmp_inf_mock->str_namefunc, number_call_translate(tmp_inf_mock->init_times_left), tmp_inf_mock->call, 
                 tmp_inf_mock->failed_call, strprint_caller_(tmp_inf_mock->str_caller), tmp_inf_mock->str_conditions , DEFAULT_K);
             }
           }else if(tmp_inf_mock->expect_call==0) {/* will expect */
             int success = !(tmp_inf_mock->failed_call);
             if(tmp_inf_mock->l_current_var){
-              PRINTF("%s%s%s %s\t  will %s,\t called %ld times and failed %ld times %s,\t with condition: %s,%s\n" , 
+              PRINTF("%s%s%s %s\t      will%s,\t called %ld times and failed %ld times %s,\t with condition: %s,%s\n" , 
                 colors_f[!unicolour*(k_RED + success)],tab_hk_f[hk_FL-success],colors_f[k_NOTHING*success],tmp_inf_mock->str_namefunc, number_call_translate(tmp_inf_mock->init_times_left), tmp_inf_mock->call, 
                 tmp_inf_mock->failed_call, strprint_caller_(tmp_inf_mock->str_caller), tmp_inf_mock->str_conditions , DEFAULT_K);
               PRINT_VAR_CUR(tmp_inf_mock);
             }else{
-              PRINTF("%s%s%s %s\t  will %s,\t called %ld times and failed %ld times %s,\t with condition: %s %s\n" , 
+              PRINTF("%s%s%s %s\t      will%s,\t called %ld times and failed %ld times %s,\t with condition: %s %s\n" , 
                 colors_f[!unicolour*(k_RED + success)],tab_hk_f[hk_FL-success],colors_f[k_NOTHING*success],tmp_inf_mock->str_namefunc, number_call_translate(tmp_inf_mock->init_times_left), tmp_inf_mock->call, 
                 tmp_inf_mock->failed_call, strprint_caller_(tmp_inf_mock->str_caller), tmp_inf_mock->str_conditions , DEFAULT_K);
             }
