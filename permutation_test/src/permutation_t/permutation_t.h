@@ -13,7 +13,8 @@
 #define GENERATE_PERMUTATION(type)\
   struct PERMUTATION_##type{\
     size_t size;\
-    type * perm; };\
+    type * perm; \
+  };\
 \
   typedef struct PERMUTATION_##type PERMUTATION_##type;\
   PERMUTATION_##type * CREATE_PERMUTATION_##type(size_t size);\

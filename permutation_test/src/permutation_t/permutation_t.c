@@ -28,7 +28,8 @@ GENERATE_PERMUTATION_FUNCTIONS_UNSIGNED(TYPE_SIZE_T)
     PERMUTATION_##type *p = malloc(sizeof(PERMUTATION_##type));\
     p->size = size;\
     p->perm = malloc(size * sizeof(type));\
-    return p; }\
+    return p;\
+  }\
 \
   PERMUTATION_TYPE_SIZE_T * TRANSLATE_TO_SET_THEORIC_SIZE_T_##type(const PERMUTATION_##type *p ){\
     if (p == NULL) return NULL;\
@@ -66,7 +67,8 @@ GENERATE_PERMUTATION_FUNCTIONS_UNSIGNED(TYPE_SIZE_T)
     PERMUTATION_TYPE_SIZE_T *t_p = TRANSLATE_TO_SET_THEORIC_SIZE_T_##type(p);\
     bool ret = IS_PERMUTATION_SET_THEORIC_TYPE_SIZE_T(t_p);\
     free(t_p);\
-    return ret; }\
+    return ret; \
+  }\
 
 
 
