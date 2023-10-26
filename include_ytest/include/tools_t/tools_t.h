@@ -41,15 +41,22 @@ long diff_timespec_nanoseconds(struct timespec time_stop, struct timespec time_s
 void gotoxy(int x, int y);
 //void get_cursor_position(int *col, int *rows);
 
+#if DEBUG
 
 #define debug_print(fmt, ...) \
-  do { if (DEBUG) fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__, \
+  do { /*if (DEBUG)*/ fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__, \
       __LINE__, __func__, __VA_ARGS__); } while (0)
 
 #define PRINT_DEBUG_(fmt, ...) \
-  do { if (DEBUG) fprintf(F_ERR, "%s:%d:%s(): " fmt, __FILE__, \
+  do { /*if (DEBUG)*/ fprintf(F_ERR, "%s:%d:%s(): " fmt, __FILE__, \
       __LINE__, __func__, __VA_ARGS__); } while (0)
 
+#else
+#define debug_print(fmt, ...) {} 
+
+#define PRINT_DEBUG_(fmt, ...) {}
+
+#endif
 
 #define error_print(fmt, ...) \
    fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__, \

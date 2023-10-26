@@ -13,12 +13,14 @@
 #define GENERATE_PERMUTATION(type)\
   struct PERMUTATION_##type{\
     size_t size;\
+    size_t rank;\
     type * perm; \
   };\
 \
   typedef struct PERMUTATION_##type PERMUTATION_##type;\
   PERMUTATION_##type * CREATE_PERMUTATION_##type(size_t size);\
-PERMUTATION_TYPE_SIZE_T * TRANSLATE_TO_SET_THEORIC_SIZE_T_##type(const PERMUTATION_##type *p );\
+  PERMUTATION_TYPE_SIZE_T * TRANSLATE_TO_SET_THEORIC_SIZE_T_##type(const PERMUTATION_##type *p );\
+  bool IS_PERMUTATION_##type(const PERMUTATION_##type *p );\
 
 
 GENERATE_PERMUTATION(TYPE_SIZE_T)

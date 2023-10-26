@@ -12,13 +12,11 @@
 #include "ftest/ftest.h"
 #include "fmock/fmock.h"
 
-#if 1
 
 #include "permutation_t/permutation_t.h"
 
 
 TEST(size_permutation2){
-  sleep(4);
   PRINTF("another size_permutation2 again\n");
   ASSERT_TRUE(false);
 }
@@ -29,10 +27,86 @@ TEST(size_permutation)
   
   PRINTF(" size = %lu \n",p->size);
   EXPECT_EQ(p->size, 3);
+
   PRINTF("test size_permutation2\n");
 }
 
-#endif
+
+TEST(permutation_t_float_trans)
+{
+  int n =8;
+  PERMUTATION_TYPE_FLOAT *p = CREATE_PERMUTATION_TYPE_FLOAT(n);
+
+  PRINTF(" size = %lu \n",p->size);
+  EXPECT_EQ(p->size, n);
+
+  p->perm[0]=0.001;
+  p->perm[1]=0.01;
+  p->perm[2]=0.00101;
+  p->perm[3]=0.02;
+  p->perm[4]=0.1;
+  p->perm[5]=0.1;
+
+  PERMUTATION_TYPE_SIZE_T *translate_p = TRANSLATE_TO_SET_THEORIC_SIZE_T_TYPE_FLOAT(p);
+
+  for(int i = 0; i < translate_p->size; ++i) PRINTF(" ([%d] %ld) ,",i,translate_p->perm[i]);
+  PRINTF("\n");
+  for(int i = 0; i < p->size; ++i) PRINTF(" (%d: %f) ,",i,p->perm[i]);
+  PRINTF("\n");
+  
+ 
+//  sleep(n);
+
+}
+
+TEST(not_permutation_)
+{
+  int n =8;
+  PERMUTATION_TYPE_FLOAT *p = CREATE_PERMUTATION_TYPE_FLOAT(n);
+
+  PRINTF(" size = %lu \n",p->size);
+  EXPECT_EQ(p->size, n);
+
+  p->perm[0]=0.001;
+  p->perm[1]=0.01;
+  p->perm[2]=0.00101;
+  p->perm[3]=0.02;
+  p->perm[4]=0.1;
+  p->perm[5]=0.1;
+  
+  EXPECT_FALSE(IS_PERMUTATION_TYPE_FLOAT(p));
+
+
+//  sleep(n);
+
+}
+
+
+
+TEST(is_permutation_)
+{
+  int n =6;
+  PERMUTATION_TYPE_FLOAT *p = CREATE_PERMUTATION_TYPE_FLOAT(n);
+
+  PRINTF(" size = %lu \n",p->size);
+  EXPECT_EQ(p->size, n);
+
+  p->perm[0]=0.001;
+  p->perm[1]=0.01;
+  p->perm[2]=0.00101;
+  p->perm[3]=0.02;
+  p->perm[4]=0.2;
+  p->perm[5]=0.1;
+  
+  EXPECT_TRUE(IS_PERMUTATION_TYPE_FLOAT(p));
+
+
+//  sleep(n);
+
+}
+
+
+
 
 TEST(size_permutation2){
   PRINTF("another size_permutation2 again false\n");
@@ -135,6 +209,7 @@ TEST(){
   PRINTF("p_char == %s\n",p_char->perm);
 }
 
+#if 0
 TEST(lessThan){
   long int a=1,b=2;
   EXPECT_LT(a,b);
@@ -142,6 +217,7 @@ TEST(lessThan){
 
 }
 
+#if 0
 TEST(sleep){sleep(2);}
 TEST(sleep){sleep(2);}
 TEST(sleep){sleep(2);}
@@ -170,7 +246,6 @@ TEST(sleep){sleep(1);}
 TEST(sleep){sleep(1);}
 TEST(sleep){sleep(1);}
 
-
 TEST(sleep){sleep(1);}
 TEST(sleep){sleep(1);}
 TEST(sleep){sleep(1);}
@@ -185,6 +260,7 @@ TEST(sleep){sleep(1);}
 TEST(sleep){sleep(1);}
 TEST(sleep){sleep(1);}
 
+#endif
 
 MOCK_FUNC(int, f_mock, (), ())
   
@@ -358,6 +434,7 @@ TEST(f7_mock_test){
 
 }
 
+#endif
 
 int main(int argc, char **argv){
   

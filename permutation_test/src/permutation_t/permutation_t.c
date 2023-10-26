@@ -7,14 +7,21 @@
     type j;\
     size_t *count_array_i = calloc(size, sizeof(size_t));\
     if(count_array_i == NULL){\
-      printf("can't alloc count_array_i\n"); return false;}\
+      printf("can't alloc count_array_i\n"); \
+      return false;\
+    }\
     for(size_t i = 0; i < size; ++i){\
       j = p->perm[i];\
       if((COMPARE_N_##type(&j, (type*)&size) >= 0) || count_array_i[j]){\
-        free(count_array_i); return false; }\
-      ++count_array_i[j];}\
+        free(count_array_i); \
+        return false;\
+      }\
+      ++count_array_i[j];\
+    }\
     free(count_array_i);\
-    return true; }\
+    return true; \
+  }\
+
 
 GENERATE_PERMUTATION_FUNCTIONS_UNSIGNED(TYPE_U_CHAR)
 GENERATE_PERMUTATION_FUNCTIONS_UNSIGNED(TYPE_U_INT)
@@ -40,24 +47,15 @@ GENERATE_PERMUTATION_FUNCTIONS_UNSIGNED(TYPE_SIZE_T)
     type *sorted_perm = malloc(size * sizeof(type));\
     COPY_ARRAY_##type(sorted_perm,(const type*)p->perm, size);\
     qsort(sorted_perm, size, sizeof(type), COMPARE_N_##type);\
-    size_t *rec_index_visited = malloc(size * sizeof(size_t));\
-    size_t cur_rec = 0; bool found_rec;\
-    for(size_t i = 0; i < size; ++i){\
-      for(size_t j = 0; j < size; ++j){\
+    for(size_t i=0; i< size; ++i)\
+      PRINT_DEBUG_("sorted_perm[%ld] : %s \n",i, type##_TO_STR(sorted_perm[i]));\
+    for(size_t j = 0; j < size; ++j){\
+      for(size_t i = 0; i < size; ++i){\
         if(COMPARE_N_##type(&(p->perm[j]), &(sorted_perm[i])) == 0){\
-          found_rec = false;\
-          for(size_t k = 0; k < cur_rec; ++k){\
-            if(rec_index_visited[k] == j){\
-              found_rec == true; break; } } \
-          if(found_rec == false){\
-            /*t_p->perm[i] = j;*/\
-            t_p->perm[j] = i;\
-            rec_index_visited[cur_rec++] = j; \
-            break; }\
+          t_p->perm[j]=i; break;\
         }\
       }\
     }\
-    free(rec_index_visited);\
     free(sorted_perm);\
     return t_p; \
   }\
@@ -94,6 +92,8 @@ GENERATE_PERMUTATION_FUNCTIONS(TYPE_STRING)
  *it is equivalent of 1,3,2,0 in set_theoric(4)=0,1,2,3
  this function calculate the permutation equivalent in set_theoric
  2,4,2,5 is translate to 0,1,0,2
+ 2,4,7,5 is translate to 0,1,3,2
+ PERMUTATION_TYPE_SIZE_T * TRANSLATE_TO_SET_THEORIC_SIZE_T_##type(const PERMUTATION_##type *p );
  * */
 
 
